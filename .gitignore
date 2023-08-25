@@ -1,0 +1,8 @@
+account/__pycache__/
+report/__pycache__/
+report_transport/__pycache__/
+
+account/migrations/*
+!account/migrations/__init__.py
+report/migrations/*
+!report/migrations/__init__.py
