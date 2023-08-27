@@ -32,11 +32,11 @@
             {% endif %}
             <div class="d-flex" style="width: 100%; margin: 5px 10px;">
               {% block activeCreateReport %}{% endblock %}
-              <h4 class="mx-auto"><a href="{% url 'users' %}" class="text-reset"><i class="fas fa-file-circle-plus menu_item"></i></a></h4>
+              <h4 class="mx-auto"><a href="{% url 'create_report' %}" class="text-reset"><i class="fas fa-file-circle-plus menu_item"></i></a></h4>
             </div>
             <div class="d-flex" style="width: 100%; margin: 0px 10px;">
               {% block activeListReport %}{% endblock %}
-              <h4 class="mx-auto"><a href="{% url 'users' %}" class="text-reset"><i class="fas fa-rectangle-list menu_item"></i></a></h4>
+              <h4 class="mx-auto"><a href="{% url 'reports' %}" class="text-reset"><i class="fas fa-rectangle-list menu_item"></i></a></h4>
             </div>
             <div class="d-flex" style="width: 100%; margin: 5px 10px;">
               {% if user.is_admin %}

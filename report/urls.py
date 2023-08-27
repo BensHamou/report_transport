@@ -22,4 +22,15 @@ urlpatterns = [
     path("prix/delete-prix/<int:id>", views.deletePriceView, name="delete_price"),
     path("prix/edit-prix/<int:id>", views.editPriceView, name="edit_price"),
     path("prix/create-prix/", views.createPriceView, name="create_price"),
+
+    path('reports/', views.listReportView, name='reports'),
+    path('', views.listReportView, name='reports'),
+    path("report/<int:id>", views.detailReportView, name="view_report"),
+    path("report/<int:id>/delete", views.deleteReportView, name="delete_report"),
+    path("report/<int:id>/edit", views.editReportView, name="edit_report"),
+    path("report/create/", views.createReportView, name="create_report"),
+
+    path('report/<int:pk>/confirm/', views.confirmReport, name='confirm_report'),
+    path('report/<int:pk>/cancel/', views.cancelReport, name='cancel_report'),
+
 ]

@@ -27,8 +27,11 @@ from datetime import datetime
 def check_creator(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        report_id = kwargs.get('pk')
-        report = Report.objects.get(id=report_id)
+        if 'id' in kwargs:
+            rep_id = kwargs['id']
+        elif 'pk' in kwargs:
+            rep_id = kwargs['pk']
+        report = Report.objects.get(id=rep_id)
         if report.creator != request.user and request.user.is_admin:
             return render(request, '403.html', status=403)
         return view_func(request, *args, **kwargs)
@@ -266,4 +269,103 @@ def editPriceView(request, id):
 
     return render(request, 'price_form.html', context)
 
+# Reports
+@login_required(login_url='login')
+@admin_required
+def listReportView(request):
+    reports = Report.objects.all().order_by('id')
+    filteredData = ReportFilter(request.GET, queryset=reports)
+    reports = filteredData.qs
+    paginator = Paginator(reports, 7)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {
+        'page': page, 'filtredData': filteredData, 
+    }
+    return render(request, 'list_reports.html', context)
 
+@login_required(login_url='login')
+@check_creator
+def deleteReportView(request, id):
+    price = Report.objects.get(id=id)
+    price.delete()
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('reports')
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+def createReportView(request):
+    form = ReportForm()
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False) 
+            report.creator = request.user
+            report.state = 'Brouillon'
+            report.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('reports')
+            redirect_url = f'{url_path}?cache={cache_param}'
+            return redirect(redirect_url)
+    context = {'form': form}
+    return render(request, 'report_form.html', context)
+
+@login_required(login_url='login')
+@check_creator
+def editReportView(request, id):
+    report = Report.objects.get(id=id)
+    form = ReportForm(instance=report)
+    if request.method == 'POST':
+        form = ReportForm(request.POST, instance=report)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('view_report', args=[report.id])
+            page = request.GET.get('page', '1')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}'
+            return redirect(redirect_url)
+    context = {'form': form, 'report': report}
+
+    return render(request, 'report_form.html', context)
+
+@login_required(login_url='login')
+@check_creator
+def detailReportView(request, id):
+    report = Report.objects.get(id=id)
+    context = { 'report': report }
+    return render(request, 'report_details.html', context)
+
+@login_required(login_url='login')
+@check_creator
+def confirmReport(request, pk):
+    try:
+        report = Report.objects.get(id=pk)
+    except Report.DoesNotExist:
+        messages.success(request, 'Report Does not exit')
+    
+    if report.state != 'Confirmé':
+        report.state = 'Confirmé'
+        report.save()
+    
+    url_path = reverse('view_report', args=[report.id])
+    cache_param = str(uuid.uuid4())
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@check_creator
+def cancelReport(request, pk):
+    try:
+        report = Report.objects.get(id=pk)
+    except Report.DoesNotExist:
+        messages.success(request, 'Report Does not exit')
+    
+    if report.state != 'Annulé':
+        report.state = 'Annulé'
+        report.save()
+    
+    url_path = reverse('view_report', args=[report.id])
+    cache_param = str(uuid.uuid4())
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)

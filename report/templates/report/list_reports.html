@@ -1,0 +1,83 @@
+{% extends "main.html" %}
+
+{% block title %}
+Rapports
+{% endblock %}
+
+{% load static %} 
+<link rel="stylesheet" href="{% static 'css/select.css' %}">
+<script src="alert/dist/sweetalert.min.js"></script>
+<link rel="stylesheet" href="alert/dist/sweetalert.css">
+{% block activeListReport %} {% include 'active_bar.html' %} {% endblock %}
+{% block content %}
+
+<div class="row mb-3"> 
+    <form method="GET" style="{% if page %}margin: 20px 0px;{% else %}margin-top: 13%;{% endif %}">
+        {% csrf_token %}
+        <div class="row height d-flex justify-content-center align-items-center">
+            <div class="col-md-6">
+                <div class="form" style="position: relative;">
+                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: white;"></i>{{ filtredData.form.search }}
+                </div>
+            </div>
+        </div>
+    </form>
+    {% if page %}
+    <div class="sectionList">
+        <table class="table table-borderless">
+            <thead style="border-bottom: 2px solid white;">
+                <tr class="text-white">
+                  <th>Créateur</th>
+                  <th>Prix</th>
+                  <th>Date départ</th>
+                  <th>Chauffeur</th>
+                  <th>N° BL</th>
+                  <th>État</th>
+                  <th style="width: 20vh;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in page %}
+                <tr style="color: #dde3f0;">
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.creator }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.date_dep }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.chauffeur }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.n_bl }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.state }}</td>
+                    <td style="vertical-align: middle;">
+                        <button type="button" onclick="window.location='{% url 'edit_report' report.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
+                        <button type="button" onclick="confirmReportDel('{{report.id|escapejs}}', '{{report.n_bl|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
+                    </td>
+                </tr>
+                 {% endfor %}
+            </tbody>
+        </table>
+        {% if page.has_other_pages %}
+            {% include 'pagination.html' %}
+        {% endif %}    
+    </div>
+    {% else %}
+        {% include 'empty_list.html' %}
+    {% endif %}
+</div>
+
+<script>
+    const confirmReportDel = (reportID, reportNBL) => {
+        swal({ 
+        title: `Confirmation de la suppression.`,   
+        text: `Etes-vous sûr que vous voulez supprimer le rapport avec N° BL = ${reportNBL}?`,   
+        type: "warning",
+        showCancelButton: true,   
+        confirmButtonColor: "#DD6B55",   
+        confirmButtonText: "Oui",   
+        cancelButtonText: "Non",   
+        closeOnConfirm: true,   
+        closeOnCancel: true },
+        function(isConfirm){   
+            if (isConfirm){
+              window.location.href = "{% url 'delete_report' 123456789 %}".replace(/123456789/, reportID);
+            }});
+    };
+</script>
+{% endblock %}

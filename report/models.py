@@ -4,8 +4,8 @@ from account.models import User
 
 class Emplacement(models.Model):
     DESTINATION_CHOICES = (
-        ('Déstination', 'Destination'),
-        ('Départ', 'Depart'),
+        ('Déstination', 'Déstination'),
+        ('Départ', 'Départ'),
     )
 
     designation = models.CharField(max_length=100)
@@ -35,13 +35,14 @@ class Price(models.Model):
     price = models.FloatField(default=0, validators=[MinValueValidator(0)])
 
     def __str__(self):
-        return self.depart.designation + " => " + self.destination.designation + ", par " + self.fournisseur.designation + " - " + self.tonnage.designation + "/" + str(self.price)
+        return "De '" + self.depart.designation + "' au '" + self.destination.designation + "', par " + self.fournisseur.designation + " - " + self.tonnage.designation + " / " + str(self.price) + "DA"
     
 class Report(models.Model):
  
     STATE_REPORT = [
         ('Brouillon', 'Brouillon'),
         ('Confirmé', 'Confirmé'),
+        ('Annulé', 'Annulé'),
     ]
 
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -52,6 +53,7 @@ class Report(models.Model):
     date_dep = models.DateField()
     chauffeur = models.CharField(max_length=100)
     n_bl = models.IntegerField(default=1, validators=[MinValueValidator(0)])
+    observation = models.TextField(null=True)
 
     def __str__(self):
-        return self.n_bl + " (" + str(self.date_created) +")"
+        return str(self.n_bl) + " (" + str(self.date_created) +")"

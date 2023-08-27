@@ -56,3 +56,16 @@ class PriceForm(ModelForm):
         model = Price
         fields = ['destination', 'depart', 'fournisseur', 'tonnage', 'price']
 
+
+class ReportForm(ModelForm):
+
+    prix = forms.ModelChoiceField(queryset=Price.objects.all(), widget=forms.Select(attrs= getAttrs('select')), empty_label="Prix")
+    date_dep = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
+    chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')))
+    n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')))
+    observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
+
+    class Meta:
+        model = Report
+        fields = ['prix', 'date_dep', 'chauffeur', 'n_bl', 'observation']
+
