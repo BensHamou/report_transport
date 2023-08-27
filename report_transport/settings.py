@@ -53,7 +53,10 @@ ROOT_URLCONF = "report_transport.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, 'account', 'templates', 'user'), os.path.join(BASE_DIR, 'account', 'templates', 'fragment') ],
+        "DIRS": [os.path.join(BASE_DIR, 'account', 'templates', 'user'), os.path.join(BASE_DIR, 'account', 'templates', 'fragment'),
+                 os.path.join(BASE_DIR, 'report', 'templates', 'emplacement'), os.path.join(BASE_DIR, 'report', 'templates', 'fournisseur'),
+                 os.path.join(BASE_DIR, 'report', 'templates', 'price'), os.path.join(BASE_DIR, 'report', 'templates', 'tonnage'),
+                 ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

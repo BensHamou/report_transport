@@ -52,6 +52,22 @@
                 </h4>
               {% endif %}
             </div>
+            <div class="d-flex" style="width: 100%; margin: 0px 10px;">
+              {% if user.is_admin %}
+                {% block activeSettings %}{% endblock %}
+                <h4 class="mx-auto">
+                  <li class="nav-item dropdown dropend list-unstyled">
+                    <a class="nav-link text-reset" style="padding: 5px 1.5px;" data-bs-toggle="dropdown" role="button" aria-expanded="false"><i class="fas fa-gear menu_item"></i></a>
+                      <ul class="dropdown-menu list-unstyled">
+                      <li><a href="{% url 'emplacements' %}" class="dropdown-item">Emplacements</a></li>
+                      <li><a href="{% url 'fournisseurs' %}" class="dropdown-item">Fournissuers</a></li>
+                      <li><a href="{% url 'tonnages' %}" class="dropdown-item">Tonnages</a></li>
+                      <li><a href="{% url 'prices' %}" class="dropdown-item">Prix</a></li>
+                    </ul>
+                  </li>
+                </h4>
+              {% endif %}
+            </div>
           </div>
           <div class="mt-auto pb-5 d-flex align-items-center flex-column">
             <h4><a href="/logout" class="text-reset"><i class="fas fa-right-from-bracket fa-rotate-180 menu_item"></i></a></h4>
