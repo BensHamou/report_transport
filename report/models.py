@@ -28,8 +28,8 @@ class Fournisseur(models.Model):
 
 class Price(models.Model):
 
-    destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'categ': 'Déstination'})
-    depart = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'categ': 'Départ'})
+    destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'categ': 'Déstination'}, related_name='destination_prices')
+    depart = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'categ': 'Départ'}, related_name='depart_prices')
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.CASCADE)
     tonnage = models.ForeignKey(Tonnage, on_delete=models.CASCADE)
     price = models.FloatField(default=0, validators=[MinValueValidator(0)])
@@ -48,7 +48,7 @@ class Report(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     state = models.CharField(choices=STATE_REPORT, max_length=40)
-    prix = models.ForeignKey(Price, on_delete=models.SET_NULL)
+    prix = models.ForeignKey(Price, null=True, on_delete=models.SET_NULL)
     date_dep = models.DateField()
     chauffeur = models.CharField(max_length=100)
     n_bl = models.IntegerField(default=1, validators=[MinValueValidator(0)])
