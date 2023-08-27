@@ -1,17 +1,26 @@
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+AUTHENTICATION_BACKENDS = [
+    'account.authentication.ApiBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    ]
 
 SECRET_KEY = "django-insecure-vd#z%51p5n4!_2@!t$!4aair8r+$*^1$4!qp$=8rw78215aeg*"
 
 DEBUG = True
 
+swappable = 'AUTH_USER_MODEL'
+
 AUTH_USER_MODEL = 'account.User'
 
-swappable = 'AUTH_USER_MODEL'
+ADMIN_URL = 'puma_trans/admin/'
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_COOKIE_SECURE = False
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -44,7 +53,7 @@ ROOT_URLCONF = "report_transport.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, 'account', 'templates', 'user'), ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -96,7 +105,12 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_REDIRECT_URL = 'login_success'
+LOGOUT_REDIRECT_URL = '/login'
 
-STATIC_URL = "static/"
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
