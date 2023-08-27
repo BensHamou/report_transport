@@ -50,34 +50,6 @@ Utilisateur - {{ user_details.username }}
               {{ form.fullname }}
           </div>
         </div>
-          <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="role">Rôle</label>
-                {{ form.role }}
-              </div>
-          </div>
-      </div>
-      <div class="row mb-4">
-        <div class="col">
-          <div class="form-outline">
-            <label class="form-label labelCustom" for="lines">Lignes</label>
-            <div id="line" class="form-control select" style="background-color: #cacfd7;">
-              <input id="line_input" type="text" data-bs-toggle="dropdown" style="background-color: #cacfd7;" />
-              <div class="dropdown-menu"></div>
-              <select name="lines" multiple hidden id="hidden_lines_select">
-                {% for line in form.fields.lines.queryset %}
-                  <option value="{{ line.id }}" {% if line.id in selectedLines %} selected {% endif %}>{{ line.designation }}</option>
-                {% endfor %}                      
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-outline">
-              <label class="form-label labelCustom" for="team">Équipe</label>
-              {{ form.team }}
-            </div>
-        </div>
         <div class="col">
           <div class="form-outline">
             <label class="form-label labelCustom" for="is_admin">Admin?</label>

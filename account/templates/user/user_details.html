@@ -34,35 +34,16 @@ Utilisateur - {{ user_details.username }}
     <div class="row mb-4">
       <div class="col">
         <div class="form-outline">
-            <label class="form-label labelCustom" for="fullname">Nom complet</label>
-            <input type="text" id="fullname" class="form-control" value="{{ user_details.fullname }}" disabled/>
+            <label class="form-label labelCustom" for="first_name">Nom</label>
+            <input type="text" id="first_name" class="form-control" value="{{ user_details.first_name }}" disabled/>
         </div>
       </div>
-        <div class="col">
-          <div class="form-outline">
-              <label class="form-label labelCustom" for="role">Rôle</label>
-              <input type="text" id="role" class="form-control" value="{{ user_details.role }}" disabled/>
-          </div>
+      <div class="col">
+        <div class="form-outline">
+            <label class="form-label labelCustom" for="last_name">Prénom</label>
+            <input type="text" id="last_name" class="form-control" value="{{ user_details.last_name }}" disabled/>
         </div>
-    </div>
-  
-    <div class="row mb-4">
-        <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="lines">Lignes</label> </br>
-                {% for line in user_details.lines.all %}
-                  <span class="badge formBadge"><p class="lead p-0 m-0 formBadgeText">{{ line.designation }}</p></span>
-                {% empty %}
-                  <span class="badge" style="color: #bcc2cf;">Pas de lignes associées.</span>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="col">
-          <div class="form-outline">
-              <label class="form-label labelCustom" for="team">Équipe</label>
-              <input type="text" id="team" class="form-control" value="{{ user_details.team }}" disabled/>
-          </div>
-        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

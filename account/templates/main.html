@@ -32,11 +32,11 @@
             {% endif %}
             <div class="d-flex" style="width: 100%; margin: 5px 10px;">
               {% block activeCreateReport %}{% endblock %}
-              <h4 class="mx-auto"><a href="{% url 'create_report' %}" class="text-reset"><i class="fas fa-file-circle-plus menu_item"></i></a></h4>
+              <h4 class="mx-auto"><a href="{% url 'users' %}" class="text-reset"><i class="fas fa-file-circle-plus menu_item"></i></a></h4>
             </div>
             <div class="d-flex" style="width: 100%; margin: 0px 10px;">
               {% block activeListReport %}{% endblock %}
-              <h4 class="mx-auto"><a href="{% url 'list_report' %}" class="text-reset"><i class="fas fa-rectangle-list menu_item"></i></a></h4>
+              <h4 class="mx-auto"><a href="{% url 'users' %}" class="text-reset"><i class="fas fa-rectangle-list menu_item"></i></a></h4>
             </div>
             <div class="d-flex" style="width: 100%; margin: 5px 10px;">
               {% if user.is_admin %}
@@ -64,7 +64,7 @@
       {% if user.is_authenticated %}
       <div style="flex-grow: 1; height: 100%;">
         <div class="row" style="width:100%; position: relative; margin: 0px; {% if not user.is_authenticated %}padding-top: 3%;{% endif %}">
-          <div class="col-md-2 d-flex justify-content-center" style="position: absolute; top: 50%; left: 50%; transform: translateY(-50%) translateX(-50%);">
+          <div class="col-md-2 d-flex justify-content-center" style="position: absolute; top: 70%; left: 50%; transform: translateY(-50%) translateX(-50%);">
             <img src="{% static 'img/site_logo.png' %}" height="55" style="{% if not user.is_authenticated %}margin-left: 10%;{% endif %}" class="d-inline-block align-top" alt="Puma Logo">
           </div>
           <div class="col-md-12 d-flex justify-content-end p-0">
@@ -83,12 +83,12 @@
     <script src="{% static 'js/sweetalert.min.js' %}"></script>
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.1.0/dist/bootstrap-switch-button.min.js"></script>
-    <script>
+  <script>
       document
       .querySelectorAll(".select")
       .forEach((el) => new bootstrap5.Select(el));
-    </script>
-    <style>
+  </script>
+  <style>
     *{
       font-family: 'Arial', sans-serif;
       font-size: 15px;
@@ -150,7 +150,7 @@
       background-color: rgba(14, 42, 91, 0.3);
       color: white;
     }*/
-    </style>
+  </style>
 </body>
 
 </html>
