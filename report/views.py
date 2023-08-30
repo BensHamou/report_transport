@@ -271,7 +271,6 @@ def editPriceView(request, id):
 
 # Reports
 @login_required(login_url='login')
-@admin_required
 def listReportView(request):
     reports = Report.objects.all().order_by('id')
     filteredData = ReportFilter(request.GET, queryset=reports)
@@ -330,7 +329,6 @@ def editReportView(request, id):
     return render(request, 'report_form.html', context)
 
 @login_required(login_url='login')
-@check_creator
 def detailReportView(request, id):
     report = Report.objects.get(id=id)
     context = { 'report': report }
