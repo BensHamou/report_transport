@@ -27,6 +27,7 @@ Prix
         <table class="table table-borderless">
             <thead style="border-bottom: 2px solid white;">
                 <tr class="text-white">
+                <th></th>
                 <th>Départ</th>
                 <th>Déstination</th>
                 <th>Fournisseur</th>
@@ -38,6 +39,7 @@ Prix
             <tbody>
                 {% for prix in page %}
                 <tr style="color: #dde3f0;">
+                    <td></td>
                     <td>{{ prix.depart }}</td>
                     <td>{{ prix.destination }}</td>
                     <td>{{ prix.fournisseur }}</td>

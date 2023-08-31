@@ -27,6 +27,7 @@ Emplacements
         <table class="table table-borderless">
             <thead style="border-bottom: 2px solid white;">
                 <tr class="text-white">
+                <th>#</th>
                 <th>Désignation</th>
                 <th>Catégorie</th>
                 <th style="width: 40vh;">Actions</th>
@@ -35,6 +36,7 @@ Emplacements
             <tbody>
                 {% for emplacement in page %}
                 <tr style="color: #dde3f0;">
+                    <td>{{ emplacement.id }}</td>
                     <td>{{ emplacement.designation }}</td>
                     <td>{{ emplacement.categ }}</td>
                     <td style="vertical-align: middle;">
