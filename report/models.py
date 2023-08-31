@@ -11,6 +11,14 @@ class Emplacement(models.Model):
     designation = models.CharField(max_length=100)
     categ = models.CharField(max_length=20, choices=DESTINATION_CHOICES)
 
+    def prices(self):
+        if self.categ == 'Déstination':
+            return Price.objects.filter(destination=self)
+        elif self.categ == 'Départ':
+            return Price.objects.filter(depart=self)
+        else:
+            return Price.objects.none() 
+
     def __str__(self):
         return self.designation
 
@@ -23,6 +31,9 @@ class Tonnage(models.Model):
 class Fournisseur(models.Model):
     designation = models.CharField(max_length=100)
 
+    def prices(self):
+        return self.price_set.all()
+    
     def __str__(self):
         return self.designation
 

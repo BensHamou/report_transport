@@ -32,5 +32,45 @@ Fournisseur
   </div>
 </form>
 
-
+</br>
+</br>
+</br>
+<h4 class="text-white mb-4">Liste des prix liés à ce fournisseur</h4>
+{% if fournisseur %}
+  <section class="sectionList"> 
+    <table class="table table-borderless">
+      <thead style="border-bottom: 2px solid white;">
+          <tr class="text-white">
+            <th></th>
+            <th>Départ</th>
+            <th>Déstination</th>
+            <th>Fournisseur</th>
+            <th>Tonnage</th>
+            <th>Prix</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for prix in fournisseur.prices.all %}
+            <tr style="color: #dde3f0;">
+                <td></td>
+                <td>{{ prix.depart }}</td>
+                <td>{{ prix.destination }}</td>
+                <td>{{ prix.fournisseur }}</td>
+                <td>{{ prix.tonnage }}</td>
+                <td>{{ prix.price }}</td>
+            </tr>
+          {% empty %}
+            <tr style="color: #dde3f0;">
+                <td></td>
+                <td>Pas d'enregistrements.</td>
+                <td>Pas d'enregistrements.</td>
+                <td>Pas d'enregistrements.</td>
+                <td>Pas d'enregistrements.</td>
+                <td>Pas d'enregistrements.</td>
+            </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endif %}
 {% endblock %}
