@@ -7,7 +7,7 @@ from report.forms import getAttrs
 class UserForm(ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'fullname', 'email', 'is_admin', 'first_name', 'last_name']
+        fields = ['username', 'fullname', 'email', 'is_admin', 'first_name', 'last_name', 'lines']
 
     attr = {'class': 'form-control', 'style': 'background-color: #cacfd7;', 'readonly':'readonly'}
 
@@ -16,7 +16,15 @@ class UserForm(ModelForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs=attr))
     fullname = forms.CharField(widget=forms.TextInput(attrs=attr))
     email = forms.EmailField(widget=forms.EmailInput(attrs=attr))
+    lines = forms.SelectMultiple(attrs={'class': 'form-select'})
     is_admin = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'secondary', 'data-toggle':'switchbutton'}))
+
+class LineForm(ModelForm):
+    class Meta:
+        model = Line
+        fields = ['designation']
+
+    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Désignation')))
 
 class CustomLoginForm(AuthenticationForm):
     

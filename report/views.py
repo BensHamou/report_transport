@@ -211,6 +211,67 @@ def editTonnageView(request, id):
 
     return render(request, 'tonnage_form.html', context)
 
+# PRODUCTS
+@login_required(login_url='login')
+@admin_required 
+def listProductList(request):
+    products = Product.objects.filter(line__in=request.user.lines.all()).order_by('id')
+    filteredData = ProductFilter(request.GET, queryset=products, user = request.user)
+    products = filteredData.qs
+    paginator = Paginator(products, 7)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {
+        'page': page, 'filtredData': filteredData, 
+    }
+    return render(request, 'list_products.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def deleteProductView(request, id):
+    product = Product.objects.get(id=id)
+    product.delete()
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('products')
+
+    redirect_url = f'{url_path}?cache={cache_param}'
+
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@admin_required
+def createProductView(request):
+    form = ProductForm(user = request.user)
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('products')
+            redirect_url = f'{url_path}?cache={cache_param}'
+            return redirect(redirect_url)
+    context = {'form': form }
+    return render(request, 'product_form.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def editProductView(request, id):
+    product = Product.objects.get(id=id)
+
+    form = ProductForm(instance=product, user = request.user)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product, user = request.user)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('products')
+            page = request.GET.get('page', '1')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}'
+            return redirect(redirect_url)
+    context = {'form': form, 'product': product }
+
+    return render(request, 'product_form.html', context)
+
 # Prices
 @login_required(login_url='login')
 @admin_required

@@ -79,6 +79,7 @@ def refreshUsersList(request):
 @admin_required
 def editUserView(request, id):
     user = User.objects.get(id=id)
+    selectedLines = [line.id for line in user.lines.all()]
     form = UserForm(instance=user)
     if request.method == 'POST':
         form = UserForm(request.POST, instance=user)
@@ -89,7 +90,7 @@ def editUserView(request, id):
             redirect_url = f'{url_path}?cache={cache_param}'
             return redirect(redirect_url)
 
-    context = {'form': form, 'user_to_edit': user}
+    context = {'form': form, 'user_to_edit': user, 'selectedLines': selectedLines}
 
     return render(request, 'edit_user.html', context)
 
@@ -145,3 +146,72 @@ class CustomLoginView(LoginView):
 def logoutView(request):
     logout(request)
     return redirect('login')
+
+
+
+# LINES
+
+@login_required(login_url='login')
+@admin_required
+def listLineView(request):
+
+    lines = Line.objects.all().order_by('id')
+    filteredData = LineFilter(request.GET, queryset=lines)
+    lines = filteredData.qs
+
+    paginator = Paginator(lines, 10)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    context = {
+        'page': page, 'filtredData': filteredData,
+    }
+    return render(request, 'lines_list.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def deleteLineView(request, id):
+    line = Line.objects.get(id=id)
+    line.delete()
+    page = request.GET.get('page', '1')
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('lines')
+    redirect_url = f'{url_path}?cache={cache_param}&page={page}'
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@admin_required
+def createLineView(request):
+    form = LineForm()
+    if request.method == 'POST':
+        form = LineForm(request.POST)
+        if form.is_valid():
+            cache_param = str(uuid.uuid4())
+            form.save()
+            page = request.GET.get('page', '1')
+            url_path = reverse('lines')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}'
+            return redirect(redirect_url)
+
+    context = {'form': form}
+
+    return render(request, 'line_form.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def editLineView(request, id):
+    line = Line.objects.get(id=id)
+    form = LineForm(instance=line)
+    if request.method == 'POST':
+        form = LineForm(request.POST, instance=line)
+        cache_param = str(uuid.uuid4())
+        if form.is_valid():
+            form.save()
+            page = request.GET.get('page', '1')
+            url_path = reverse('lines')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}'
+            return redirect(redirect_url)
+
+    context = {'form': form, 'line': line}
+    return render(request, 'line_form.html', context)
+

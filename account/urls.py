@@ -11,6 +11,11 @@ urlpatterns = [
     path("users/delete-user/<int:id>", views.deleteUserView, name="delete_user"),
     path("users/", views.listUsersView, name="users"),
     path('users/details/<int:id>', views.userDetailsView, name='details'),
+
+    path('lines/', views.listLineView, name='lines'),
+    path("line/delete-line/<int:id>", views.deleteLineView, name="delete_line"),
+    path("line/edit-line/<int:id>", views.editLineView, name="edit_line"),
+    path("line/create-line/", views.createLineView, name="create_line"),
     
     path('login/', CustomLoginView.as_view(), name='login'),
     path('accounts/login/', CustomLoginView.as_view(), name='login'),

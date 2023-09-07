@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from account.models import User
+from account.models import User, Line
 
 class Emplacement(models.Model):
     DESTINATION_CHOICES = (
@@ -33,6 +33,13 @@ class Fournisseur(models.Model):
 
     def prices(self):
         return self.price_set.all()
+    
+    def __str__(self):
+        return self.designation
+    
+class Product(models.Model):
+    designation = models.CharField(max_length=100)
+    line = models.ForeignKey(Line, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.designation

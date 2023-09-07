@@ -17,6 +17,11 @@ urlpatterns = [
     path("tonnages/delete-tonnage/<int:id>", views.deleteTonnageView, name="delete_tonnage"),
     path("tonnages/edit-tonnage/<int:id>", views.editTonnageView, name="edit_tonnage"),
     path("tonnages/create-tonnage/", views.createTonnageView, name="create_tonnage"),
+    
+    path('products/', views.listProductList, name='products'),
+    path("products/delete-product/<int:id>", views.deleteProductView, name="delete_product"),
+    path("products/edit-product/<int:id>", views.editProductView, name="edit_product"),
+    path("products/create-product/", views.createProductView, name="create_product"),
 
     path('prix/', views.listPriceView, name='prices'),
     path("prix/delete-prix/<int:id>", views.deletePriceView, name="delete_price"),

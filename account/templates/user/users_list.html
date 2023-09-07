@@ -29,7 +29,7 @@ Utilisateurs
                 <tr class="text-white">
                   <th>Nom</th>
                   <th>Prénom</th>
-                  <th>Nom utilisateur</th>
+                  <th>Lignes</th>
                   <th>Admin</th>
                   <th style="width: 20vh;">Actions</th>
                 </tr>
@@ -39,7 +39,15 @@ Utilisateurs
                 <tr style="color: #dde3f0;">
                     <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">{{ usr.first_name }}</td>
                     <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">{{ usr.last_name }}</td>
-                    <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">{{ usr.username }}</td>
+                    <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">
+                        {% for line in usr.lines.all %}
+                            <span class="badge listBadge">
+                                <p class="lead p-0 m-0 listBadgeText">{{ line.designation }}</p>
+                            </span>
+                        {% empty %}
+                            <span class="badge" style="color: #bcc2cf;">Pas de lignes associées.</span>
+                        {% endfor %}
+                    </td>
                     <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">
                         {% if usr.is_admin %}
                             <i class="fas fa-check"></i>

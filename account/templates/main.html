@@ -14,6 +14,7 @@
     {% load static %} 
     <link rel="stylesheet" href="{% static 'css/select.css' %}">
     <link rel="stylesheet" href="{% static 'css/sweetalert.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="{% static 'fontawesomefree/css/all.min.css' %}">
     <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.1.0/css/bootstrap-switch-button.min.css" rel="stylesheet" />
     <link rel="icon" type="image/ico" href="{% static 'img/favicon.ico' %}">
@@ -60,10 +61,12 @@
                   <li class="nav-item dropdown dropend list-unstyled">
                     <a class="nav-link text-reset" style="padding: 5px 1.5px;" data-bs-toggle="dropdown" role="button" aria-expanded="false"><i class="fas fa-gear menu_item"></i></a>
                       <ul class="dropdown-menu list-unstyled">
+                      <li><a href="{% url 'lines' %}" class="dropdown-item">Lignes</a></li>
                       <li><a href="{% url 'emplacements' %}" class="dropdown-item">Emplacements</a></li>
                       <li><a href="{% url 'fournisseurs' %}" class="dropdown-item">Fournissuers</a></li>
                       <li><a href="{% url 'tonnages' %}" class="dropdown-item">Tonnages</a></li>
                       <li><a href="{% url 'prices' %}" class="dropdown-item">Prix</a></li>
+                      <li><a href="{% url 'products' %}" class="dropdown-item">Produits</a></li>
                     </ul>
                   </li>
                 </h4>
@@ -100,7 +103,11 @@
     <script src="{% static 'js/sweetalert.min.js' %}"></script>
     <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.1.0/dist/bootstrap-switch-button.min.js"></script>
-
+    <script>
+      document
+      .querySelectorAll(".select")
+      .forEach((el) => new bootstrap5.Select(el));
+    </script>
   <style>
     *{
       font-family: 'Arial', sans-serif;

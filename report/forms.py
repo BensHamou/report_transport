@@ -22,7 +22,22 @@ def getAttrs(type, placeholder='', other={}):
         return attributes
     else:
         return {}
-    
+
+
+class ProductForm(ModelForm):
+    class Meta:
+        model = Product
+        fields = ['designation', 'line']
+
+    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Designation')))
+    line = forms.ModelChoiceField(queryset=Line.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Ligne")
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(ProductForm, self).__init__(*args, **kwargs)
+        if user:
+            self.fields['line'].queryset = user.lines.all()
+
 class EmplacementForm(ModelForm):
     class Meta:
         model = Emplacement
