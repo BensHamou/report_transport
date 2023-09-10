@@ -73,58 +73,58 @@ Rapport
             </div>
         </div>
         <div class="row mb-4">
-        <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="date_dep">Date départ</label>
-                {{ form.date_dep }}
-                {% if form.date_dep.errors %}
-                    <div style="color: red;">
-                    {% for error in form.date_dep.errors %}
-                        *{{ error }}
-                    {% endfor %}
-                    </div>
-                {% endif %}
+            <div class="col">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="date_dep">Date départ</label>
+                    {{ form.date_dep }}
+                    {% if form.date_dep.errors %}
+                        <div style="color: red;">
+                        {% for error in form.date_dep.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-        <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="chauffeur">Chauffeur</label>
-                {{ form.chauffeur }}
-                {% if form.chauffeur.errors %}
-                    <div style="color: red;">
-                    {% for error in form.chauffeur.errors %}
-                        *{{ error }}
-                    {% endfor %}
-                    </div>
-                {% endif %}
+            <div class="col">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="chauffeur">Chauffeur</label>
+                    {{ form.chauffeur }}
+                    {% if form.chauffeur.errors %}
+                        <div style="color: red;">
+                        {% for error in form.chauffeur.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-        <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="n_bl">N° BL</label>
-                {{ form.n_bl }}
-                {% if form.n_bl.errors %}
-                    <div style="color: red;">
-                    {% for error in form.n_bl.errors %}
-                        *{{ error }}
-                    {% endfor %}
-                    </div>
-                {% endif %}
+            <div class="col">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="n_bl">N° BL</label>
+                    {{ form.n_bl }}
+                    {% if form.n_bl.errors %}
+                        <div style="color: red;">
+                        {% for error in form.n_bl.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-        <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="line">Ligne</label>
-                {{ form.line }}
-                {% if form.line.errors %}
-                    <div style="color: red;">
-                    {% for error in form.line.errors %}
-                        *{{ error }}
-                    {% endfor %}
-                    </div>
-                {% endif %}
+            <div class="col">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="line">Ligne</label>
+                    {{ form.line }}
+                    {% if form.line.errors %}
+                        <div style="color: red;">
+                        {% for error in form.line.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        </div>
         </div>        
         <div class="row mb-4">
         <div class="col">
@@ -177,7 +177,7 @@ Rapport
               {% for fields in formset.empty_form.hidden_fields %}
                   {{ fields }}
               {% endfor %}
-          
+              <td></td>
               {% for field in formset.empty_form.visible_fields %}
               <td>
                   {% if field.label == 'Supprimer' %}
@@ -267,6 +267,10 @@ Rapport
               window.location.href = "{% url 'delete_product' 123456789 %}".replace(/123456789/, produitId);
             }});
     }
+    const hasDuplicates = (a) => {
+        const noDups = new Set(a);
+        return a.length !== noDups.size;
+    }
     $(document).ready(function() {
         $('.add-ptransporteds').click(function(ev) {
             ev.preventDefault();
@@ -281,17 +285,28 @@ Rapport
             newElement.scrollIntoView({ behavior: 'smooth' });
         });
         $('form').submit(function () {
-            $('[disabled]').removeAttr('disabled'); 
+            var selectedProducts = [];
+            $("[id^='id_ptransporteds-'][id$='-product']").each(function() {
+                selectedProducts.push(this.value)   
+            });
+            if(hasDuplicates(selectedProducts)){
+                swal({title: `Oops, Il y a des produits en double!`,   
+                    text: `Veuillez modifier votre saisie.`, confirmButtonColor: "#DD6B55",   
+                    confirmButtonText: "Ok", type: "warning", closeOnCancel: true });
+                return false;
+            }
+            else{
+                $('[disabled]').removeAttr('disabled'); 
+                return true;
+            }
         });
         const checkFields = () => {
             if($('#id_destination').val() &&  $('#id_depart').val() &&  $('#id_tonnage').val() &&  $('#id_fournisseur').val()){
-                console.log('Here');
                 getPrice($('#id_destination').val(), $('#id_depart').val(), $('#id_tonnage').val(), $('#id_fournisseur').val());
             }
         }
         const getPrice = (dest, dep, ton, four) => {
             var csrf = $('input[name=csrfmiddlewaretoken]').val();
-            console.log(dest, dep, ton, four);
             $.ajax({ url: '{% url 'get_price' %}', type: 'GET',
                 data: {'destination': dest, 'depart': dep, 'tonnage': ton, 'fournisseur': four, 'csrfmiddlewaretoken': csrf},
                     success: function(response) {
