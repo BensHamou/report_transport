@@ -11,8 +11,8 @@ Rapports
 {% block activeListReport %} {% include 'active_bar.html' %} {% endblock %}
 {% block content %}
 
-<div class="row mb-3"> 
-    <form method="GET" style="{% if page %}margin: 20px 0px;{% else %}margin-top: 13%;{% endif %}">
+<div class="row mb-3" style="margin-top: 30px;"> 
+    <form method="GET" style="{% if page %}margin: 30px 0px;{% else %}margin-top: 13%;{% endif %}">
         {% csrf_token %}
         <div class="row height d-flex justify-content-center align-items-center">
             <div class="col-md-6">
@@ -48,8 +48,8 @@ Rapports
                   <th>Départ</th>
                   <th>Déstination</th>
                   <th>Date départ</th>
-                  <th>Tonnage</th>
                   <th>Fournisseur</th>
+                  <th>Tonnage</th>
                   <th>Prix</th>
                   <th>Chauffeur</th>
                   <th>État</th>
@@ -64,8 +64,8 @@ Rapports
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.depart }}</td>
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.destination }}</td>
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.date_dep|date:"d/m/Y" }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.tonnage }}</td>
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.fournisseur }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.tonnage }}</td>
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.price }}</td>
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.chauffeur }}</td>
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.state }}</td>
