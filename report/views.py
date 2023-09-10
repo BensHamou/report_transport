@@ -37,6 +37,17 @@ def check_creator(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+def check_creatoPTransported(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        ptransported_id = kwargs.get('pk')
+        ptransported = PTransported.objects.get(id=ptransported_id)
+        if not ((ptransported.report.state == 'Brouillon' and request.user == ptransported.report.creator) or request.user.id_admin):
+            return render(request, '403.html', status=403)
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
 # Emplacements
 @login_required(login_url='login')
 @admin_required
@@ -330,19 +341,148 @@ def editPriceView(request, id):
 
     return render(request, 'price_form.html', context)
 
-# Reports
-@login_required(login_url='login')
-def listReportView(request):
-    reports = Report.objects.all().order_by('id')
-    filteredData = ReportFilter(request.GET, queryset=reports)
-    reports = filteredData.qs
-    paginator = Paginator(reports, 7)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
-    context = {
-        'page': page, 'filtredData': filteredData, 
-    }
-    return render(request, 'list_reports.html', context)
+#REPORTS
+
+class CheckEditorMixin:
+    def check_editor(self, report):
+        if (report.creator != self.request.user or report.state != 'Brouillon') and not self.request.user.is_admin:
+            return False
+        return True
+
+    def dispatch(self, request, *args, **kwargs):
+        report = self.get_object()  
+        if not self.check_editor(report):
+            return render(request, '403.html', status=403)
+        return super().dispatch(request, *args, **kwargs)
+    
+class CheckReportViewerMixin:
+    def check_viewer(self, report):
+        lines = self.request.user.lines.all()
+        if report.line not in lines and self.request.user.is_admin:
+            return False
+        return True
+
+    def dispatch(self, request, *args, **kwargs):
+        report = self.get_object()  
+        if not self.check_viewer(report):
+            return render(request, '403.html', status=403)
+        return super().dispatch(request, *args, **kwargs)
+
+class ReportInline():
+    form_class = ReportForm
+    model = Report
+    template_name = "report_form.html"    
+    login_url = 'login'
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['lines'] = self.request.user.lines.all()
+        kwargs['admin'] = self.request.user.is_admin
+        return kwargs
+
+    def form_valid(self, form):
+        named_formsets = self.get_named_formsets()
+        if not all((x.is_valid() for x in named_formsets.values())):
+            return self.render_to_response(self.get_context_data(form=form))
+        
+        report = form.save(commit=False) 
+        if not report.state or report.state == 'Brouillon':
+            report.state = 'Brouillon'
+        
+        if not report.id:
+            report.creator = self.request.user
+        
+        report.save()
+        new = True
+        if self.object:
+            new = False
+        else:
+            self.object = report
+
+        for name, formset in named_formsets.items():
+            formset_save_func = getattr(self, 'formset_{0}_valid'.format(name), None)
+            if formset_save_func is not None:
+                formset_save_func(formset)
+            else:
+                formset.save()
+
+        if not new:
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('view_report', args=[self.object.pk])
+            redirect_url = f'{url_path}?cache={cache_param}'
+            return redirect(redirect_url)
+        return redirect('reports')
+
+    def formset_ptransporteds_valid(self, formset):
+        ptransporteds = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for ptransported in ptransporteds:
+            ptransported.report = self.object
+            ptransported.save()
+
+
+class ReportCreate(LoginRequiredMixin, ReportInline, CreateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ReportCreate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        if self.request.method == "GET":
+            return {
+                'ptransporteds': PTransportedsFormSet(prefix='ptransporteds', form_kwargs={'user': self.request.user}),
+            }
+        else:
+            return {
+                'ptransporteds': PTransportedsFormSet(self.request.POST or None, prefix='ptransporteds', form_kwargs={'user': self.request.user}),
+            }
+
+class ReportUpdate(LoginRequiredMixin, CheckEditorMixin, ReportInline, UpdateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ReportUpdate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        return {
+            'ptransporteds': PTransportedsFormSet(self.request.POST or None, instance=self.object, prefix='ptransporteds', form_kwargs={'user': self.request.user}),
+        }
+    
+class ReportDetail(LoginRequiredMixin, CheckReportViewerMixin, DetailView):
+    model = Report
+    template_name = 'report_details.html'
+    context_object_name = 'report'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fields = [field for field in self.model._meta.get_fields() if field.concrete]
+        context['fields'] = fields
+        return context
+
+class ReportList(LoginRequiredMixin, FilterView):
+    model = Report
+    template_name = "list_reports.html"
+    context_object_name = "reports"
+    filterset_class = ReportFilter
+    ordering = ['-date_dep']
+
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        return kwargs
+    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page_size_param = self.request.GET.get('page_size')
+        page_size = int(page_size_param) if page_size_param else 12        
+        paginator = Paginator(context['reports'], page_size)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        context['page'] = page_obj
+        return context
 
 @login_required(login_url='login')
 @check_creator
@@ -354,46 +494,32 @@ def deleteReportView(request, id):
     redirect_url = f'{url_path}?cache={cache_param}'
     return redirect(redirect_url)
 
-@login_required(login_url='login')
-def createReportView(request):
-    form = ReportForm()
-    if request.method == 'POST':
-        form = ReportForm(request.POST)
-        if form.is_valid():
-            report = form.save(commit=False) 
-            report.creator = request.user
-            report.state = 'Brouillon'
-            report.save()
-            cache_param = str(uuid.uuid4())
-            url_path = reverse('reports')
-            redirect_url = f'{url_path}?cache={cache_param}'
-            return redirect(redirect_url)
-    context = {'form': form}
-    return render(request, 'report_form.html', context)
 
 @login_required(login_url='login')
-@check_creator
-def editReportView(request, id):
-    report = Report.objects.get(id=id)
-    form = ReportForm(instance=report)
-    if request.method == 'POST':
-        form = ReportForm(request.POST, instance=report)
-        if form.is_valid():
-            form.save()
-            cache_param = str(uuid.uuid4())
-            url_path = reverse('view_report', args=[report.id])
-            page = request.GET.get('page', '1')
-            redirect_url = f'{url_path}?cache={cache_param}&page={page}'
-            return redirect(redirect_url)
-    context = {'form': form, 'report': report}
+@check_creatoPTransported
+def delete_product(request, pk):
+    try:
+        ptransported = PTransported.objects.get(id=pk)
+    except PTransported.DoesNotExist:
+        messages.success(
+            request, 'Produit Transported Does not exit'
+            )
+        url_path = reverse('edit_report', args=[ptransported.report.id])
+        cache_param = str(uuid.uuid4())
+        redirect_url = f'{url_path}?cache={cache_param}'
+        return redirect(redirect_url)
 
-    return render(request, 'report_form.html', context)
+    ptransported.delete()
+    messages.success(
+            request, 'Produit Transported deleted successfully'
+            )
+    url_path = reverse('edit_report', args=[ptransported.report.id])
+    cache_param = str(uuid.uuid4())
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
 
-@login_required(login_url='login')
-def detailReportView(request, id):
-    report = Report.objects.get(id=id)
-    context = { 'report': report }
-    return render(request, 'report_details.html', context)
+
+
 
 @login_required(login_url='login')
 @check_creator
@@ -428,3 +554,13 @@ def cancelReport(request, pk):
     cache_param = str(uuid.uuid4())
     redirect_url = f'{url_path}?cache={cache_param}'
     return redirect(redirect_url)
+
+@login_required(login_url='login')
+def getPrice(request):
+    try:
+       price = Price.objects.get(destination = request.GET.get('destination'), depart = request.GET.get('depart'), 
+                                 tonnage = request.GET.get('tonnage'), fournisseur = request.GET.get('fournisseur'))
+       
+       return JsonResponse({'exist': True, 'price_id': price.id, 'price_prix': price.price })
+    except Price.DoesNotExist:
+        return JsonResponse({'exist': False, 'price_id': 0, 'price_prix': 0 })

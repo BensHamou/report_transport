@@ -28,14 +28,16 @@ urlpatterns = [
     path("prix/edit-prix/<int:id>", views.editPriceView, name="edit_price"),
     path("prix/create-prix/", views.createPriceView, name="create_price"),
 
-    path('reports/', views.listReportView, name='reports'),
-    path('', views.listReportView, name='reports'),
-    path("report/<int:id>", views.detailReportView, name="view_report"),
+    path('reports/', ReportList.as_view(), name='reports'),
+    path('', ReportList.as_view(), name='reports'),
+    path("report/<int:pk>", ReportDetail.as_view(), name="view_report"),
     path("report/<int:id>/delete", views.deleteReportView, name="delete_report"),
-    path("report/<int:id>/edit", views.editReportView, name="edit_report"),
-    path("report/create/", views.createReportView, name="create_report"),
+    path("report/<int:pk>/edit", ReportUpdate.as_view(), name="edit_report"),
+    path("report/create/", ReportCreate.as_view(), name="create_report"),
+    path('delete-product/<int:pk>/', delete_product, name='delete_product'),
 
     path('report/<int:pk>/confirm/', views.confirmReport, name='confirm_report'),
     path('report/<int:pk>/cancel/', views.cancelReport, name='cancel_report'),
+    path('report/get-price/', views.getPrice, name='get_price'),
 
 ]

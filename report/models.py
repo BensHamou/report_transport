@@ -64,6 +64,7 @@ class Report(models.Model):
     ]
 
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    line = models.ForeignKey(Line, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     state = models.CharField(choices=STATE_REPORT, max_length=40)
@@ -73,5 +74,18 @@ class Report(models.Model):
     n_bl = models.IntegerField(default=1, validators=[MinValueValidator(0)])
     observation = models.TextField(null=True)
 
+    def ptransporteds(self):
+        return self.ptransported_set.all()
+
     def __str__(self):
         return str(self.n_bl) + " (" + str(self.date_created) +")"
+    
+class PTransported(models.Model):
+    report = models.ForeignKey(Report, on_delete=models.CASCADE)
+    
+    product = models.ForeignKey(Product, null=True, on_delete=models.CASCADE)
+    qte_transported = models.FloatField(default=0, validators=[MinValueValidator(0)])
+    observation = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.product.designation + " (" + str(self.qte_transported) +")"

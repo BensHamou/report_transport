@@ -17,8 +17,24 @@ Rapports
         <div class="row height d-flex justify-content-center align-items-center">
             <div class="col-md-6">
                 <div class="form" style="position: relative;">
-                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: white;"></i>{{ filtredData.form.search }}
+                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: white;"></i>{{ filter.form.search }}
                 </div>
+            </div>
+            <div class="col-md-2" style="width: 12%;">
+                {{ filter.form.start_date }}
+            </div>
+            <div class="col-md-2" style="width: 12%;">
+                {{ filter.form.end_date }}
+            </div>
+            <div class="col-md-2" style="width: 10%;">
+                {{ filter.form.line }}
+            </div>
+            <div class="col-md-1" style="width: 7%;">
+                <input type="number" class="form-control" value="{% if request.GET.page_size %}{{ request.GET.page_size }}{% else %}12{% endif %}" style="background-color: rgba(202, 207, 215, 0.5); 
+                border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); color: #f2f2f2; height: 40px;" name="page_size">
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">Appliquer</button>
             </div>
         </div>
     </form>
@@ -27,11 +43,15 @@ Rapports
         <table class="table table-borderless">
             <thead style="border-bottom: 2px solid white;">
                 <tr class="text-white">
-                  <th>Créateur</th>
-                  <th>Prix</th>
-                  <th>Date départ</th>
-                  <th>Chauffeur</th>
                   <th>N° BL</th>
+                  <th>Créateur</th>
+                  <th>Départ</th>
+                  <th>Déstination</th>
+                  <th>Date départ</th>
+                  <th>Tonnage</th>
+                  <th>Fournisseur</th>
+                  <th>Prix</th>
+                  <th>Chauffeur</th>
                   <th>État</th>
                   <th style="width: 20vh;">Actions</th>
                 </tr>
@@ -39,15 +59,19 @@ Rapports
             <tbody>
                 {% for report in page %}
                 <tr style="color: #dde3f0;">
-                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.creator }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.date_dep }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.chauffeur }}</td>
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.n_bl }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.creator }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.depart }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.destination }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.date_dep|date:"d/m/Y" }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.tonnage }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.fournisseur }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.prix.price }}</td>
+                    <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.chauffeur }}</td>
                     <td onclick="window.location='{% url 'view_report' report.id %}'" style="cursor: pointer;">{{ report.state }}</td>
                     <td style="vertical-align: middle;">
-                        <button type="button" onclick="window.location='{% url 'edit_report' report.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
-                        <button type="button" onclick="confirmReportDel('{{report.id|escapejs}}', '{{report.n_bl|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
+                        <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} onclick="window.location='{% url 'edit_report' report.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
+                        <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} onclick="confirmReportDel('{{report.id|escapejs}}', '{{report.n_bl|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
                     </td>
                 </tr>
                  {% endfor %}
@@ -61,6 +85,11 @@ Rapports
         {% include 'empty_list.html' %}
     {% endif %}
 </div>
+<style>
+    select option {
+        background: rgba(127, 139, 161, 0.9);
+    }
+</style>
 
 <script>
     const confirmReportDel = (reportID, reportNBL) => {

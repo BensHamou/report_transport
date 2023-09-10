@@ -19,21 +19,59 @@ Rapport
   {% csrf_token %}
   <div class="card card-body" style="background: rgba(255, 255, 255, 0.2); border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);">
     <div class="row mb-4">
-      <div class="col">
-        <div class="form-outline">
-            <label class="form-label labelCustom" for="prix">Prix</label>
-            {{ form.prix }}
-              {% if form.prix.errors %}
-                  <div style="color: red;">
-                  {% for error in form.prix.errors %}
-                      *{{ error }}
-                  {% endfor %}
-                  </div>
-              {% endif %}
+        <div class="col">
+          <div class="form-outline">
+              <label class="form-label labelCustom" for="depart">Départ</label>
+              {{ form.depart }}
+                {% if form.depart.errors %}
+                    <div style="color: red;">
+                    {% for error in form.depart.errors %}
+                        *{{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+          </div>
         </div>
-      </div>
+        <div class="col">
+          <div class="form-outline">
+              <label class="form-label labelCustom" for="destination">Déstination</label>
+              {{ form.destination }}
+                {% if form.destination.errors %}
+                    <div style="color: red;">
+                    {% for error in form.destination.errors %}
+                        *{{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-outline">
+              <label class="form-label labelCustom" for="tonnage">Tonnage</label>
+              {{ form.tonnage }}
+                {% if form.tonnage.errors %}
+                    <div style="color: red;">
+                    {% for error in form.tonnage.errors %}
+                        *{{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-outline">
+              <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
+              {{ form.fournisseur }}
+                {% if form.fournisseur.errors %}
+                    <div style="color: red;">
+                    {% for error in form.fournisseur.errors %}
+                        *{{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+          </div>
+        </div>
     </div>
-    
     <div class="row mb-4">
       <div class="col">
           <div class="form-outline">
@@ -74,6 +112,19 @@ Rapport
               {% endif %}
           </div>
       </div>
+      <div class="col">
+          <div class="form-outline">
+              <label class="form-label labelCustom" for="line">Ligne</label>
+              {{ form.line }}
+              {% if form.line.errors %}
+                  <div style="color: red;">
+                  {% for error in form.line.errors %}
+                      *{{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
+          </div>
+      </div>
     </div>        
     <div class="row mb-4">
       <div class="col">
@@ -90,33 +141,189 @@ Rapport
           </div>
       </div>
     </div>
+    <div class="row mb-4">
+        <div class="col-md-9">
+          <div class="form-outline">
+              {{ form.prix }}
+                {% if form.prix.errors %}
+                    <div style="color: red;">
+                    {% for error in form.prix.errors %}
+                        *{{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-outline">
+              <label class="form-label labelCustom" for="price">Prix</label>
+              {{ form.price }}
+                {% if form.price.errors %}
+                    <div style="color: red;">
+                    {% for error in form.price.errors %}
+                        *{{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+          </div>
+        </div>
+    </div>
   </div>
-  <div class="float-end mt-4">
-    <input type='submit' class="btn btn-secondary customSaveButton" name='save' value="Sauvgardez"/>
-  </div>
+
+  {% with named_formsets.ptransporteds as formset %}
+      {{ formset.management_form }}
+      <script type="text/html" id="ptransporteds-template">
+          <tr id="ptransporteds-__prefix__" class= hide_all>
+              {% for fields in formset.empty_form.hidden_fields %}
+                  {{ fields }}
+              {% endfor %}
+          
+              {% for field in formset.empty_form.visible_fields %}
+              <td>
+                  {% if field.label == 'Supprimer' %}
+                  <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
+                      <i class="far fa-trash-alt"></i>
+                  </button>
+                  {% else %}
+                      {{ field }}
+                      {% for error in field.errors %}
+                          <span style="color: red">*{{ error }}</span>
+                      {% endfor %}
+                  {% endif %}
+              </td>
+              {% endfor %}
+          </tr>
+      </script>
+      <div class="table-responsive card mt-4" style="background: rgba(255, 255, 255, 0.2); border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);">
+          <div class="card-header card-header-secondary">
+              <p class="card-title lead" style="font-size: 26px; color: rgb(237, 243, 253)">Produits</p>
+          </div>
+          <table class="table card-header">
+              <tbody id="item-ptransporteds">
+                  {% for error in formset.non_form_errors %}
+                      <span style="color: red">*{{ error }}</span>
+                  {% endfor %}
+                  {% for formss in formset %}
+                      {{ formss.management_form }}
+                      <tr id="ptransporteds-{{ forloop.counter0 }}" class= hide_all>
+                          {{ formss.id }}
+                          <td></td>
+                          {% for field in formss.visible_fields %}
+                              {% if not field.label == 'Supprimer' %}
+                                  <td>
+                                      {{ field }}
+                                      {% for error in field.errors %}
+                                          <span style="color: red">*{{ error }}</span>
+                                      {% endfor %}
+                                  </td>
+                              {% endif %}
+                          {% endfor %}
+                          {% if formss.instance.pk %}
+                          <td>
+                              <button type="button" onclick="confirmPTransportedDel('{{formss.instance.pk|escapejs}}')" class="btn" style="color: white;">
+                                  <i class="far fa-trash-alt"></i>
+                              </button>
+                          </td>    
+                          {% else %}
+                          <td>
+                              <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
+                                  <i class="far fa-trash-alt"></i>
+                              </button>
+                          </td>    
+                          {% endif %}
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+          <div class="d-flex justify-content-end align-items-center m-2">
+              <a href="#" id="add-ptransporteds-button" class="btn btn-secondary add-ptransporteds" style="background-color: #979ba3; border-color: #979ba3;" role="button"><i class="fas fa-plus"></i></a>
+          </div>
+      </div>    
+  {% endwith %}
+
+    <div class="d-flex justify-content-center align-items-center form-group m-4">
+        <button type="submit" class="btn btn-secondary btn-block customSaveButton">{% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}</button>
+    </div>
 </form>
 
 <script>
+    const deleteRow = (row) => {
+        row.remove();
+        $('#id_ptransporteds-TOTAL_FORMS').val($('#id_ptransporteds-TOTAL_FORMS').val() - 1);
+    }
+    const confirmPTransportedDel = (produitId) => {
+        swal({ 
+        title: `Confirmation de la suppression.`,   
+        text: `Etes-vous sûr que vous voulez supprimer ce produit de cette liste?`,   
+        type: "warning",
+        showCancelButton: true,   
+        confirmButtonColor: "#DD6B55",   
+        confirmButtonText: "Oui",   
+        cancelButtonText: "Non",   
+        closeOnConfirm: true,   
+        closeOnCancel: true }, 
+        function(isConfirm){   
+            if (isConfirm){
+              window.location.href = "{% url 'delete_product' 123456789 %}".replace(/123456789/, produitId);
+            }});
+    }
     $(document).ready(function() {
-        $("#id_prix").select2({
-            placeholder: 'Sélectionnez un prix',
+        $('.add-ptransporteds').click(function(ev) {
+            ev.preventDefault();
+            var count = $('#item-ptransporteds').children().length;
+            var tmplMarkup = $('#ptransporteds-template').html();
+            var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+            $('#item-ptransporteds').append(compiledTmpl);
+            
+            $('#id_ptransporteds-TOTAL_FORMS').attr('value', count+1);
+            
+            var newElement = $('#item-ptransporteds').children().last()[0];
+            newElement.scrollIntoView({ behavior: 'smooth' });
         });
-        $(".select2-selection__rendered").css("background-color", "#cacfd7");
+        $('form').submit(function () {
+            $('[disabled]').removeAttr('disabled'); 
+        });
+        const checkFields = () => {
+            if($('#id_destination').val() &&  $('#id_depart').val() &&  $('#id_tonnage').val() &&  $('#id_fournisseur').val()){
+                console.log('Here');
+                getPrice($('#id_destination').val(), $('#id_depart').val(), $('#id_tonnage').val(), $('#id_fournisseur').val());
+            }
+        }
+        const getPrice = (dest, dep, ton, four) => {
+            var csrf = $('input[name=csrfmiddlewaretoken]').val();
+            console.log(dest, dep, ton, four);
+            $.ajax({ url: '{% url 'get_price' %}', type: 'GET',
+                data: {'destination': dest, 'depart': dep, 'tonnage': ton, 'fournisseur': four, 'csrfmiddlewaretoken': csrf},
+                    success: function(response) {
+                        if(response.exist){
+                            $('#id_prix').val(response.price_id);
+                            $('#id_price').val(response.price_prix);
+                        }else{
+                            $('#id_prix').val('');
+                            $('#id_price').val('');
+                            swal({title: `Oops, Il n'y a pas de prix avec les paramètres donnés!`,   
+                                text: `Veuillez modifier votre saisie.`, confirmButtonColor: "#DD6B55",   
+                                confirmButtonText: "Ok", type: "warning", closeOnCancel: true });
+                        }
+                    },
+                    error: function(xhr, errmsg, err) {
+                    console.log(errmsg);
+                    }
+                });
+        }
+        $('#id_depart').on('change', function() {
+            checkFields()
+        });
+        $('#id_destination').on('change', function() {
+            checkFields()
+        });
+        $('#id_tonnage').on('change', function() {
+            checkFields()
+        });
+        $('#id_fournisseur').on('change', function() {
+            checkFields()
+        });
     });
 </script>
-<style>
-    .select2-selection__rendered {
-        line-height: 33px !important;
-    }
-    .select2-container .select2-selection--single {
-        height: 35px !important;
-    }
-    .select2-selection__arrow {
-        height: 35px !important;
-    }
-    .select2-search { background-color: #cacfd7; }
-    .select2-search input { background-color: #cacfd7; }
-    .select2-results { background-color: #cacfd7; }
-</style>
 
 {% endblock %}
