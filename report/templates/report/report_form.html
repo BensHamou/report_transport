@@ -245,7 +245,21 @@ Rapport
         <button type="submit" class="btn btn-secondary btn-block customSaveButton">{% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}</button>
     </div>
 </form>
-
+<style>
+    .highlight {
+        border: 2px solid green;
+        animation: highlightAnimation 1s ease-in-out;
+    }
+    
+    @keyframes highlightAnimation {
+        0% {
+            border: 2px solid green;
+        }
+        100% {
+            border: 1px solid rgba(118, 118, 118, 0.3);
+        }
+    }
+</style>
 <script>
     const deleteRow = (row) => {
         row.remove();
@@ -313,6 +327,10 @@ Rapport
                         if(response.exist){
                             $('#id_prix').val(response.price_id);
                             $('#id_price').val(response.price_prix);
+                            $('#id_price').addClass("highlight");
+                            setTimeout(function() {
+                                $('#id_price').removeClass("highlight");
+                            }, 1000);
                         }else{
                             $('#id_prix').val('');
                             $('#id_price').val('');
