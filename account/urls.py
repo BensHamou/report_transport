@@ -12,10 +12,10 @@ urlpatterns = [
     path("users/", views.listUsersView, name="users"),
     path('users/details/<int:id>', views.userDetailsView, name='details'),
 
-    path('lines/', views.listLineView, name='lines'),
-    path("line/delete-line/<int:id>", views.deleteLineView, name="delete_line"),
-    path("line/edit-line/<int:id>", views.editLineView, name="edit_line"),
-    path("line/create-line/", views.createLineView, name="create_line"),
+    path('sites/', views.listSiteView, name='sites'),
+    path("site/delete-site/<int:id>", views.deleteSiteView, name="delete_site"),
+    path("site/edit-site/<int:id>", views.editSiteView, name="edit_site"),
+    path("site/create-site/", views.createSiteView, name="create_site"),
     
     path('login/', CustomLoginView.as_view(), name='login'),
     path('accounts/login/', CustomLoginView.as_view(), name='login'),

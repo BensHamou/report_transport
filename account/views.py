@@ -79,7 +79,7 @@ def refreshUsersList(request):
 @admin_required
 def editUserView(request, id):
     user = User.objects.get(id=id)
-    selectedLines = [line.id for line in user.lines.all()]
+    selectedSites = [site.id for site in user.sites.all()]
     form = UserForm(instance=user)
     if request.method == 'POST':
         form = UserForm(request.POST, instance=user)
@@ -90,7 +90,7 @@ def editUserView(request, id):
             redirect_url = f'{url_path}?cache={cache_param}'
             return redirect(redirect_url)
 
-    context = {'form': form, 'user_to_edit': user, 'selectedLines': selectedLines}
+    context = {'form': form, 'user_to_edit': user, 'selectedSites': selectedSites}
 
     return render(request, 'edit_user.html', context)
 
@@ -149,69 +149,68 @@ def logoutView(request):
 
 
 
-# LINES
+# SITES
 
 @login_required(login_url='login')
 @admin_required
-def listLineView(request):
+def listSiteView(request):
+    sites = Site.objects.all().order_by('id')
+    filteredData = SiteFilter(request.GET, queryset=sites)
+    sites = filteredData.qs
 
-    lines = Line.objects.all().order_by('id')
-    filteredData = LineFilter(request.GET, queryset=lines)
-    lines = filteredData.qs
-
-    paginator = Paginator(lines, 10)
+    paginator = Paginator(sites, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
     context = {
         'page': page, 'filtredData': filteredData,
     }
-    return render(request, 'lines_list.html', context)
+    return render(request, 'sites_list.html', context)
 
 @login_required(login_url='login')
 @admin_required
-def deleteLineView(request, id):
-    line = Line.objects.get(id=id)
-    line.delete()
+def deleteSiteView(request, id):
+    site = Site.objects.get(id=id)
+    site.delete()
     page = request.GET.get('page', '1')
     cache_param = str(uuid.uuid4())
-    url_path = reverse('lines')
+    url_path = reverse('sites')
     redirect_url = f'{url_path}?cache={cache_param}&page={page}'
     return redirect(redirect_url)
 
 @login_required(login_url='login')
 @admin_required
-def createLineView(request):
-    form = LineForm()
+def createSiteView(request):
+    form = SiteForm()
     if request.method == 'POST':
-        form = LineForm(request.POST)
+        form = SiteForm(request.POST)
         if form.is_valid():
             cache_param = str(uuid.uuid4())
             form.save()
             page = request.GET.get('page', '1')
-            url_path = reverse('lines')
+            url_path = reverse('sites')
             redirect_url = f'{url_path}?cache={cache_param}&page={page}'
             return redirect(redirect_url)
 
     context = {'form': form}
 
-    return render(request, 'line_form.html', context)
+    return render(request, 'site_form.html', context)
 
 @login_required(login_url='login')
 @admin_required
-def editLineView(request, id):
-    line = Line.objects.get(id=id)
-    form = LineForm(instance=line)
+def editSiteView(request, id):
+    site = Site.objects.get(id=id)
+    form = SiteForm(instance=site)
     if request.method == 'POST':
-        form = LineForm(request.POST, instance=line)
+        form = SiteForm(request.POST, instance=site)
         cache_param = str(uuid.uuid4())
         if form.is_valid():
             form.save()
             page = request.GET.get('page', '1')
-            url_path = reverse('lines')
+            url_path = reverse('sites')
             redirect_url = f'{url_path}?cache={cache_param}&page={page}'
             return redirect(redirect_url)
 
-    context = {'form': form, 'line': line}
-    return render(request, 'line_form.html', context)
+    context = {'form': form, 'site': site}
+    return render(request, 'site_form.html', context)
 

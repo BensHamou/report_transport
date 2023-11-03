@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 
 {% block title %}
-Lines
+Sites
 {% endblock %}
 {% load static %} 
 {% block activeSettings %} {% include 'active_bar.html' %} {% endblock %}
@@ -18,7 +18,7 @@ Lines
                 </div>
             </div>
             <div class="col-md-1">
-                <a href="{% url 'create_line' %}" class="btn btn-secondary" style="background-color: #0e2a5b; border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);">Nouveau</a>
+                <a href="{% url 'create_site' %}" class="btn btn-secondary" style="background-color: #0e2a5b; border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);">Nouveau</a>
             </div>
         </div>
     </form> 
@@ -29,17 +29,21 @@ Lines
                 <tr class="text-white">
                 <th>#</th>
                 <th>Désignation</th>
+                <th>Address mail</th>
+                <th>Préfixe</th>
                 <th style="width: 40vh;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for line in page %}
+                {% for site in page %}
                 <tr style="color: #dde3f0;">
-                    <td>{{ line.id }}</td>
-                    <td>{{ line.designation }}</td>
+                    <td>{{ site.id }}</td>
+                    <td>{{ site.designation }}</td>
+                    <td>{{ site.address }}</td>
+                    <td>{{ site.prefix_site }}</td>
                     <td style="vertical-align: middle;">
-                        <button type="button" onclick="window.location='{% url 'edit_line' line.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
-                        <button type="button" onclick="confirmLineDel('{{line.id|escapejs}}', '{{line.designation|escapejs}}')" class="btn" style="color: white;"><i class="far fa-trash-alt"></i></button>
+                        <button type="button" onclick="window.location='{% url 'edit_site' site.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
+                        <button type="button" onclick="confirmSiteDel('{{site.id|escapejs}}', '{{site.designation|escapejs}}')" class="btn" style="color: white;"><i class="far fa-trash-alt"></i></button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -54,10 +58,10 @@ Lines
     {% endif %}
 </div>
 <script>
-    const confirmLineDel = (lineId, lineDes) => {
+    const confirmSiteDel = (siteId, siteDes) => {
         swal({ 
         title: `Confirmation de la suppression.`,   
-        text: `Etes-vous sûr que vous voulez supprimer ${lineDes}?`,   
+        text: `Etes-vous sûr que vous voulez supprimer ${siteDes}?`,   
         type: "warning",
         showCancelButton: true,   
         confirmButtonColor: "#DD6B55",   
@@ -67,7 +71,7 @@ Lines
         closeOnCancel: true }, 
         function(isConfirm){   
             if (isConfirm){
-              window.location.href = "{% url 'delete_line' 123456789 %}".replace(/123456789/, lineId);
+              window.location.href = "{% url 'delete_site' 123456789 %}".replace(/123456789/, siteId);
             }});
     }
 </script>

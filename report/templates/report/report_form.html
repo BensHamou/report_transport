@@ -21,11 +21,11 @@ Rapport
         <div class="row mb-4">
             <div class="col">
             <div class="form-outline">
-                <label class="form-label labelCustom" for="depart">Départ</label>
-                {{ form.depart }}
-                    {% if form.depart.errors %}
+                <label class="form-label labelCustom" for="site">Départ</label>
+                {{ form.site }}
+                    {% if form.site.errors %}
                         <div style="color: red;">
-                        {% for error in form.depart.errors %}
+                        {% for error in form.site.errors %}
                             *{{ error }}
                         {% endfor %}
                         </div>
@@ -106,19 +106,6 @@ Rapport
                     {% if form.n_bl.errors %}
                         <div style="color: red;">
                         {% for error in form.n_bl.errors %}
-                            *{{ error }}
-                        {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-outline">
-                    <label class="form-label labelCustom" for="line">Ligne</label>
-                    {{ form.line }}
-                    {% if form.line.errors %}
-                        <div style="color: red;">
-                        {% for error in form.line.errors %}
                             *{{ error }}
                         {% endfor %}
                         </div>
@@ -236,13 +223,15 @@ Rapport
               </tbody>
           </table>
           <div class="d-flex justify-content-end align-items-center m-2">
-              <a href="#" id="add-ptransporteds-button" class="btn btn-secondary add-ptransporteds" style="background-color: #979ba3; border-color: #979ba3;" role="button"><i class="fas fa-plus"></i></a>
+                <a href="#" id="add-ptransporteds-button" class="btn btn-secondary add-ptransporteds" style="background-color: #979ba3; border-color: #979ba3;" role="button"><i class="fas fa-plus"></i></a>
           </div>
       </div>    
   {% endwith %}
 
     <div class="d-flex justify-content-center align-items-center form-group m-4">
-        <button type="submit" class="btn btn-secondary btn-block customSaveButton">{% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}</button>
+        <button type="submit" class="btn btn-secondary btn-block customSaveButton">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="loading-spinner" style="display: none;"></span>
+            {% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}</button>
     </div>
 </form>
 <style>
@@ -278,13 +267,33 @@ Rapport
         closeOnCancel: true }, 
         function(isConfirm){   
             if (isConfirm){
-              window.location.href = "{% url 'delete_product' 123456789 %}".replace(/123456789/, produitId);
+              window.location.href = "{% url 'report_delete_product' 123456789 %}".replace(/123456789/, produitId);
             }});
     }
     const hasDuplicates = (a) => {
         const noDups = new Set(a);
         return a.length !== noDups.size;
     }
+
+    const getErrors = (products) => {
+        var productString = products.join(",");
+        var site = $('#id_site').val();
+        return new Promise((resolve, reject) => {
+            $.ajax({ url: '{% url "check_products" %}', type: 'GET',
+                data: { products: productString, site: site, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),},
+                success: function(response) { 
+                    if(response.errors.length > 0) {
+                        resolve(response.errors); 
+                    }
+                    else{
+                        resolve(false); 
+                    }
+                },
+                error: function(xhr, textStatus, error) { reject(error); }
+            });
+        });
+    }
+    
     $(document).ready(function() {
         $('.add-ptransporteds').click(function(ev) {
             ev.preventDefault();
@@ -298,31 +307,51 @@ Rapport
             var newElement = $('#item-ptransporteds').children().last()[0];
             newElement.scrollIntoView({ behavior: 'smooth' });
         });
-        $('form').submit(function () {
+        $('form').submit(function (event) {
+            event.preventDefault();
             var selectedProducts = [];
             $("[id^='id_ptransporteds-'][id$='-product']").each(function() {
-                selectedProducts.push(this.value)   
+                selectedProducts.push(this.value);
             });
             if(hasDuplicates(selectedProducts)){
                 swal({title: `Oops, Il y a des produits en double!`,   
                     text: `Veuillez modifier votre saisie.`, confirmButtonColor: "#DD6B55",   
                     confirmButtonText: "Ok", type: "warning", closeOnCancel: true });
-                return false;
             }
             else{
-                $('[disabled]').removeAttr('disabled'); 
-                return true;
+                $('#loading-spinner').show();
+                getErrors(selectedProducts).then(errors => {
+                    if (errors) {
+                        var errorsMessage = "";
+                        for(var i = 0; i < errors.length; i++) {
+                            errorsMessage += errors[i];
+                        }
+                        swal({title: `Oops, Il existe des produits qui n'appartiennent pas à ce site!`,   
+                            text: errorsMessage, confirmButtonColor: "#DD6B55",   
+                            confirmButtonText: "Ok", type: "warning", closeOnCancel: true });
+                        $('#loading-spinner').hide();
+                    } else {
+                        $('[disabled]').removeAttr('disabled');
+                        $('#loading-spinner').hide();
+                        this.submit(); 
+                    }
+                    $('#loading-spinner').hide();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    $('#loading-spinner').hide();
+                });
             }
         });
         const checkFields = () => {
-            if($('#id_destination').val() &&  $('#id_depart').val() &&  $('#id_tonnage').val() &&  $('#id_fournisseur').val()){
-                getPrice($('#id_destination').val(), $('#id_depart').val(), $('#id_tonnage').val(), $('#id_fournisseur').val());
+            if($('#id_destination').val() &&  $('#id_site').val() &&  $('#id_tonnage').val() &&  $('#id_fournisseur').val()){
+                getPrice($('#id_destination').val(), $('#id_site').val(), $('#id_tonnage').val(), $('#id_fournisseur').val());
             }
         }
-        const getPrice = (dest, dep, ton, four) => {
+        const getPrice = (dest, site, ton, four) => {
             var csrf = $('input[name=csrfmiddlewaretoken]').val();
             $.ajax({ url: '{% url 'get_price' %}', type: 'GET',
-                data: {'destination': dest, 'depart': dep, 'tonnage': ton, 'fournisseur': four, 'csrfmiddlewaretoken': csrf},
+                data: {'destination': dest, 'site': site, 'tonnage': ton, 'fournisseur': four, 'csrfmiddlewaretoken': csrf},
                     success: function(response) {
                         if(response.exist){
                             $('#id_prix').val(response.price_id);
@@ -344,8 +373,8 @@ Rapport
                     }
                 });
         }
-        $('#id_depart').on('change', function() {
-            checkFields()
+        $('#id_site').on('change', function() {
+            checkFields();
         });
         $('#id_destination').on('change', function() {
             checkFields()

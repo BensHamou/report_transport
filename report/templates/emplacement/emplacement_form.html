@@ -25,12 +25,6 @@ Emplacement
               {{ form.designation }}
           </div>
         </div>
-        <div class="col">
-          <div class="form-outline">
-              <label class="form-label labelCustom" for="categ">Catégorie</label>
-              {{ form.categ }}
-          </div>
-        </div>
       </div>
   </div>
   <div class="float-end mt-4">
@@ -50,7 +44,6 @@ Emplacement
           <tr class="text-white">
             <th></th>
             <th>Départ</th>
-            <th>Déstination</th>
             <th>Fournisseur</th>
             <th>Tonnage</th>
             <th>Prix</th>
@@ -61,7 +54,6 @@ Emplacement
             <tr style="color: #dde3f0;">
                 <td></td>
                 <td>{{ prix.depart }}</td>
-                <td>{{ prix.destination }}</td>
                 <td>{{ prix.fournisseur }}</td>
                 <td>{{ prix.tonnage }}</td>
                 <td>{{ prix.price }}</td>
@@ -69,7 +61,6 @@ Emplacement
           {% empty %}
             <tr style="color: #dde3f0;">
                 <td></td>
-                <td>Pas d'enregistrements.</td>
                 <td>Pas d'enregistrements.</td>
                 <td>Pas d'enregistrements.</td>
                 <td>Pas d'enregistrements.</td>

@@ -7,7 +7,7 @@ from report.forms import getAttrs
 class UserForm(ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'fullname', 'email', 'is_admin', 'first_name', 'last_name', 'lines']
+        fields = ['username', 'fullname', 'email', 'is_admin', 'first_name', 'last_name', 'sites']
 
     attr = {'class': 'form-control', 'style': 'background-color: #cacfd7;', 'readonly':'readonly'}
 
@@ -16,15 +16,18 @@ class UserForm(ModelForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs=attr))
     fullname = forms.CharField(widget=forms.TextInput(attrs=attr))
     email = forms.EmailField(widget=forms.EmailInput(attrs=attr))
-    lines = forms.SelectMultiple(attrs={'class': 'form-select'})
+    sites = forms.SelectMultiple(attrs={'class': 'form-select'})
     is_admin = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'secondary', 'data-toggle':'switchbutton'}))
 
-class LineForm(ModelForm):
+class SiteForm(ModelForm):
     class Meta:
-        model = Line
-        fields = ['designation']
+        model = Site
+        fields = ['designation', 'address', 'prefix_site', 'include_cron']
 
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Désignation')))
+    address = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Address')))
+    prefix_site = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Préfixe')))
+    include_cron = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'secondary', 'data-toggle':'switchbutton'}))
 
 class CustomLoginForm(AuthenticationForm):
     

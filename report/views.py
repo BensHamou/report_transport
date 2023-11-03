@@ -226,7 +226,7 @@ def editTonnageView(request, id):
 @login_required(login_url='login')
 @admin_required 
 def listProductList(request):
-    products = Product.objects.filter(line__in=request.user.lines.all()).order_by('id')
+    products = Product.objects.filter(site__in=request.user.sites.all()).order_by('id')
     filteredData = ProductFilter(request.GET, queryset=products, user = request.user)
     products = filteredData.qs
     paginator = Paginator(products, 7)
@@ -287,7 +287,7 @@ def editProductView(request, id):
 @login_required(login_url='login')
 @admin_required
 def listPriceView(request):
-    prices = Price.objects.all().order_by('id')
+    prices = Price.objects.filter(depart__in=request.user.sites.all()).order_by('id')
     filteredData = PriceFilter(request.GET, queryset=prices)
     prices = filteredData.qs
     paginator = Paginator(prices, 7)
@@ -311,9 +311,9 @@ def deletePriceView(request, id):
 @login_required(login_url='login')
 @admin_required
 def createPriceView(request):
-    form = PriceForm()
+    form = PriceForm(user = request.user)
     if request.method == 'POST':
-        form = PriceForm(request.POST)
+        form = PriceForm(request.POST, user = request.user)
         if form.is_valid():
             form.save()
             cache_param = str(uuid.uuid4())
@@ -357,8 +357,8 @@ class CheckEditorMixin:
     
 class CheckReportViewerMixin:
     def check_viewer(self, report):
-        lines = self.request.user.lines.all()
-        if report.line not in lines and self.request.user.is_admin:
+        sites = self.request.user.sites.all()
+        if report.site not in sites and self.request.user.is_admin:
             return False
         return True
 
@@ -376,8 +376,7 @@ class ReportInline():
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['lines'] = self.request.user.lines.all()
-        kwargs['admin'] = self.request.user.is_admin
+        kwargs['sites'] = self.request.user.sites.all()
         return kwargs
 
     def form_valid(self, form):
@@ -418,8 +417,12 @@ class ReportInline():
         for obj in formset.deleted_objects:
             obj.delete()
         for ptransported in ptransporteds:
-            ptransported.report = self.object
-            ptransported.save()
+            if ptransported.product.site == self.object.site:
+                ptransported.report = self.object
+                ptransported.save()
+                
+            #    raise ValueError("Ce produit ("+ptransported.product.designation+") n'existe pas sur ce site ("+self.object.site.designation+").")
+            #else:
 
 
 class ReportCreate(LoginRequiredMixin, ReportInline, CreateView):
@@ -468,11 +471,12 @@ class ReportList(LoginRequiredMixin, FilterView):
     context_object_name = "reports"
     filterset_class = ReportFilter
     ordering = ['-date_dep']
-
-    def get_filterset_kwargs(self, filterset_class):
-        kwargs = super().get_filterset_kwargs(filterset_class)
-        return kwargs
     
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        sites = self.request.user.sites.all()
+        queryset = queryset.filter(site__in=sites)
+        return queryset   
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -519,8 +523,6 @@ def delete_product(request, pk):
     return redirect(redirect_url)
 
 
-
-
 @login_required(login_url='login')
 @check_creator
 def confirmReport(request, pk):
@@ -558,9 +560,20 @@ def cancelReport(request, pk):
 @login_required(login_url='login')
 def getPrice(request):
     try:
-       price = Price.objects.get(destination = request.GET.get('destination'), depart = request.GET.get('depart'), 
+       price = Price.objects.get(destination = request.GET.get('destination'), depart = request.GET.get('site'), 
                                  tonnage = request.GET.get('tonnage'), fournisseur = request.GET.get('fournisseur'))
        
        return JsonResponse({'exist': True, 'price_id': price.id, 'price_prix': price.price })
     except Price.DoesNotExist:
         return JsonResponse({'exist': False, 'price_id': 0, 'price_prix': 0 })
+
+@login_required(login_url='login')
+def checkProducts(request):
+    errors = []
+    for productId in request.GET.get('products').split(','):
+        product = Product.objects.get(id=productId)
+        if not product.site.pk == int(request.GET.get('site')):
+            errors.append('Le produit '+product.designation+' n\'éxiste pas dans ce site.\n')
+    
+    return JsonResponse({'errors': errors })
+    

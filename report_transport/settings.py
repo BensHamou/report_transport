@@ -54,7 +54,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [os.path.join(BASE_DIR, 'account', 'templates', 'user'), os.path.join(BASE_DIR, 'account', 'templates', 'fragment'), 
-                 os.path.join(BASE_DIR, 'account', 'templates', 'line'), os.path.join(BASE_DIR, 'report', 'templates', 'emplacement'), 
+                 os.path.join(BASE_DIR, 'account', 'templates', 'site'), os.path.join(BASE_DIR, 'report', 'templates', 'emplacement'), 
                  os.path.join(BASE_DIR, 'report', 'templates', 'fournisseur'), os.path.join(BASE_DIR, 'report', 'templates', 'price'), 
                  os.path.join(BASE_DIR, 'report', 'templates', 'tonnage'), os.path.join(BASE_DIR, 'report', 'templates', 'product'), 
                  os.path.join(BASE_DIR, 'report', 'templates', 'modal'), os.path.join(BASE_DIR, 'report', 'templates', 'report'), 
@@ -77,11 +77,11 @@ WSGI_APPLICATION = "report_transport.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'trans_report',
-        'USER': 'puma_u',
-        'PASSWORD': 'puma_u',
-        'HOST': '192.168.135.1',
-        'PORT': '5432',
+        'NAME': 'TransportDB',
+        'USER': 'puma_prod',
+        'PASSWORD': 'puma_prod',
+        'HOST': '10.10.10.101',
+        'PORT': '5434',
     }
 }
 
@@ -104,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "fr"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Africa/Algiers"
 
 USE_I18N = True
 

@@ -19,7 +19,7 @@ class UserFilter(django_filters.FilterSet):
         fields = ['search']
 
 
-class LineFilter(django_filters.FilterSet):
+class SiteFilter(django_filters.FilterSet):
     
     search = django_filters.CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher..')))
 
@@ -29,5 +29,5 @@ class LineFilter(django_filters.FilterSet):
         ).distinct()
 
     class Meta:
-        model = Line
+        model = Site
         fields = ['search']

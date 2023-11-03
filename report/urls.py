@@ -34,10 +34,11 @@ urlpatterns = [
     path("report/<int:id>/delete", views.deleteReportView, name="delete_report"),
     path("report/<int:pk>/edit", ReportUpdate.as_view(), name="edit_report"),
     path("report/create/", ReportCreate.as_view(), name="create_report"),
-    path('delete-product/<int:pk>/', delete_product, name='delete_product'),
+    path('delete-product/<int:pk>/', delete_product, name='report_delete_product'),
 
     path('report/<int:pk>/confirm/', views.confirmReport, name='confirm_report'),
     path('report/<int:pk>/cancel/', views.cancelReport, name='cancel_report'),
     path('report/get-price/', views.getPrice, name='get_price'),
+    path('report/check-products/', views.checkProducts, name='check_products'),
 
 ]

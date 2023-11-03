@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Q
 from django_filters import FilterSet, CharFilter, ChoiceFilter, ModelChoiceFilter, DateFilter
 from .models import *
+from account.models import Site
 from report.forms import getAttrs
 
 class ProductFilter(FilterSet):
@@ -11,8 +12,8 @@ class ProductFilter(FilterSet):
     def filter_search(self, queryset, name, value):
         return queryset.filter(
             Q(designation__icontains=value) | (
-            Q(line__designation__icontains=value) &
-            Q(line__in=self.user.lines.all()) )
+            Q(site__designation__icontains=value) &
+            Q(site__in=self.user.sites.all()) )
         ).distinct()
 
     class Meta:
@@ -30,8 +31,7 @@ class EmplacementFilter(FilterSet):
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
-            Q(designation__icontains=value)|
-            Q(categ__icontains=value)
+            Q(designation__icontains=value)
         ).distinct()
 
     class Meta:
@@ -84,12 +84,11 @@ class PriceFilter(FilterSet):
 class ReportFilter(FilterSet):
 
     other = {'style': 'background-color: rgba(202, 207, 215, 0.5); border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); color: #f2f2f2; height: 40px; border-radius: 5px;'}
-    other_line = {'style': 'background-color: rgba(202, 207, 215, 0.5); border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); color: #30343b; height: 40px; border-radius: 5px;'}
 
     search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher...')))    
     start_date = DateFilter(field_name='date_dep', lookup_expr='gte', widget=forms.widgets.DateInput(attrs= getAttrs('date', other=other), format='%d-%m-%Y'))
     end_date = DateFilter(field_name='date_dep', lookup_expr='lte', widget=forms.widgets.DateInput(attrs= getAttrs('date', other=other), format='%d-%m-%Y'))
-    line = ModelChoiceFilter(queryset=Line.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="All")
+    site = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="All")
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
@@ -104,10 +103,10 @@ class ReportFilter(FilterSet):
 
     class Meta:
         model = Report
-        fields = ['search', 'start_date', 'end_date', 'line']
+        fields = ['search', 'start_date', 'end_date', 'site']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super(ReportFilter, self).__init__(*args, **kwargs)
         if user:
-            self.filters['line'].queryset = user.lines.all()
+            self.filters['site'].queryset = user.sites.all()

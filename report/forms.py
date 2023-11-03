@@ -1,7 +1,9 @@
 from django.forms import ModelForm, inlineformset_factory
 from django import forms
 from .models import *
+from account.models import *
 from django.utils import timezone
+from django.db.models import Q
 
 def getAttrs(type, placeholder='', other={}):
     ATTRIBUTES = {
@@ -27,24 +29,23 @@ def getAttrs(type, placeholder='', other={}):
 class ProductForm(ModelForm):
     class Meta:
         model = Product
-        fields = ['designation', 'line']
+        fields = ['designation', 'site']
 
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Designation')))
-    line = forms.ModelChoiceField(queryset=Line.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Ligne")
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Site")
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super(ProductForm, self).__init__(*args, **kwargs)
         if user:
-            self.fields['line'].queryset = user.lines.all()
+            self.fields['site'].queryset = user.sites.all()
 
 class EmplacementForm(ModelForm):
     class Meta:
         model = Emplacement
-        fields = ['designation', 'categ']
+        fields = ['designation']
     
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Designation')))
-    categ = forms.ChoiceField(choices=Emplacement.DESTINATION_CHOICES, widget=forms.Select(attrs=getAttrs('select')))
 
 class TonnageForm(ModelForm):
     class Meta:
@@ -62,14 +63,20 @@ class FournisseurForm(ModelForm):
 
 class PriceForm(ModelForm):
     
-    destination = forms.ModelChoiceField(queryset=Emplacement.objects.filter(categ='Déstination'), widget=forms.Select(attrs=getAttrs('select')), empty_label="Déstination")
-    depart = forms.ModelChoiceField(queryset=Emplacement.objects.filter(categ='Départ'), widget=forms.Select(attrs=getAttrs('select')), empty_label="Départ")
+    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Déstination")
+    depart = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Départ")
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Tonnage")
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Fournisseur")
     price = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Prix')))
     class Meta:
         model = Price
         fields = ['destination', 'depart', 'fournisseur', 'tonnage', 'price']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(PriceForm, self).__init__(*args, **kwargs)
+        if user:
+            self.fields['depart'].queryset = user.sites.all()
 
 
 class ReportForm(ModelForm):
@@ -79,36 +86,49 @@ class ReportForm(ModelForm):
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')))
     n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')))
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
-    line = forms.ModelChoiceField(queryset=Line.objects.all(), widget=forms.Select(attrs= getAttrs('select')), empty_label="Ligne")
-
-    destination = forms.ModelChoiceField(queryset=Emplacement.objects.filter(categ='Déstination'), widget=forms.Select(attrs=getAttrs('select')), empty_label="Déstination")
-    depart = forms.ModelChoiceField(queryset=Emplacement.objects.filter(categ='Départ'), widget=forms.Select(attrs=getAttrs('select')), empty_label="Départ")
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select')), empty_label="Site")
+    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Déstination")
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Tonnage")
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Fournisseur")
     price = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Prix')))
 
     class Meta:
         model = Report
-        fields = ['prix', 'date_dep', 'chauffeur', 'n_bl', 'line', 'observation', 'destination', 'depart', 'tonnage', 'fournisseur', 'price']
+        fields = ['prix', 'date_dep', 'chauffeur', 'n_bl', 'site', 'observation', 'destination', 'tonnage', 'fournisseur', 'price']
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
-        admin = kwargs.pop('admin', None)
-        lines = kwargs.pop('lines', None)
+        sites = kwargs.pop('sites', None)
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields["prix"].widget.attrs['disabled'] = True
         self.fields["price"].widget.attrs['disabled'] = True
-        self.fields['line'].initial = lines.first()
+        self.fields['site'].initial = sites.first()
         if instance:
             self.fields['destination'].initial = instance.prix.destination
-            self.fields['depart'].initial = instance.prix.depart
+            self.fields['site'].initial = instance.prix.depart
             self.fields['tonnage'].initial = instance.prix.tonnage
             self.fields['fournisseur'].initial = instance.prix.fournisseur
             self.fields['price'].initial = instance.prix.price
-        if not admin and len(lines) < 2:
-            self.fields['line'].widget.attrs['disabled'] = True
+        if len(sites) < 2:
+            self.fields['site'].widget.attrs['disabled'] = True
         else:
-            self.fields['line'].queryset = lines
+            self.fields['site'].queryset = sites
+
+    def clean(self):
+        cleaned_data = super().clean()
+        n_bl = cleaned_data.get('n_bl')
+        site = cleaned_data.get('site')
+
+        if n_bl and n_bl != 0 and site:
+            if self.instance.pk:
+                existing_report = Report.objects.filter(n_bl=n_bl, site=site).exclude( Q(id=self.instance.pk) | Q(state='Annulé')).exists()
+            else:
+                existing_report = Report.objects.filter(n_bl=n_bl, site=site).exclude(state='Annulé').exists()
+            if n_bl and n_bl != 0 and site:
+                if existing_report:
+                    self.add_error('n_bl', 'Un rapport avec ce numéro de BL existe déjà pour ce site.')
+
+        return cleaned_data
 
 class PTransportedForm(ModelForm):
     class Meta:
@@ -124,6 +144,8 @@ class PTransportedForm(ModelForm):
         # instance = kwargs.get('instance')
         super(PTransportedForm, self).__init__(*args, **kwargs)
         if user: 
-            self.fields['product'].queryset = Product.objects.filter(line__in=user.lines.all())
+            self.fields['product'].queryset = Product.objects.filter(site__in=user.sites.all())
+
+
 
 PTransportedsFormSet = inlineformset_factory(Report, PTransported, form=PTransportedForm, fields=['product', 'qte_transported', 'observation'], extra=0)

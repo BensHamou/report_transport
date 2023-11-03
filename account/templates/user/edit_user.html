@@ -52,13 +52,13 @@ Utilisateur - {{ user_to_edit.username }}
         </div>
         <div class="col">
           <div class="form-outline">
-            <label class="form-label labelCustom" for="lines">Lignes</label>
-            <div id="line" class="form-control select" style="background-color: #cacfd7;">
-              <input id="line_input" type="text" data-bs-toggle="dropdown" style="background-color: #cacfd7;" />
+            <label class="form-label labelCustom" for="sites">Sites</label>
+            <div id="site" class="form-control select" style="background-color: #cacfd7;">
+              <input id="site_input" type="text" data-bs-toggle="dropdown" style="background-color: #cacfd7;" />
               <div class="dropdown-menu"></div>
-              <select name="lines" multiple hidden id="hidden_lines_select">
-                {% for line in form.fields.lines.queryset %}
-                  <option value="{{ line.id }}" {% if line.id in selectedLines %} selected {% endif %}>{{ line.designation }}</option>
+              <select name="sites" multiple hidden id="hidden_sites_select">
+                {% for site in form.fields.sites.queryset %}
+                  <option value="{{ site.id }}" {% if site.id in selectedSites %} selected {% endif %}>{{ site.designation }}</option>
                 {% endfor %}                      
               </select>
             </div>
