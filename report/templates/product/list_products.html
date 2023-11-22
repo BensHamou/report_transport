@@ -11,9 +11,9 @@
     <form method="GET" style="{% if page %}margin: 20px 0px;{% else %}margin-top: 13%;{% endif %}">
         {% csrf_token %}
         <div class="row height d-flex justify-content-center align-items-center">
-            <div class="col-md-5">
+            <div class="col-md-5 mb-2">
                 <div class="form" style="position: relative;">
-                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: white;"></i>
+                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>
                     {{ filtredData.form.search }}
                 </div>
             </div>

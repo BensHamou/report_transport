@@ -7,11 +7,11 @@ from django.db.models import Q
 
 def getAttrs(type, placeholder='', other={}):
     ATTRIBUTES = {
-        'control': {'class': 'form-control', 'style': 'background-color: #cacfd7;', 'placeholder': ''},
-        'search': {'class': 'form-control form-input', 'style': 'background-color: rgba(202, 207, 215, 0.5); border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); color: #f2f2f2; height: 40px; text-indent: 33px; border-radius: 5px;', 'type': 'search', 'placeholder': '', 'id': 'search'},
-        'select': {'class': 'form-select', 'style': 'background-color: #cacfd7;'},
-        'date': {'type': 'date', 'class': 'form-control dateinput','style': 'background-color: #cacfd7;'},
-        'textarea': {"rows": "3", 'style': 'width: 100%', 'class': 'form-control', 'placeholder': '', 'style': 'background-color: #cacfd7;'}
+        'control': {'class': 'form-control', 'style': 'background-color: #ebecee;', 'placeholder': ''},
+        'search': {'class': 'form-control form-input', 'style': 'background-color: #ebecee; border-color: transparent; color: #ebecee; height: 40px; text-indent: 33px; border-radius: 5px;', 'type': 'search', 'placeholder': '', 'id': 'search'},
+        'select': {'class': 'form-select', 'style': 'background-color: #ebecee;'},
+        'date': {'type': 'date', 'class': 'form-control dateinput','style': 'background-color: #ebecee;'},
+        'textarea': {"rows": "3", 'style': 'width: 100%', 'class': 'form-control', 'placeholder': '', 'style': 'background-color: #ebecee;'}
     }
 
     

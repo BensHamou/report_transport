@@ -17,15 +17,15 @@ Liste de Prix
 
 <form method="POST">
   {% csrf_token %}
-  <div class="card card-body" style="background: rgba(255, 255, 255, 0.2); border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);">
+  <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);">
     <div class="row mb-4">
-        <div class="col">
+        <div class="col-md-6 col-sm-6">
           <div class="form-outline">
               <label class="form-label labelCustom" for="designation">Départ</label>
               {{ form.depart }}
           </div>
         </div>
-        <div class="col">
+        <div class="col-md-6 col-sm-6">
           <div class="form-outline">
               <label class="form-label labelCustom" for="destination">Déstination</label>
               {{ form.destination }}
@@ -33,19 +33,19 @@ Liste de Prix
         </div>
     </div>
     <div class="row mb-4">
-        <div class="col">
+        <div class="col-md-4 col-sm-6">
           <div class="form-outline">
               <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
               {{ form.fournisseur }}
           </div>
         </div>
-        <div class="col">
+        <div class="col-md-4 col-sm-6">
           <div class="form-outline">
               <label class="form-label labelCustom" for="tonnage">Tonnage</label>
               {{ form.tonnage }}
           </div>
         </div>
-        <div class="col">
+        <div class="col-md-4 col-sm-6">
           <div class="form-outline">
               <label class="form-label labelCustom" for="price">Prix</label>
               {{ form.price }}

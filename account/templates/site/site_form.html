@@ -17,15 +17,15 @@ Site
 
 <form method="POST">
   {% csrf_token %}
-  <div class="card card-body" style="background: rgba(255, 255, 255, 0.2); border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);">
-      <div class="row mb-4">
-        <div class="col-md-6 col-sm-6 mb-sm-2">
+  <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+    <div class="row mb-4">
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-sm-2">
           <div class="form-outline">
             <label class="form-label labelCustom" for="designation">Désignation</label>
               {{ form.designation }}
           </div>
         </div>
-        <div class="col-md-6 col-sm-6 mb-sm-2">
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-sm-2">
           <div class="form-outline">
             <label class="form-label labelCustom" for="designation">Address mail</label>
               {{ form.address }}
@@ -33,13 +33,13 @@ Site
         </div>
       </div>
       <div class="row mb-4">
-        <div class="col-md-6 col-sm-6 mb-sm-2">
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-sm-2">
           <div class="form-outline">
             <label class="form-label labelCustom" for="prefix_site">Préfixe</label>
               {{ form.prefix_site }}
             </div>
         </div>
-        <div class="col-md-6 col-sm-6 mb-sm-2">
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-sm-2">
           <div class="form-outline">
             <label class="form-label labelCustom" for="include_cron">Inclu cron</label>
           </br>

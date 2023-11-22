@@ -11,85 +11,134 @@ Liste des rapports
 {% block activeListReport %} {% include 'active_bar.html' %} {% endblock %}
 {% block content %}
 
-<div class="row mb-3" style="margin-top: 30px;"> 
-    <form method="GET" style="{% if page %}margin: 30px 0px;{% else %}margin-top: 13%;{% endif %}">
-        {% csrf_token %}
-        <div class="row height d-flex justify-content-center align-items-center">
-            <div class="col-md-6">
-                <div class="form" style="position: relative;">
-                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: white;"></i>{{ filter.form.search }}
+<div class="row mb-3">
+    {% if page %}
+        <form method="GET" style="{% if page %}margin: 20px 0px 0px 0px;{% else %}margin-top: 13%;{% endif %}">
+            {% csrf_token %}
+            <div class="row height d-flex justify-content-center align-items-center">
+                <div class="col-lg-4 col-md-3 col-sm-6 mb-2">
+                    <div class="form" style="position: relative;">
+                        <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>{{ filter.form.search }}
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6 mb-2">
+                    {{ filter.form.start_date }}
+                </div>
+                <div class="col-md-2 col-sm-6 mb-2">
+                    {{ filter.form.end_date }}
+                </div>
+                <div class="col-md-2 col-sm-6 mb-2">
+                    {{ filter.form.site }}
+                </div>
+                <div class="col-md-1 col-sm-6 mb-2">
+                    <input type="number" class="form-control" value="{% if request.GET.page_size %}{{ request.GET.page_size }}{% else %}12{% endif %}" style="background-color: #ebecee; 
+                    border-color: transparent; color: #133356; height: 40px;" name="page_size">
+                </div>
+                <div class="col-md-1 col-sm-6 mb-2">
+                    <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">Appliquer</button>
                 </div>
             </div>
-            <div class="col-md-2" style="width: 12%;">
-                {{ filter.form.start_date }}
+        </form>
+        <section class="sectionList"> 
+            <div class="tableStyle">
+                <table class="table table-borderless">
+                    <thead style="border-bottom: 2px solid white;">
+                        <tr class="text-white" style="vertical-align: middle;">
+                            <th>N° BL</th>
+                            <th>Créateur</th>
+                            <th class="d-none d-lg-table-cell" style="width: 19vw;">Date de création</th>
+                            <th>Départ</th>
+                            <th>Déstination</th>
+                            <th>Date départ</th>
+                            <th>Fournisseur</th>
+                            <th>Tonnage</th>
+                            <th>Prix</th>
+                            <th>Chauffeur</th>
+                            <th>État</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in page %}
+                        <tr style="color: #dde3f0;">
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.site.prefix_site }}{{ report.n_bl }}/{{ report.date_dep|date:"y" }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.creator }}</td>
+                            <td class="d-none d-lg-table-cell" onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.date_created|date:"d/m/Y H:i" }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.depart }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.destination }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.date_dep|date:"d/m/Y" }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.fournisseur }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.tonnage }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.price }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.chauffeur }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.state }}</td>
+                            <td style="vertical-align: middle;">
+                                <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} style="padding: 2px;" onclick="window.location='{% url 'edit_report' report.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
+                                <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} style="padding: 2px;" onclick="confirmReportDel('{{report.id|escapejs}}', '{{report.n_bl|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div class="col-md-2" style="width: 12%;">
-                {{ filter.form.end_date }}
-            </div>
-            <div class="col-md-2" style="width: 10%;">
-                {{ filter.form.site }}
-            </div>
-            <div class="col-md-1" style="width: 7%;">
-                <input type="number" class="form-control" value="{% if request.GET.page_size %}{{ request.GET.page_size }}{% else %}12{% endif %}" style="background-color: rgba(202, 207, 215, 0.5); 
-                border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); color: #f2f2f2; height: 40px;" name="page_size">
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">Appliquer</button>
-            </div>
+            {% if page.has_other_pages %}
+                {% include 'pagination.html' %}
+            {% endif %}    
+        </section>
+            {% if page.has_other_pages %}
+                {% include 'pagination.html' %}
+            {% endif %}    
         </div>
-    </form>
-    {% if page %}
-    <div class="sectionList">
-        <table class="table table-borderless">
-            <thead style="border-bottom: 2px solid white;">
-                <tr class="text-white">
-                  <th>N° BL</th>
-                  <th>Créateur</th>
-                  <th>Created at</th>
-                  <th>Départ</th>
-                  <th>Déstination</th>
-                  <th>Date départ</th>
-                  <th>Fournisseur</th>
-                  <th>Tonnage</th>
-                  <th>Prix</th>
-                  <th>Chauffeur</th>
-                  <th>État</th>
-                  <th style="width: 20vh;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in page %}
-                <tr style="color: #dde3f0;">
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.site.prefix_site }}{{ report.n_bl }}/{{ report.date_dep|date:"y" }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.creator }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.date_created|date:"d/m/Y H:i" }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.depart }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.destination }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.date_dep|date:"d/m/Y" }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.fournisseur }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.tonnage }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.prix.price }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.chauffeur }}</td>
-                    <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}'"  style="cursor: pointer;">{{ report.state }}</td>
-                    <td style="vertical-align: middle;">
-                        <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} onclick="window.location='{% url 'edit_report' report.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
-                        <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} onclick="confirmReportDel('{{report.id|escapejs}}', '{{report.n_bl|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
-                    </td>
-                </tr>
-                 {% endfor %}
-            </tbody>
-        </table>
-        {% if page.has_other_pages %}
-            {% include 'pagination.html' %}
-        {% endif %}    
-    </div>
     {% else %}
         {% include 'empty_list.html' %}
     {% endif %}
 </div>
 <style>
     select option {
-        background: rgba(127, 139, 161, 0.9);
+        background: rgba(235, 236, 238, 0.9);
+        color: #1b497c;
+    }
+    .sectionList{
+        margin-top: 35px;
+        background: rgba(147, 164, 186, 0.2);
+        border-radius: 5px; 
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    @media only screen and (max-width: 1100px) {
+            .tableStyle{
+                overflow-x: auto; 
+                width:  85vw;
+            }
+    }
+    @media only screen and (max-width: 950px) {
+            .tableStyle{
+                overflow-x: auto; 
+                width:  83vw;
+            }
+    }
+    @media only screen and (max-width: 860px) {
+            .tableStyle{
+                overflow-x: auto; 
+                width:  83vw;
+            }
+    }
+    @media only screen and (max-width: 780px) {
+            table td, table th {
+                white-space: nowrap;
+            }
+            .tableStyle{
+                overflow-x: auto; 
+                width:  80vw;
+            }
+    }
+    @media only screen and (max-width: 700px) {
+            table td, table th {
+                white-space: nowrap;
+            }
+            .tableStyle{
+                overflow-x: auto; 
+                width:  75vw;
+            }
     }
 </style>
 

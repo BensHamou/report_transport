@@ -17,23 +17,23 @@ Rapport
 
 <form method="POST">
   {% csrf_token %}
-    <div class="card card-body" style="background: rgba(255, 255, 255, 0.2); border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);">
-        <div class="row mb-4">
-            <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="site">Départ</label>
-                {{ form.site }}
-                    {% if form.site.errors %}
-                        <div style="color: red;">
-                        {% for error in form.site.errors %}
-                            *{{ error }}
-                        {% endfor %}
-                        </div>
-                    {% endif %}
-            </div>
-            </div>
-            <div class="col">
-            <div class="form-outline">
+  <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="site">Départ</label>
+                    {{ form.site }}
+                        {% if form.site.errors %}
+                            <div style="color: red;">
+                            {% for error in form.site.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+                <div class="form-outline">
                 <label class="form-label labelCustom" for="destination">Déstination</label>
                 {{ form.destination }}
                     {% if form.destination.errors %}
@@ -43,37 +43,37 @@ Rapport
                         {% endfor %}
                         </div>
                     {% endif %}
-            </div>
-            </div>
-            <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="tonnage">Tonnage</label>
-                {{ form.tonnage }}
-                    {% if form.tonnage.errors %}
-                        <div style="color: red;">
-                        {% for error in form.tonnage.errors %}
-                            *{{ error }}
-                        {% endfor %}
-                        </div>
-                    {% endif %}
-            </div>
-            </div>
-            <div class="col">
-            <div class="form-outline">
-                <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
-                {{ form.fournisseur }}
-                    {% if form.fournisseur.errors %}
-                        <div style="color: red;">
-                        {% for error in form.fournisseur.errors %}
-                            *{{ error }}
-                        {% endfor %}
-                        </div>
-                    {% endif %}
-            </div>
-            </div>
+                </div>
         </div>
-        <div class="row mb-4">
-            <div class="col">
+        <div class="col-md-3 col-sm-6">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="tonnage">Tonnage</label>
+                    {{ form.tonnage }}
+                        {% if form.tonnage.errors %}
+                            <div style="color: red;">
+                            {% for error in form.tonnage.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
+                    {{ form.fournisseur }}
+                        {% if form.fournisseur.errors %}
+                            <div style="color: red;">
+                            {% for error in form.fournisseur.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-4 col-sm-6">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="date_dep">Date départ</label>
                     {{ form.date_dep }}
@@ -85,8 +85,8 @@ Rapport
                         </div>
                     {% endif %}
                 </div>
-            </div>
-            <div class="col">
+        </div>
+        <div class="col-md-4 col-sm-6">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="chauffeur">Chauffeur</label>
                     {{ form.chauffeur }}
@@ -98,8 +98,8 @@ Rapport
                         </div>
                     {% endif %}
                 </div>
-            </div>
-            <div class="col">
+        </div>
+        <div class="col-md-4 col-sm-6">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="n_bl">N° BL</label>
                     {{ form.n_bl }}
@@ -111,10 +111,10 @@ Rapport
                         </div>
                     {% endif %}
                 </div>
-            </div>
-        </div>        
-        <div class="row mb-4">
-        <div class="col">
+        </div>
+    </div>        
+    <div class="row mb-4">
+        <div class="col-md-4 col-sm-6">
             <div class="form-outline">
                 <label class="form-label mt-2 labelCustom" for="observation">Observation</label>
                 {{ form.observation }}
@@ -127,9 +127,9 @@ Rapport
                 {% endif %}
             </div>
         </div>
-        </div>
-        <div class="row mb-4">
-        <div class="col-md-9">
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-9 col-sm-6">
           <div class="form-outline">
               {{ form.prix }}
                 {% if form.prix.errors %}
@@ -141,7 +141,7 @@ Rapport
                 {% endif %}
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
           <div class="form-outline">
               <label class="form-label labelCustom" for="price">Prix</label>
               {{ form.price }}
@@ -154,7 +154,7 @@ Rapport
                 {% endif %}
           </div>
         </div>
-        </div>
+    </div>
     </div>
 
   {% with named_formsets.ptransporteds as formset %}
@@ -168,9 +168,11 @@ Rapport
               {% for field in formset.empty_form.visible_fields %}
               <td>
                   {% if field.label == 'Supprimer' %}
-                  <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
-                      <i class="far fa-trash-alt"></i>
-                  </button>
+                  <div class="d-flex justify-content-center">
+                    <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
+                        <i class="far fa-trash-alt"></i>
+                    </button>
+                  </div>
                   {% else %}
                       {{ field }}
                       {% for error in field.errors %}
@@ -181,7 +183,7 @@ Rapport
               {% endfor %}
           </tr>
       </script>
-      <div class="table-responsive card mt-4" style="background: rgba(255, 255, 255, 0.2); border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);">
+      <div class="table-responsive card mt-4" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
           <div class="card-header card-header-secondary">
               <p class="card-title lead" style="font-size: 26px; color: rgb(237, 243, 253)">Produits</p>
           </div>
@@ -206,17 +208,21 @@ Rapport
                               {% endif %}
                           {% endfor %}
                           {% if formss.instance.pk %}
-                          <td>
-                              <button type="button" onclick="confirmPTransportedDel('{{formss.instance.pk|escapejs}}')" class="btn" style="color: white;">
-                                  <i class="far fa-trash-alt"></i>
-                              </button>
-                          </td>    
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                <button type="button" onclick="confirmPTransportedDel('{{formss.instance.pk|escapejs}}')" class="btn" style="color: white;">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            </td>    
                           {% else %}
-                          <td>
-                              <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
-                                  <i class="far fa-trash-alt"></i>
-                              </button>
-                          </td>    
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>    
                           {% endif %}
                       </tr>
                   {% endfor %}
@@ -238,6 +244,15 @@ Rapport
     .highlight {
         border: 2px solid green;
         animation: highlightAnimation 1s ease-in-out;
+    }
+    @media only screen and (max-width: 767px) {
+        td {
+            display: block;
+            width: 100%;
+            text-align: left;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
     }
     
     @keyframes highlightAnimation {

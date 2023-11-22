@@ -17,7 +17,7 @@ Utilisateurs
         <div class="row height d-flex justify-content-center align-items-center">
             <div class="col-md-6">
                 <div class="form" style="position: relative;">
-                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: white;"></i>{{ filtredData.form.search }}
+                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>{{ filtredData.form.search }}
                 </div>
             </div>
         </div>
@@ -27,19 +27,19 @@ Utilisateurs
         <table class="table table-borderless">
             <thead style="border-bottom: 2px solid white;">
                 <tr class="text-white">
-                  <th>Nom</th>
+                  <th class="d-none d-md-table-cell">Nom</th>
                   <th>Prénom</th>
-                  <th>Sites</th>
+                  <th class="d-none d-md-table-cell">Sites</th>
                   <th>Admin</th>
-                  <th style="width: 20vh;">Actions</th>
+                  <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for usr in page %}
                 <tr style="color: #dde3f0;">
-                    <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">{{ usr.first_name }}</td>
+                    <td class="d-none d-md-table-cell" onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">{{ usr.first_name }}</td>
                     <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">{{ usr.last_name }}</td>
-                    <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">
+                    <td class="d-none d-md-table-cell" onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">
                         {% for site in usr.sites.all %}
                             <span class="badge listBadge">
                                 <p class="lead p-0 m-0 listBadgeText">{{ site.designation }}</p>
@@ -56,8 +56,8 @@ Utilisateurs
                         {% endif %}
                     </td>
                     <td style="vertical-align: middle;">
-                        <button type="button" onclick="window.location='{% url 'edit_user' usr.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
-                        <button type="button" onclick="confirmUserDel('{{usr.id|escapejs}}', '{{usr.fullname|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
+                        <button type="button" onclick="window.location='{% url 'edit_user' usr.id %}'" class="btn"><i class="fas fa-edit" style="color: white; padding: 2px;"></i></button>
+                        <button type="button" onclick="confirmUserDel('{{usr.id|escapejs}}', '{{usr.fullname|escapejs}}')" class="btn" style="padding: 2px;"><i class="far fa-trash-alt" style="color: white;"></i></button>
                     </td>
                 </tr>
                  {% endfor %}

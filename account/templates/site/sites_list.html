@@ -11,9 +11,9 @@ Sites
     <form method="GET" style="{% if page %}margin: 20px 0px;{% else %}margin-top: 13%;{% endif %}">
         {% csrf_token %}
         <div class="row height d-flex justify-content-center align-items-center">
-            <div class="col-md-5">
+            <div class="col-md-5 mb-2">
                 <div class="form" style="position: relative;">
-                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: white;"></i>
+                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>
                     {{ filtredData.form.search }}
                 </div>
             </div>
@@ -27,21 +27,21 @@ Sites
         <table class="table table-borderless">
             <thead style="border-bottom: 2px solid white;">
                 <tr class="text-white">
-                <th>#</th>
+                <th class="d-none d-md-table-cell">#</th>
                 <th>Désignation</th>
-                <th>Address mail</th>
-                <th>Préfixe</th>
-                <th style="width: 40vh;">Actions</th>
+                <th class="d-none d-md-table-cell">Address mail</th>
+                <th class="d-none d-md-table-cell">Préfixe</th>
+                <th style="text-align: right;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for site in page %}
                 <tr style="color: #dde3f0;">
-                    <td>{{ site.id }}</td>
+                    <td class="d-none d-md-table-cell">{{ site.id }}</td>
                     <td>{{ site.designation }}</td>
-                    <td>{{ site.address }}</td>
-                    <td>{{ site.prefix_site }}</td>
-                    <td style="vertical-align: middle;">
+                    <td class="d-none d-md-table-cell">{{ site.address }}</td>
+                    <td class="d-none d-md-table-cell">{{ site.prefix_site }}</td>
+                    <td style="text-align: right;">
                         <button type="button" onclick="window.location='{% url 'edit_site' site.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmSiteDel('{{site.id|escapejs}}', '{{site.designation|escapejs}}')" class="btn" style="color: white;"><i class="far fa-trash-alt"></i></button>
                     </td>
