@@ -7,7 +7,7 @@ from report.forms import getAttrs
 
 class ProductFilter(FilterSet):
 
-    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher..')))
+    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Produit..')))
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
@@ -66,7 +66,7 @@ class TonnageFilter(FilterSet):
 
 class PriceFilter(FilterSet):
 
-    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Search...')))
+    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Liste des Prix..')))
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
@@ -85,7 +85,7 @@ class ReportFilter(FilterSet):
 
     other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
 
-    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher...')))    
+    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Rapport..')))    
     start_date = DateFilter(field_name='date_dep', lookup_expr='gte', widget=forms.widgets.DateInput(attrs= getAttrs('date', other=other), format='%d-%m-%Y'))
     end_date = DateFilter(field_name='date_dep', lookup_expr='lte', widget=forms.widgets.DateInput(attrs= getAttrs('date', other=other), format='%d-%m-%Y'))
     site = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="All")

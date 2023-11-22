@@ -86,10 +86,10 @@ DATABASES = {
     }
     #'default': {
     #    'ENGINE': 'django.db.backends.postgresql',
-    #    'NAME': 'TransDB',
-    #    'USER': 'trans_report',
-    #    'PASSWORD': 'trans_report',
-    #    'HOST': '10.10.10.53',
+    #    'NAME': 'TransportDB',
+    #    'USER': 'puma_prod',
+    #    'PASSWORD': 'puma_prod',
+    #    'HOST': '10.10.10.101',
     #    'PORT': '5434',
     #}
 }

@@ -6,7 +6,7 @@ from report.forms import getAttrs
 
 class UserFilter(django_filters.FilterSet):
     
-    search = django_filters.CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher..')))
+    search = django_filters.CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Utilisateur..')))
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
@@ -21,7 +21,7 @@ class UserFilter(django_filters.FilterSet):
 
 class SiteFilter(django_filters.FilterSet):
     
-    search = django_filters.CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher..')))
+    search = django_filters.CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Site..')))
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
