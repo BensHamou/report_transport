@@ -8,7 +8,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     ]
 
-SECRET_KEY = "django-insecure-vd#z%51p5n4!_2@!t$!4aair8r+$*^1$4!qp$=8rw78215aeg*"
+with open(os.path.join(BASE_DIR, 'secret_key.txt')) as f:
+    SECRET_KEY = f.read().strip()
 
 DEBUG = True
 
@@ -77,12 +78,20 @@ WSGI_APPLICATION = "report_transport.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'TransportDB',
-        'USER': 'puma_prod',
-        'PASSWORD': 'puma_prod',
-        'HOST': '10.10.10.101',
-        'PORT': '5434',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASS'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
+    #'default': {
+    #    'ENGINE': 'django.db.backends.postgresql',
+    #    'NAME': 'TransDB',
+    #    'USER': 'trans_report',
+    #    'PASSWORD': 'trans_report',
+    #    'HOST': '10.10.10.53',
+    #    'PORT': '5434',
+    #}
 }
 
 

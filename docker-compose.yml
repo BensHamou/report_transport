@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  db:
+    image: puma_trans:postgres
+    container_name: TRANS_DB
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=TransDB
+      - POSTGRES_USER=trans_report
+      - POSTGRES_PASSWORD=trans_report
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5469:5432"
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: puma_trans:latest
+    restart: unless-stopped
+    container_name: PUMA_APP
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./report_transport:/report_transport
+
+    command: >
+      sh -c " python manage.py makemigrations &&
+              python manage.py migrate &&
+              python manage.py runserver 0.0.0.0:8069"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=TransDB
+      - DB_USER=trans_report
+      - DB_PASS=trans_report
+      - DB_PORT=5432
+volumes:
+  db_data:
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.16.67.0/24
