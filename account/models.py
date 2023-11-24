@@ -5,7 +5,7 @@ from django.core.validators import MinValueValidator
 class Site(models.Model):
     designation = models.CharField(max_length=100)
     address = models.CharField(max_length=250, null=True)
-    prefix_site = models.CharField(max_length=5, blank=True, null=True)
+    prefix_site = models.CharField(max_length=6, blank=True, null=True)
     include_cron = models.BooleanField(default=False)
     
     def products(self):

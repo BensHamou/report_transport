@@ -5,11 +5,13 @@ from account.models import *
 from django.utils import timezone
 from django.db.models import Q
 
+
 def getAttrs(type, placeholder='', other={}):
     ATTRIBUTES = {
         'control': {'class': 'form-control', 'style': 'background-color: #ebecee;', 'placeholder': ''},
         'search': {'class': 'form-control form-input', 'style': 'background-color: #ebecee; border-color: transparent; color: #ebecee; height: 40px; text-indent: 33px; border-radius: 5px;', 'type': 'search', 'placeholder': '', 'id': 'search'},
         'select': {'class': 'form-select', 'style': 'background-color: #ebecee;'},
+        'select2': {'class': 'form-select', 'style': 'background-color: #ebecee; width: 100%;'},
         'date': {'type': 'date', 'class': 'form-control dateinput','style': 'background-color: #ebecee;'},
         'textarea': {"rows": "3", 'style': 'width: 100%', 'class': 'form-control', 'placeholder': '', 'style': 'background-color: #ebecee;'}
     }
@@ -29,16 +31,9 @@ def getAttrs(type, placeholder='', other={}):
 class ProductForm(ModelForm):
     class Meta:
         model = Product
-        fields = ['designation', 'site']
+        fields = ['designation']
 
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Designation')))
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Site")
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super(ProductForm, self).__init__(*args, **kwargs)
-        if user:
-            self.fields['site'].queryset = user.sites.all()
 
 class EmplacementForm(ModelForm):
     class Meta:
@@ -86,10 +81,10 @@ class ReportForm(ModelForm):
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')))
     n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')))
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select')), empty_label="Site")
-    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Déstination")
-    tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Tonnage")
-    fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Fournisseur")
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
+    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
+    tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
+    fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur")
     price = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Prix')))
 
     class Meta:
@@ -135,17 +130,8 @@ class PTransportedForm(ModelForm):
         model = PTransported
         fields = '__all__'
 
-    product = forms.ModelChoiceField(queryset=Product.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Product")
+    product = forms.ModelChoiceField(queryset=Product.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Produit")
     qte_transported = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Qte Consomée')))
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        # instance = kwargs.get('instance')
-        super(PTransportedForm, self).__init__(*args, **kwargs)
-        if user: 
-            self.fields['product'].queryset = Product.objects.filter(site__in=user.sites.all())
-
-
 
 PTransportedsFormSet = inlineformset_factory(Report, PTransported, form=PTransportedForm, fields=['product', 'qte_transported', 'observation'], extra=0)

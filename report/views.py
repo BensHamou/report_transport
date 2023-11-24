@@ -226,8 +226,8 @@ def editTonnageView(request, id):
 @login_required(login_url='login')
 @admin_required 
 def listProductList(request):
-    products = Product.objects.filter(site__in=request.user.sites.all()).order_by('id')
-    filteredData = ProductFilter(request.GET, queryset=products, user = request.user)
+    products = Product.objects.all().order_by('id')
+    filteredData = ProductFilter(request.GET, queryset=products)
     products = filteredData.qs
     paginator = Paginator(products, 7)
     page_number = request.GET.get('page')
@@ -252,7 +252,7 @@ def deleteProductView(request, id):
 @login_required(login_url='login')
 @admin_required
 def createProductView(request):
-    form = ProductForm(user = request.user)
+    form = ProductForm()
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
@@ -269,9 +269,9 @@ def createProductView(request):
 def editProductView(request, id):
     product = Product.objects.get(id=id)
 
-    form = ProductForm(instance=product, user = request.user)
+    form = ProductForm(instance=product)
     if request.method == 'POST':
-        form = ProductForm(request.POST, instance=product, user = request.user)
+        form = ProductForm(request.POST, instance=product)
         if form.is_valid():
             form.save()
             cache_param = str(uuid.uuid4())
@@ -383,8 +383,7 @@ class ReportInline():
         named_formsets = self.get_named_formsets()
         if not all((x.is_valid() for x in named_formsets.values())):
             return self.render_to_response(self.get_context_data(form=form))
-        
-        report = form.save(commit=False) 
+        report = form.save(commit=False)
         if not report.state or report.state == 'Brouillon':
             report.state = 'Brouillon'
         
@@ -417,13 +416,8 @@ class ReportInline():
         for obj in formset.deleted_objects:
             obj.delete()
         for ptransported in ptransporteds:
-            if ptransported.product.site == self.object.site:
-                ptransported.report = self.object
-                ptransported.save()
-                
-            #    raise ValueError("Ce produit ("+ptransported.product.designation+") n'existe pas sur ce site ("+self.object.site.designation+").")
-            #else:
-
+            ptransported.report = self.object
+            ptransported.save()
 
 class ReportCreate(LoginRequiredMixin, ReportInline, CreateView):
 
@@ -435,11 +429,11 @@ class ReportCreate(LoginRequiredMixin, ReportInline, CreateView):
     def get_named_formsets(self):
         if self.request.method == "GET":
             return {
-                'ptransporteds': PTransportedsFormSet(prefix='ptransporteds', form_kwargs={'user': self.request.user}),
+                'ptransporteds': PTransportedsFormSet(prefix='ptransporteds'),
             }
         else:
             return {
-                'ptransporteds': PTransportedsFormSet(self.request.POST or None, prefix='ptransporteds', form_kwargs={'user': self.request.user}),
+                'ptransporteds': PTransportedsFormSet(self.request.POST or None, prefix='ptransporteds'),
             }
 
 class ReportUpdate(LoginRequiredMixin, CheckEditorMixin, ReportInline, UpdateView):
@@ -451,7 +445,7 @@ class ReportUpdate(LoginRequiredMixin, CheckEditorMixin, ReportInline, UpdateVie
 
     def get_named_formsets(self):
         return {
-            'ptransporteds': PTransportedsFormSet(self.request.POST or None, instance=self.object, prefix='ptransporteds', form_kwargs={'user': self.request.user}),
+            'ptransporteds': PTransportedsFormSet(self.request.POST or None, instance=self.object, prefix='ptransporteds'),
         }
     
 class ReportDetail(LoginRequiredMixin, CheckReportViewerMixin, DetailView):
@@ -567,13 +561,4 @@ def getPrice(request):
     except Price.DoesNotExist:
         return JsonResponse({'exist': False, 'price_id': 0, 'price_prix': 0 })
 
-@login_required(login_url='login')
-def checkProducts(request):
-    errors = []
-    for productId in request.GET.get('products').split(','):
-        product = Product.objects.get(id=productId)
-        if not product.site.pk == int(request.GET.get('site')):
-            errors.append('Le produit '+product.designation+' n\'éxiste pas dans ce site.\n')
-    
-    return JsonResponse({'errors': errors })
     

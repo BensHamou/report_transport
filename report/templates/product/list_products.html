@@ -29,8 +29,7 @@
                 <tr class="text-white">
                 <th></th>
                 <th>Désignation</th>
-                <th>Site</th>
-                <th style="width: 20vh;">Actions</th>
+                <th style="width: 20vw;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,7 +37,6 @@
                 <tr style="color: #dde3f0;">
                     <td></td>
                     <td>{{ product.designation }}</td>
-                    <td>{{ product.site }}</td>
                     <td style="vertical-align: middle;">
                         <button type="button" onclick="window.location='{% url 'edit_product' product.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmProductDel('{{product.id|escapejs}}', '{{product.designation|escapejs}}')" class="btn" style="color: white;"><i class="far fa-trash-alt"></i></button>

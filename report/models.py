@@ -29,7 +29,6 @@ class Fournisseur(models.Model):
     
 class Product(models.Model):
     designation = models.CharField(max_length=100)
-    site = models.ForeignKey(Site, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.designation
@@ -62,7 +61,7 @@ class Report(models.Model):
     date_dep = models.DateField()
     chauffeur = models.CharField(max_length=100)
     n_bl = models.IntegerField(default=1, validators=[MinValueValidator(0)])
-    observation = models.TextField(null=True)
+    observation = models.TextField(null=True, blank=True)
 
     def ptransporteds(self):
         return self.ptransported_set.all()

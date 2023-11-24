@@ -11,19 +11,12 @@ class ProductFilter(FilterSet):
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
-            Q(designation__icontains=value) | (
-            Q(site__designation__icontains=value) &
-            Q(site__in=self.user.sites.all()) )
+            Q(designation__icontains=value)
         ).distinct()
 
     class Meta:
         model = Product
         fields = ['search']
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        self.user = user
-        super(ProductFilter, self).__init__(*args, **kwargs)
 
 class EmplacementFilter(FilterSet):
 

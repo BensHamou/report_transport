@@ -21,7 +21,7 @@ Rapport
         <div class="row mb-4">
             <div class="col-md-3 col-sm-6">
                     <div class="form-outline">
-                        <label class="form-label labelCustom" for="site">Départ</label>
+                        <label class="form-label labelCustom" for="site">Départ</label><br>
                         {{ form.site }}
                             {% if form.site.errors %}
                                 <div style="color: red;">
@@ -34,7 +34,7 @@ Rapport
             </div>
             <div class="col-md-3 col-sm-6">
                     <div class="form-outline">
-                    <label class="form-label labelCustom" for="destination">Déstination</label>
+                    <label class="form-label labelCustom" for="destination">Déstination</label><br>
                     {{ form.destination }}
                         {% if form.destination.errors %}
                             <div style="color: red;">
@@ -47,7 +47,7 @@ Rapport
             </div>
             <div class="col-md-3 col-sm-6">
                     <div class="form-outline">
-                        <label class="form-label labelCustom" for="tonnage">Tonnage</label>
+                        <label class="form-label labelCustom" for="tonnage">Tonnage</label><br>
                         {{ form.tonnage }}
                             {% if form.tonnage.errors %}
                                 <div style="color: red;">
@@ -60,7 +60,7 @@ Rapport
             </div>
             <div class="col-md-3 col-sm-6">
                     <div class="form-outline">
-                        <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
+                        <label class="form-label labelCustom" for="fournisseur">Fournisseur</label><br>
                         {{ form.fournisseur }}
                             {% if form.fournisseur.errors %}
                                 <div style="color: red;">
@@ -132,13 +132,6 @@ Rapport
             <div class="col-md-9 col-sm-6">
                 <div class="form-outline">
                     {{ form.prix }}
-                        {% if form.prix.errors %}
-                            <div style="color: red;">
-                            {% for error in form.prix.errors %}
-                                *{{ error }}
-                            {% endfor %}
-                            </div>
-                        {% endif %}
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
@@ -161,25 +154,25 @@ Rapport
       {{ formset.management_form }}
       <script type="text/html" id="ptransporteds-template">
           <tr id="ptransporteds-__prefix__" class= hide_all>
-              {% for fields in formset.empty_form.hidden_fields %}
-                  {{ fields }}
-              {% endfor %}
-              <td></td>
-              {% for field in formset.empty_form.visible_fields %}
-              <td>
-                  {% if field.label == 'Supprimer' %}
-                  <div class="d-flex justify-content-center">
-                    <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
-                        <i class="far fa-trash-alt"></i>
-                    </button>
-                  </div>
-                  {% else %}
-                      {{ field }}
-                      {% for error in field.errors %}
-                          <span style="color: red">*{{ error }}</span>
-                      {% endfor %}
-                  {% endif %}
-              </td>
+                {% for fields in formset.empty_form.hidden_fields %}
+                    {{ fields }}
+                {% endfor %}
+                <td></td>
+                {% for field in formset.empty_form.visible_fields %}
+                <td>
+                    {% if field.label == 'Supprimer' %}
+                        <div class="d-flex justify-content-center">
+                            <button type="button" onclick="deleteRow(this.parentNode.parentNode.parentNode)" class="btn" style="color: white;">
+                                <i class="far fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <span style="color: red">*{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </td>
               {% endfor %}
           </tr>
       </script>
@@ -236,14 +229,30 @@ Rapport
 
     <div class="d-flex justify-content-center align-items-center form-group m-4">
         <button type="submit" class="btn btn-secondary btn-block customSaveButton">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="loading-spinner" style="display: none;"></span>
-            {% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}</button>
+            {% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}
+        </button>
     </div>
 </form>
+
 <style>
     .highlight {
         border: 2px solid green;
         animation: highlightAnimation 1s ease-in-out;
+    }
+    .select2-search {
+        background-color: #ebecee !important;
+    }
+    .select2-search input {
+        background-color: #ebecee !important;
+    }
+    
+    .select2-results {
+        background-color: #ebecee !important;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection {
+        border-color: #ebecee !important;
+        background-color: #ebecee !important;
     }
     @media only screen and (max-width: 767px) {
         td {
@@ -264,6 +273,7 @@ Rapport
         }
     }
 </style>
+
 <script>
     const deleteRow = (row) => {
         row.remove();
@@ -289,27 +299,12 @@ Rapport
         const noDups = new Set(a);
         return a.length !== noDups.size;
     }
-
-    const getErrors = (products) => {
-        var productString = products.join(",");
-        var site = $('#id_site').val();
-        return new Promise((resolve, reject) => {
-            $.ajax({ url: '{% url "check_products" %}', type: 'GET',
-                data: { products: productString, site: site, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),},
-                success: function(response) { 
-                    if(response.errors.length > 0) {
-                        resolve(response.errors); 
-                    }
-                    else{
-                        resolve(false); 
-                    }
-                },
-                error: function(xhr, textStatus, error) { reject(error); }
-            });
-        });
-    }
     
     $(document).ready(function() {
+        $('.form-select').select2({
+            theme: 'bootstrap-5', 
+            allowClear: true, 
+        });
         $('.add-ptransporteds').click(function(ev) {
             ev.preventDefault();
             var count = $('#item-ptransporteds').children().length;
@@ -318,7 +313,10 @@ Rapport
             $('#item-ptransporteds').append(compiledTmpl);
             
             $('#id_ptransporteds-TOTAL_FORMS').attr('value', count+1);
-            
+            $('.form-select').select2({
+                theme: 'bootstrap-5', 
+                allowClear: true, 
+            });
             var newElement = $('#item-ptransporteds').children().last()[0];
             newElement.scrollIntoView({ behavior: 'smooth' });
         });
@@ -328,34 +326,19 @@ Rapport
             $("[id^='id_ptransporteds-'][id$='-product']").each(function() {
                 selectedProducts.push(this.value);
             });
-            if(hasDuplicates(selectedProducts)){
+            if(selectedProducts.length == 0){
+                swal({title: `Oops, Ce rapport ne contient aucun produit transporté.!`,   
+                    text: `Veuillez insérer au moins un produit.`, confirmButtonColor: "#DD6B55",   
+                    confirmButtonText: "Ok", type: "warning", closeOnCancel: true });
+            }
+            else if(hasDuplicates(selectedProducts)){
                 swal({title: `Oops, Il y a des produits en double!`,   
                     text: `Veuillez modifier votre saisie.`, confirmButtonColor: "#DD6B55",   
                     confirmButtonText: "Ok", type: "warning", closeOnCancel: true });
             }
             else{
-                $('#loading-spinner').show();
-                getErrors(selectedProducts).then(errors => {
-                    if (errors) {
-                        var errorsMessage = "";
-                        for(var i = 0; i < errors.length; i++) {
-                            errorsMessage += errors[i];
-                        }
-                        swal({title: `Oops, Il existe des produits qui n'appartiennent pas à ce site!`,   
-                            text: errorsMessage, confirmButtonColor: "#DD6B55",   
-                            confirmButtonText: "Ok", type: "warning", closeOnCancel: true });
-                        $('#loading-spinner').hide();
-                    } else {
-                        $('[disabled]').removeAttr('disabled');
-                        $('#loading-spinner').hide();
-                        this.submit(); 
-                    }
-                    $('#loading-spinner').hide();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    $('#loading-spinner').hide();
-                });
+                $('[disabled]').removeAttr('disabled');
+                this.submit(); 
             }
         });
         const checkFields = () => {

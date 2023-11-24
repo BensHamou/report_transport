@@ -18,7 +18,6 @@ from django.core.paginator import Paginator
 
 def login_success(request):
     user = request.user
-    print(user.is_admin)
     if user.is_authenticated:
         if not user.is_admin:
             return redirect("reports")
@@ -52,7 +51,7 @@ def refreshUsersList(request):
     usernames = User.objects.values_list('username', flat=True)
     
     API_Users = 'https://api.ldap.groupe-hasnaoui.com/get/users?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJUb2tlbiI6IkZvciBEU0kiLCJVc2VybmFtZSI6ImFjaG91cl9hciJ9.aMy1LUzKa6StDvQUX54pIvmjRwu85Fd88o-ldQhyWnE'
-    GROUP_Users = 'https://api.ldap.groupe-hasnaoui.com/get/users/group/PUMA-PRD?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJUb2tlbiI6IkZvciBEU0kiLCJVc2VybmFtZSI6ImFjaG91cl9hciJ9.aMy1LUzKa6StDvQUX54pIvmjRwu85Fd88o-ldQhyWnE'
+    GROUP_Users = 'https://api.ldap.groupe-hasnaoui.com/get/users/group/PUMA-TRN?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJUb2tlbiI6IkZvciBEU0kiLCJVc2VybmFtZSI6ImFjaG91cl9hciJ9.aMy1LUzKa6StDvQUX54pIvmjRwu85Fd88o-ldQhyWnE'
 
     response = requests.get(API_Users)
     response_ = requests.get(GROUP_Users)

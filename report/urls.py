@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from .views import *
 
@@ -39,6 +39,4 @@ urlpatterns = [
     path('report/<int:pk>/confirm/', views.confirmReport, name='confirm_report'),
     path('report/<int:pk>/cancel/', views.cancelReport, name='cancel_report'),
     path('report/get-price/', views.getPrice, name='get_price'),
-    path('report/check-products/', views.checkProducts, name='check_products'),
-
 ]
