@@ -59,20 +59,23 @@ class TonnageFilter(FilterSet):
 
 class PriceFilter(FilterSet):
 
+    other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
+
     search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Liste des Prix..')))
+    depart = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="All")
+    tonnage = ModelChoiceFilter(queryset=Tonnage.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="All")
+
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
             Q(destination__designation__icontains=value) |
-            Q(depart__designation__icontains=value) |
-            Q(tonnage__designation__icontains=value) |
             Q(fournisseur__designation__icontains=value) |
             Q(price__icontains=value)
         ).distinct()
 
     class Meta:
         model = Price
-        fields = ['search']
+        fields = ['search', 'depart', 'tonnage']
         
 class ReportFilter(FilterSet):
 

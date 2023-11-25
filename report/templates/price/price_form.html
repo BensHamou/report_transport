@@ -19,44 +19,104 @@ Liste de Prix
   {% csrf_token %}
   <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);">
     <div class="row mb-4">
-        <div class="col-md-6 col-sm-6">
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-2">
           <div class="form-outline">
               <label class="form-label labelCustom" for="designation">Départ</label>
               {{ form.depart }}
+              {% if form.depart.errors %}
+                  <div style="color: red;">
+                  {% for error in form.depart.errors %}
+                      *{{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
           </div>
         </div>
-        <div class="col-md-6 col-sm-6">
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-2">
           <div class="form-outline">
               <label class="form-label labelCustom" for="destination">Déstination</label>
               {{ form.destination }}
+              {% if form.destination.errors %}
+                  <div style="color: red;">
+                  {% for error in form.destination.errors %}
+                      *{{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
           </div>
         </div>
     </div>
     <div class="row mb-4">
-        <div class="col-md-4 col-sm-6">
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-2">
           <div class="form-outline">
               <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
               {{ form.fournisseur }}
+              {% if form.fournisseur.errors %}
+                  <div style="color: red;">
+                  {% for error in form.fournisseur.errors %}
+                      *{{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
           </div>
         </div>
-        <div class="col-md-4 col-sm-6">
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-2">
           <div class="form-outline">
               <label class="form-label labelCustom" for="tonnage">Tonnage</label>
               {{ form.tonnage }}
+              {% if form.tonnage.errors %}
+                  <div style="color: red;">
+                  {% for error in form.tonnage.errors %}
+                      *{{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
           </div>
         </div>
-        <div class="col-md-4 col-sm-6">
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-2">
           <div class="form-outline">
               <label class="form-label labelCustom" for="price">Prix</label>
               {{ form.price }}
+              {% if form.price.errors %}
+                  <div style="color: red;">
+                  {% for error in form.price.errors %}
+                      *{{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
           </div>
         </div>
     </div>
   </div>
-  <div class="float-end mt-4">
+  <div class="float-end mt-4 mb-2">
     <input type='submit' class="btn btn-secondary customSaveButton" name='save' value="Sauvgardez"/>
   </div>
 </form>
 
+<script>
+  $(document).ready(function() {
+    $('.form-select').select2({
+        theme: 'bootstrap-5', 
+        allowClear: true, 
+    });
+  });
+</script>
+<style>
+  .select2-search {
+      background-color: #ebecee !important;
+  }
+  .select2-search input {
+      background-color: #ebecee !important;
+  }
+  
+  .select2-results {
+      background-color: #ebecee !important;
+  }
+  
+  .select2-container--bootstrap-5 .select2-selection {
+      border-color: #ebecee !important;
+      background-color: #ebecee !important;
+  }
+</style>
 
 {% endblock %}

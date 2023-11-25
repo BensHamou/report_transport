@@ -9,7 +9,7 @@ from django.db.models import Q
 def getAttrs(type, placeholder='', other={}):
     ATTRIBUTES = {
         'control': {'class': 'form-control', 'style': 'background-color: #ebecee;', 'placeholder': ''},
-        'search': {'class': 'form-control form-input', 'style': 'background-color: #ebecee; border-color: transparent; color: #ebecee; height: 40px; text-indent: 33px; border-radius: 5px;', 'type': 'search', 'placeholder': '', 'id': 'search'},
+        'search': {'class': 'form-control form-input', 'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; text-indent: 33px; border-radius: 5px;', 'type': 'search', 'placeholder': '', 'id': 'search'},
         'select': {'class': 'form-select', 'style': 'background-color: #ebecee;'},
         'select2': {'class': 'form-select', 'style': 'background-color: #ebecee; width: 100%;'},
         'date': {'type': 'date', 'class': 'form-control dateinput','style': 'background-color: #ebecee;'},
@@ -58,10 +58,10 @@ class FournisseurForm(ModelForm):
 
 class PriceForm(ModelForm):
     
-    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Déstination")
-    depart = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Départ")
-    tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Tonnage")
-    fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select')), empty_label="Fournisseur")
+    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
+    depart = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Départ")
+    tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
+    fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur")
     price = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Prix')))
     class Meta:
         model = Price
@@ -72,6 +72,24 @@ class PriceForm(ModelForm):
         super(PriceForm, self).__init__(*args, **kwargs)
         if user:
             self.fields['depart'].queryset = user.sites.all()
+    
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        destination = cleaned_data.get('destination')
+        depart = cleaned_data.get('depart')
+        fournisseur = cleaned_data.get('fournisseur')
+        tonnage = cleaned_data.get('tonnage')
+
+        if destination and depart and fournisseur and tonnage:
+            if self.instance.pk:
+                existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
+                tonnage=tonnage).exclude(Q(id=self.instance.pk)).exists()
+            else:
+                existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
+                tonnage=tonnage).exists()
+            if existing_price:
+                self.add_error('destination', 'Une liste de prix avec cette configuration existe déjà.')
 
 
 class ReportForm(ModelForm):

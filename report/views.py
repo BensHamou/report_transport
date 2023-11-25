@@ -290,7 +290,9 @@ def listPriceView(request):
     prices = Price.objects.filter(depart__in=request.user.sites.all()).order_by('id')
     filteredData = PriceFilter(request.GET, queryset=prices)
     prices = filteredData.qs
-    paginator = Paginator(prices, 7)
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12   
+    paginator = Paginator(prices, page_size)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
@@ -554,8 +556,11 @@ def cancelReport(request, pk):
 @login_required(login_url='login')
 def getPrice(request):
     try:
-       price = Price.objects.get(destination = request.GET.get('destination'), depart = request.GET.get('site'), 
-                                 tonnage = request.GET.get('tonnage'), fournisseur = request.GET.get('fournisseur'))
+       price = Price.objects.filter(destination=request.GET.get('destination'),
+                                    depart=request.GET.get('site'),
+                                    tonnage=request.GET.get('tonnage'),
+                                    fournisseur=request.GET.get('fournisseur')
+                                )[:1].get()
        
        return JsonResponse({'exist': True, 'price_id': price.id, 'price_prix': price.price })
     except Price.DoesNotExist:
