@@ -99,7 +99,7 @@ class ReportForm(ModelForm):
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')))
     immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')))
     n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')))
-    n_bl_2 = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL 2 (Facultatif)')))
+    n_bl_2 = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL 2 (Facultatif)')), required=False)
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
     destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
