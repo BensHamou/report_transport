@@ -94,7 +94,8 @@ class ReportFilter(FilterSet):
             Q(prix__fournisseur__designation__icontains=value) |
             Q(creator__fullname__icontains=value) |
             Q(chauffeur__icontains=value)|
-            Q(n_bl__icontains=value)
+            Q(n_bl__icontains=value)|
+            Q(n_bl_2__icontains=value)
         ).distinct()
 
     class Meta:

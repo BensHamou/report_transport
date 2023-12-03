@@ -1,26 +1,42 @@
 <div class="modal" id="ptransportedsModal" tabindex="-1" aria-labelledby="ptransportedsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
-        <div class="modal-content" style="background: rgba(107, 122, 147, 0.9); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter: blur(2px);">
+        <div class="modal-content contentStyle">
             <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
-                <h5 class="modal-title" id="ptransportedsModalLabel">Produits Transportés</h5>
-                <button type="button" class="btn-close" data-dismiss="modal" id="buttonPTX" aria-label="Close"></button>
+                <h4 class="headerStyle mb-0">Produits Transportés - {{ report.site.prefix_site }}{{ report.n_bl }}/{{ report.date_dep|date:"y" }}</h4>
+                <p class="lead mb-0 dateStyle">{{ report.date_dep|date:"d/m/Y"}}</p>
+                <button type="button" class="btn-close" style="margin-left: 10px;" data-dismiss="modal" id="buttonPTX" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <table class="table card-header text-white" style="background: rgba(0, 0, 0, 0);">
                     <thead style="border-color: white;">
-                        <th>Produit</th>
-                        <th>Qte</th>
-                        <th>Observation</th>
+                        <th class="d-none d-md-table-cell">Produit</th>
+                        <th class="d-none d-md-table-cell">Qte</th>
+                        <th class="d-none d-md-table-cell">Observation</th>
                     </thead>
                     <tbody id="item-ptransporteds">
                         {% for ptransported in report.ptransporteds.all %}
-                            <tr style="border-color: transparent; color: #d9dce1;">
-                                <td>{{ ptransported.product }}</td>
-                                <td>{{ ptransported.qte_transported }}</td>
-                                <td>{% if ptransported.observation  %}{{ ptransported.observation }}{% else %}/{% endif %}</td>
+                            <tr class="trS">
+                                <td>
+                                    <div>
+                                        <p class="tdLabel">Produit</p>
+                                        <p class="valueLead mb-0">{{ ptransported.product }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <p class="tdLabel">Quantité</p>
+                                        <p class="valueLead mb-0">{{ ptransported.qte_transported }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <p class="tdLabel">Observation</p>
+                                        <p class="valueLead mb-0">{% if ptransported.observation  %}{{ ptransported.observation }}{% else %}/{% endif %}</p>
+                                    </div>
+                                </td>
                             </tr>
                         {% empty %}
-                            <tr>
+                            <tr class="trS">
                                 <td>Pas d'enregistrements.</td>
                                 <td>Pas d'enregistrements.</td>
                                 <td>Pas d'enregistrements.</td>
@@ -52,3 +68,62 @@
         });
     });
 </script>
+
+<style>
+    .contentStyle {
+        background: rgba(107, 122, 147, 0.75); 
+        border-radius: 16px; 
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+        backdrop-filter: blur(2px);
+    }
+    .tdLabel{
+        display: none;
+    }
+    .trS {
+        border-color: transparent; 
+        color: #d9dce1;
+    }
+    .dateStyle{
+        margin-left: auto; 
+    }
+    @media only screen and (max-width: 767px) {
+        .contentStyle {
+            background: rgba(236, 239, 242, 0.95);
+            border-radius: 16px; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+            backdrop-filter: blur(2px);
+        }
+        .dateStyle{
+            color: #747474;
+        }
+        .headerStyle{
+            color: #0c2858;
+            font-weight: bold;
+        }
+        td {
+            display: block;
+            width: 100%;
+            text-align: left;
+            box-sizing: border-box;
+            margin: 0 0 2px 10px;
+        }
+        .trS {
+            border-left: 4px solid #8b99b0;
+            border-radius: 5px;
+            color: #5b5b5b;
+            border-top: 10px solid transparent;
+        }
+        .tdLast{
+            border-bottom: 2px solid white;
+        }
+        .valueLead{
+            font-size: 16px;
+        }
+        .tdLabel{
+            display: block;
+            color: #929292; 
+            font-size: 16px; 
+            margin-bottom: 5px;
+        }
+    }
+</style>

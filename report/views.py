@@ -229,7 +229,9 @@ def listProductList(request):
     products = Product.objects.all().order_by('id')
     filteredData = ProductFilter(request.GET, queryset=products)
     products = filteredData.qs
-    paginator = Paginator(products, 7)
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12   
+    paginator = Paginator(products, page_size)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
@@ -259,7 +261,10 @@ def createProductView(request):
             form.save()
             cache_param = str(uuid.uuid4())
             url_path = reverse('products')
-            redirect_url = f'{url_path}?cache={cache_param}'
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
             return redirect(redirect_url)
     context = {'form': form }
     return render(request, 'product_form.html', context)
@@ -277,7 +282,9 @@ def editProductView(request, id):
             cache_param = str(uuid.uuid4())
             url_path = reverse('products')
             page = request.GET.get('page', '1')
-            redirect_url = f'{url_path}?cache={cache_param}&page={page}'
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
             return redirect(redirect_url)
     context = {'form': form, 'product': product }
 

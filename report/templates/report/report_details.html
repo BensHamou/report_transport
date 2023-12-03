@@ -62,7 +62,15 @@ Rapport - {{ report.site.prefix_site }}{{ report.n_bl }}/{{ report.date_dep|date
                     <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">N° BL</label>
                     <div class="col-sm-10">
                         <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                            {{ report.n_bl }}
+                            {{ report.site.prefix_site }}{{ report.n_bl }}/{{ report.date_dep|date:"y" }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">N° BL 2</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {% if report.n_bl_2  %}{{ report.site.prefix_site }}{{ report.n_bl_2 }}/{{ report.date_dep|date:"y" }}{% else %}/{% endif %}
                         </div>
                     </div>
                 </div>
@@ -135,6 +143,14 @@ Rapport - {{ report.site.prefix_site }}{{ report.n_bl }}/{{ report.date_dep|date
                     <div class="col-sm-10">
                         <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
                             {{ report.chauffeur }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Immatriculation</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                           {% if report.immatriculation  %}{{ report.immatriculation }}{% else %}/{% endif %}
                         </div>
                     </div>
                 </div>

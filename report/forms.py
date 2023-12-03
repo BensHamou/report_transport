@@ -97,7 +97,9 @@ class ReportForm(ModelForm):
     prix = forms.ModelChoiceField(queryset=Price.objects.all(), widget=forms.HiddenInput(), empty_label="Prix")
     date_dep = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')))
+    immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')))
     n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')))
+    n_bl_2 = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL 2 (Facultatif)')))
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
     destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
@@ -107,7 +109,7 @@ class ReportForm(ModelForm):
 
     class Meta:
         model = Report
-        fields = ['prix', 'date_dep', 'chauffeur', 'n_bl', 'site', 'observation', 'destination', 'tonnage', 'fournisseur', 'price']
+        fields = ['prix', 'date_dep', 'chauffeur', 'immatriculation','n_bl', 'n_bl_2', 'site', 'observation', 'destination', 'tonnage', 'fournisseur', 'price']
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
@@ -130,17 +132,25 @@ class ReportForm(ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         n_bl = cleaned_data.get('n_bl')
+        n_bl_2 = cleaned_data.get('n_bl_2')
         site = cleaned_data.get('site')
+        date_dep = cleaned_data.get('date_dep')
 
         if n_bl and n_bl != 0 and site:
             if self.instance.pk:
-                existing_report = Report.objects.filter(n_bl=n_bl, site=site).exclude( Q(id=self.instance.pk) | Q(state='Annulé')).exists()
+                existing_report = Report.objects.filter(Q(n_bl=n_bl, site=site) |  Q(n_bl_2=n_bl, site=site), date_dep__year=date_dep.year).exclude( Q(id=self.instance.pk) | Q(state='Annulé')).exists()
             else:
-                existing_report = Report.objects.filter(n_bl=n_bl, site=site).exclude(state='Annulé').exists()
-            if n_bl and n_bl != 0 and site:
-                if existing_report:
-                    self.add_error('n_bl', 'Un rapport avec ce numéro de BL existe déjà pour ce site.')
+                existing_report = Report.objects.filter(Q(n_bl=n_bl, site=site) |  Q(n_bl_2=n_bl, site=site), date_dep__year=date_dep.year).exclude(state='Annulé').exists()
+            if existing_report:
+                self.add_error('n_bl', 'Un rapport avec ce numéro de BL existe déjà pour ce site.')
 
+        if n_bl_2 and n_bl_2 != 0 and site:
+            if self.instance.pk:
+                existing_report_2 = Report.objects.filter(Q(n_bl=n_bl_2, site=site) |  Q(n_bl_2=n_bl_2, site=site), date_dep__year=date_dep.year).exclude( Q(id=self.instance.pk) | Q(state='Annulé')).exists()
+            else:
+                existing_report_2 = Report.objects.filter(Q(n_bl=n_bl_2, site=site) |  Q(n_bl_2=n_bl_2, site=site), date_dep__year=date_dep.year).exclude(state='Annulé').exists()
+            if existing_report_2:
+                self.add_error('n_bl_2', 'Un rapport avec ce numéro de BL existe déjà pour ce site.')
         return cleaned_data
 
 class PTransportedForm(ModelForm):
