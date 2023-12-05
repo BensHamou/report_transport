@@ -55,7 +55,9 @@ def listEmplacementView(request):
     emplacements = Emplacement.objects.all().order_by('id')
     filteredData = EmplacementFilter(request.GET, queryset=emplacements)
     emplacements = filteredData.qs
-    paginator = Paginator(emplacements, 7)
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12   
+    paginator = Paginator(emplacements, page_size)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
@@ -100,7 +102,9 @@ def editEmplacementView(request, id):
             cache_param = str(uuid.uuid4())
             url_path = reverse('emplacements')
             page = request.GET.get('page', '1')
-            redirect_url = f'{url_path}?cache={cache_param}&page={page}'
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
             return redirect(redirect_url)
     context = {'form': form, 'emplacement': emplacement}
 
@@ -113,7 +117,9 @@ def listFournisseurView(request):
     fournisseurs = Fournisseur.objects.all().order_by('id')
     filteredData = FournisseurFilter(request.GET, queryset=fournisseurs)
     fournisseurs = filteredData.qs
-    paginator = Paginator(fournisseurs, 7)
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12   
+    paginator = Paginator(fournisseurs, page_size)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
@@ -158,7 +164,9 @@ def editFournisseurView(request, id):
             cache_param = str(uuid.uuid4())
             url_path = reverse('fournisseurs')
             page = request.GET.get('page', '1')
-            redirect_url = f'{url_path}?cache={cache_param}&page={page}'
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
             return redirect(redirect_url)
     context = {'form': form, 'fournisseur': fournisseur}
 
