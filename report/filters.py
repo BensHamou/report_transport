@@ -24,7 +24,8 @@ class EmplacementFilter(FilterSet):
 
     def filter_search(self, queryset, name, value):
         return queryset.filter(
-            Q(designation__icontains=value)
+            Q(designation__icontains=value) |
+            Q(region__icontains=value)
         ).distinct()
 
     class Meta:

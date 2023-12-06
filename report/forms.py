@@ -38,9 +38,10 @@ class ProductForm(ModelForm):
 class EmplacementForm(ModelForm):
     class Meta:
         model = Emplacement
-        fields = ['designation']
+        fields = ['designation', 'region']
     
-    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Designation')))
+    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Désignation')))
+    region = forms.ChoiceField(choices=Emplacement.REGION, widget=forms.Select(attrs=getAttrs('select')))
 
 class TonnageForm(ModelForm):
     class Meta:

@@ -44,7 +44,6 @@ Fournisseur
             <th></th>
             <th>Départ</th>
             <th>Déstination</th>
-            <th>Fournisseur</th>
             <th>Tonnage</th>
             <th>Prix</th>
           </tr>
@@ -55,14 +54,12 @@ Fournisseur
                 <td></td>
                 <td>{{ prix.depart }}</td>
                 <td>{{ prix.destination }}</td>
-                <td>{{ prix.fournisseur }}</td>
                 <td>{{ prix.tonnage }}</td>
                 <td>{{ prix.price }}</td>
             </tr>
           {% empty %}
             <tr style="color: #dde3f0;">
                 <td></td>
-                <td>Pas d'enregistrements.</td>
                 <td>Pas d'enregistrements.</td>
                 <td>Pas d'enregistrements.</td>
                 <td>Pas d'enregistrements.</td>

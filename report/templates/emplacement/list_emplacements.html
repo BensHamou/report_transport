@@ -36,6 +36,7 @@ Emplacements
                 <tr class="text-white">
                 <th>#</th>
                 <th>Désignation</th>
+                <th>Région</th>
                 <th style="width: 40vh;">Actions</th>
                 </tr>
             </thead>
@@ -44,6 +45,7 @@ Emplacements
                 <tr style="color: #dde3f0;">
                     <td>{{ emplacement.id }}</td>
                     <td>{{ emplacement.designation }}</td>
+                    <td>{{ emplacement.region }}</td>
                     <td style="vertical-align: middle;">
                         <button type="button" onclick="window.location='{% url 'edit_emplacement' emplacement.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmEmplacementDel('{{emplacement.id|escapejs}}', '{{emplacement.designation|escapejs}}')" class="btn" style="color: white; padding: 2px;"><i class="far fa-trash-alt"></i></button>

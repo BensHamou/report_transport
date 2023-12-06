@@ -3,8 +3,16 @@ from django.core.validators import MinValueValidator
 from account.models import User, Site
 
 class Emplacement(models.Model):
+ 
+    REGION = [
+        ('Ouest', 'Ouest'),
+        ('Est', 'Est'),
+        ('Centre', 'Centre'),
+        ('Centre/Ouest', 'Centre/Ouest'),
+    ]
 
     designation = models.CharField(max_length=100)
+    region = models.CharField(choices=REGION, max_length=20, default='Ouest')
 
     def prices(self):
         return Price.objects.filter(destination=self)
