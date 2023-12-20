@@ -42,7 +42,7 @@ def check_creatoPTransported(view_func):
     def wrapper(request, *args, **kwargs):
         ptransported_id = kwargs.get('pk')
         ptransported = PTransported.objects.get(id=ptransported_id)
-        if not ((ptransported.report.state == 'Brouillon' and request.user == ptransported.report.creator) or request.user.id_admin):
+        if not ((ptransported.report.state == 'Brouillon' and request.user == ptransported.report.creator) or request.user.is_admin):
             return render(request, '403.html', status=403)
         return view_func(request, *args, **kwargs)
     return wrapper
