@@ -571,13 +571,15 @@ def cancelReport(request, pk):
 @login_required(login_url='login')
 def getPrice(request):
     try:
-       price = Price.objects.filter(destination=request.GET.get('destination'),
+        price = Price.objects.filter(destination=request.GET.get('destination'),
                                     depart=request.GET.get('site'),
                                     tonnage=request.GET.get('tonnage'),
                                     fournisseur=request.GET.get('fournisseur')
-                                )[:1].get()
-       
-       return JsonResponse({'exist': True, 'price_id': price.id, 'price_prix': price.price })
+                                ).order_by('id').last()
+        if price:
+            return JsonResponse({'exist': True, 'price_id': price.id, 'price_prix': price.price })
+        else:
+            return JsonResponse({'exist': False, 'price_id': 0, 'price_prix': 0 })
     except Price.DoesNotExist:
         return JsonResponse({'exist': False, 'price_id': 0, 'price_prix': 0 })
 

@@ -75,22 +75,22 @@ class PriceForm(ModelForm):
             self.fields['depart'].queryset = user.sites.all()
     
     
-    def clean(self):
-        cleaned_data = super().clean()
-        destination = cleaned_data.get('destination')
-        depart = cleaned_data.get('depart')
-        fournisseur = cleaned_data.get('fournisseur')
-        tonnage = cleaned_data.get('tonnage')
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     destination = cleaned_data.get('destination')
+    #     depart = cleaned_data.get('depart')
+    #     fournisseur = cleaned_data.get('fournisseur')
+    #     tonnage = cleaned_data.get('tonnage')
 
-        if destination and depart and fournisseur and tonnage:
-            if self.instance.pk:
-                existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
-                tonnage=tonnage).exclude(Q(id=self.instance.pk)).exists()
-            else:
-                existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
-                tonnage=tonnage).exists()
-            if existing_price:
-                self.add_error('destination', 'Une liste de prix avec cette configuration existe déjà.')
+    #     if destination and depart and fournisseur and tonnage:
+    #         if self.instance.pk:
+    #             existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
+    #             tonnage=tonnage).exclude(Q(id=self.instance.pk)).exists()
+    #         else:
+    #             existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
+    #             tonnage=tonnage).exists()
+    #         if existing_price:
+    #             self.add_error('destination', 'Une liste de prix avec cette configuration existe déjà.')
 
 
 class ReportForm(ModelForm):
