@@ -94,7 +94,7 @@ DATABASES = {
     #}
     #'default': {
     #    'ENGINE': 'django.db.backends.postgresql',
-    #    'NAME': 'TransportDB',
+    #    'NAME': 'TransDB',
     #    'USER': 'puma_prod',
     #    'PASSWORD': 'puma_prod',
     #    'HOST': '10.10.10.101',
