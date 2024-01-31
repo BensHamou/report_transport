@@ -114,7 +114,7 @@ Rapport
             </div>
         </div>
         <div class="row mb-4">
-            <div class="col-md-6 col-sm-6 mb-2">
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-2">
                     <div class="form-outline">
                         <label class="form-label labelCustom" for="n_bl">N° BL</label>
                         {{ form.n_bl }}
@@ -127,13 +127,26 @@ Rapport
                         {% endif %}
                     </div>
             </div>
-            <div class="col-md-6 col-sm-6 mb-2">
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-2">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="n_bl_2">N° BL 2 (Facultatif)</label>
                     {{ form.n_bl_2 }}
                     {% if form.n_bl_2.errors %}
                         <div style="color: red;">
                         {% for error in form.n_bl_2.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-2">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="n_bl_2">N° BTR</label>
+                    {{ form.n_btr }}
+                    {% if form.n_btr.errors %}
+                        <div style="color: red;">
+                        {% for error in form.n_btr.errors %}
                             *{{ error }}
                         {% endfor %}
                         </div>

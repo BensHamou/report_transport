@@ -45,11 +45,11 @@ Liste des rapports
             </div>
         </form>
         <section class="sectionList"> 
-            <div class="tableStyle">
+            <div class="tableStyle mb-2">
                 <table class="table table-borderless">
                     <thead style="border-bottom: 2px solid white;">
                         <tr class="text-white" style="vertical-align: middle;">
-                            <th>N° BL</th>
+                            <th>N° BL / N° BTR</th>
                             <th>N° BL 2</th>
                             <th>Créateur</th>
                             <th class="d-none d-lg-table-cell" style="width: 10vw;">Date de création</th>
@@ -68,7 +68,7 @@ Liste des rapports
                     <tbody>
                         {% for report in page %}
                         <tr style="color: #dde3f0;">
-                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ report.site.prefix_site }}{{ report.n_bl|stringformat:"05d" }}/{{ report.date_dep|date:"y" }}</td>
+                            <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{% if report.n_bl  %}{{ report.site.prefix_site }}{{ report.n_bl|stringformat:"05d" }}/{{ report.date_dep|date:"y" }}{% else %}{{ report.site.btr_prefix_site }}{{ report.n_btr|stringformat:"05d" }}/{{ report.date_dep|date:"y" }}{% endif %}</td>
                             <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{% if report.n_bl_2  %}{{ report.site.prefix_site }}{{ report.n_bl_2|stringformat:"05d" }}/{{ report.date_dep|date:"y" }}{% else %}/{% endif %}</td>
                             <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ report.creator }}</td>
                             <td class="d-none d-lg-table-cell" onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ report.date_created|date:"d/m/Y H:i" }}</td>
@@ -109,6 +109,12 @@ Liste des rapports
         background: rgba(147, 164, 186, 0.2);
         border-radius: 5px; 
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    @media only screen and (max-width: 1370px) {
+            .tableStyle{
+                overflow-x: auto; 
+                width:  85vw;
+            }
     }
     @media only screen and (max-width: 1100px) {
             .tableStyle{

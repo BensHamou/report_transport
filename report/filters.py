@@ -68,11 +68,7 @@ class PriceFilter(FilterSet):
 
 
     def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(destination__designation__icontains=value) |
-            Q(fournisseur__designation__icontains=value) |
-            Q(price__icontains=value)
-        ).distinct()
+        return queryset.filter( Q(destination__designation__icontains=value) | Q(fournisseur__designation__icontains=value) | Q(price__icontains=value) ).distinct()
 
     class Meta:
         model = Price

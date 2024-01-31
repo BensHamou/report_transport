@@ -99,8 +99,9 @@ class ReportForm(ModelForm):
     date_dep = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')))
     immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')))
-    n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')))
+    n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')), required=False)
     n_bl_2 = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL 2 (Facultatif)')), required=False)
+    n_btr = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BTR')), required=False)
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
     destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
@@ -110,7 +111,7 @@ class ReportForm(ModelForm):
 
     class Meta:
         model = Report
-        fields = ['prix', 'date_dep', 'chauffeur', 'immatriculation','n_bl', 'n_bl_2', 'site', 'observation', 'destination', 'tonnage', 'fournisseur', 'price']
+        fields = ['prix', 'date_dep', 'chauffeur', 'immatriculation','n_bl', 'n_btr', 'n_bl_2', 'site', 'observation', 'destination', 'tonnage', 'fournisseur', 'price']
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
@@ -133,6 +134,15 @@ class ReportForm(ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         n_bl = cleaned_data.get('n_bl')
+        n_btr = cleaned_data.get('n_btr')
+        if not n_bl and not n_btr:
+            self.add_error('n_bl', 'Veuillez saisir un numéro de BL ou BTR.')
+            self.add_error('n_btr', 'Veuillez saisir un numéro de BL ou BTR.')
+            return cleaned_data
+        elif n_bl and n_btr:
+            self.add_error('n_bl', 'Seul un numéro de BL ou BTR doit être saisi, pas les deux.')
+            self.add_error('n_btr', 'Seul un numéro de BL ou BTR doit être saisi, pas les deux.')
+            return cleaned_data
         n_bl_2 = cleaned_data.get('n_bl_2')
         site = cleaned_data.get('site')
         date_dep = cleaned_data.get('date_dep')

@@ -69,7 +69,8 @@ class Report(models.Model):
     date_dep = models.DateField()
     chauffeur = models.CharField(max_length=100)
     immatriculation = models.CharField(max_length=100, null=True, blank=True)
-    n_bl = models.IntegerField(default=1, validators=[MinValueValidator(0)])
+    n_bl = models.IntegerField(default=1, validators=[MinValueValidator(0)], null=True, blank=True)
+    n_btr = models.IntegerField(default=1, validators=[MinValueValidator(0)], null=True, blank=True)    
     n_bl_2 = models.IntegerField(default=1, validators=[MinValueValidator(0)], null=True, blank=True)
     observation = models.TextField(null=True, blank=True)
 
