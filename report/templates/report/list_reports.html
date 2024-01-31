@@ -83,7 +83,7 @@ Liste des rapports
                             <td onclick="window.location='{% url 'view_report' report.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ report.state }}</td>
                             <td style="vertical-align: middle;">
                                 <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} style="padding: 2px;" onclick="window.location='{% url 'edit_report' report.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
-                                <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} style="padding: 2px;" onclick="confirmReportDel('{{report.id|escapejs}}', '{{report.n_bl|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
+                                <button type="button" {% if report.state != 'Brouillon' or report.creator != user %} disabled {% endif %} style="padding: 2px;" onclick="confirmReportDel('{{report.id|escapejs}}', '{{report.n_bl|escapejs}}', '{{report.n_btr|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -155,10 +155,16 @@ Liste des rapports
 </style>
 
 <script>
-    const confirmReportDel = (reportID, reportNBL) => {
+    const confirmReportDel = (reportID, reportNBL, reportNBTR) => {
+        if(reportNBTR == 'None'){
+            errormsg = `N° BL = ${reportNBL}`
+        }
+        if(reportNBL == 'None'){
+            errormsg = `N° BTR = ${reportNBTR}`
+        }
         swal({ 
         title: `Confirmation de la suppression.`,   
-        text: `Etes-vous sûr que vous voulez supprimer le rapport avec N° BL = ${reportNBL}?`,   
+        text: `Etes-vous sûr que vous voulez supprimer le rapport avec ${errormsg}?`,   
         type: "warning",
         showCancelButton: true,   
         confirmButtonColor: "#DD6B55",   

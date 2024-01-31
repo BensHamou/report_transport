@@ -104,9 +104,9 @@ class ReportForm(ModelForm):
     n_btr = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BTR')), required=False)
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
-    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
+    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
-    fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur")
+    fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur")
     price = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Prix')))
 
     class Meta:
@@ -143,6 +143,7 @@ class ReportForm(ModelForm):
             self.add_error('n_bl', 'Seul un numéro de BL ou BTR doit être saisi, pas les deux.')
             self.add_error('n_btr', 'Seul un numéro de BL ou BTR doit être saisi, pas les deux.')
             return cleaned_data
+        
         n_bl_2 = cleaned_data.get('n_bl_2')
         site = cleaned_data.get('site')
         date_dep = cleaned_data.get('date_dep')
@@ -162,6 +163,17 @@ class ReportForm(ModelForm):
                 existing_report_2 = Report.objects.filter(Q(n_bl=n_bl_2, site=site) |  Q(n_bl_2=n_bl_2, site=site), date_dep__year=date_dep.year).exclude(state='Annulé').exists()
             if existing_report_2:
                 self.add_error('n_bl_2', 'Un rapport avec ce numéro de BL existe déjà pour ce site.')
+        
+        
+
+        if n_btr != 0 and site:
+            if self.instance.pk:
+                existing_report = Report.objects.filter(Q(n_btr=n_btr, site=site), date_dep__year=date_dep.year).exclude( Q(id=self.instance.pk) | Q(state='Annulé')).exists()
+            else:
+                existing_report = Report.objects.filter(Q(n_btr=n_btr, site=site), date_dep__year=date_dep.year).exclude(state='Annulé').exists()
+            if existing_report:
+                self.add_error('n_btr', 'Un rapport avec ce numéro de BTR existe déjà pour ce site.')
+        
         return cleaned_data
 
 class PTransportedForm(ModelForm):
