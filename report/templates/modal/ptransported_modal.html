@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content contentStyle">
             <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
-                <h4 class="headerStyle mb-0">Produits Transportés - {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"04d" }}/{{ report.date_dep|date:"y" }}</h4>
+                <h4 class="headerStyle mb-0">Produits Transportés - {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"05d" }}/{{ report.date_dep|date:"y" }}</h4>
                 <p class="lead mb-0 dateStyle">{{ report.date_dep|date:"d/m/Y"}}</p>
                 <button type="button" class="btn-close" style="margin-left: 10px;" data-dismiss="modal" id="buttonPTX" aria-label="Close"></button>
             </div>

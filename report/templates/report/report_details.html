@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 
 {% block title %}
-Rapport - {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"04d" }}/{{ report.date_dep|date:"y" }}
+Rapport - {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"05d" }}/{{ report.date_dep|date:"y" }}
 {% endblock %}
 {% load static %} 
 {% block activeListReport %} {% include 'active_bar.html' %} {% endblock %}
@@ -62,7 +62,7 @@ Rapport - {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"04d" }}/{{ r
                     <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">N° BL</label>
                     <div class="col-sm-10">
                         <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                            {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"04d" }}/{{ report.date_dep|date:"y" }}
+                            {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"05d" }}/{{ report.date_dep|date:"y" }}
                         </div>
                     </div>
                 </div>
@@ -70,7 +70,7 @@ Rapport - {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"04d" }}/{{ r
                     <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">N° BL 2</label>
                     <div class="col-sm-10">
                         <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                            {% if report.n_bl_2  %}{{ report.site.prefix_site }}{{ report.n_bl_2|stringformat:"04d" }}/{{ report.date_dep|date:"y" }}{% else %}/{% endif %}
+                            {% if report.n_bl_2  %}{{ report.site.prefix_site }}{{ report.n_bl_2|stringformat:"05d" }}/{{ report.date_dep|date:"y" }}{% else %}/{% endif %}
                         </div>
                     </div>
                 </div>
