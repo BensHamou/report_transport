@@ -166,7 +166,7 @@ class ReportForm(ModelForm):
         
         
 
-        if n_btr != 0 and site:
+        if n_btr and n_btr != 0 and site:
             if self.instance.pk:
                 existing_report = Report.objects.filter(Q(n_btr=n_btr, site=site), date_dep__year=date_dep.year).exclude( Q(id=self.instance.pk) | Q(state='Annulé')).exists()
             else:
