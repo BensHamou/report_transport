@@ -481,7 +481,7 @@ class ReportList(LoginRequiredMixin, FilterView):
     template_name = "list_reports.html"
     context_object_name = "reports"
     filterset_class = ReportFilter
-    ordering = ['-date_dep']
+    ordering = ['-date_created', '-date_dep']
     
     def get_queryset(self):
         queryset = super().get_queryset()
