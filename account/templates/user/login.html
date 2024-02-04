@@ -5,15 +5,13 @@
 {% load static %} 
 {% block login %}
 
-{% if form.errors %}
+{% if messages %}
 <div class="alert alert-danger" style="z-index: 2; position: absolute; width: 100vw;">
     <strong>Erreur:</strong>
     <ul>
-    {% for field, errors in form.errors.items %}
-        {% for error in errors %}
-        {{ error }}
-        {% endfor %}
-    {% endfor %}
+      {% for message in messages %}
+        {{ message }}
+      {% endfor %}
     </ul>
 </div>
 {% endif %}
@@ -32,7 +30,7 @@
             <h6 class="fw-normal mb-1 pb-3" style="letter-spacing: 1px; color: #133356">Connectez votre compte</h6>
           </div>
           <div class="form-outline mb-4">
-              <label class="form-label">Address Email</label>
+              <label class="form-label">Email / AD 2000</label>
               {{ form.username }}
           </div>
           <div class="form-outline mb-4">
@@ -45,8 +43,8 @@
             </div>
           </div>
           <div class="d-flex align-items-center justify-content-center pt-1 mb-4">
-            <button class="btn btn-lg btn-block btn-success" style="background-color: #113574; border-color: transparent; 
-            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);" type="submit">Se connecter</button>
+            <button class="btn btn-lg btn-block" style="background-color: #113574; border-color: transparent; 
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); color: white;" type="submit">Se connecter</button>
           </div>
         </form>
       </div>
