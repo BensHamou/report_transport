@@ -37,7 +37,7 @@ def check_creator(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-def check_creatoPTransported(view_func):
+def check_creatorPTransported(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         ptransported_id = kwargs.get('pk')
@@ -511,7 +511,7 @@ def deleteReportView(request, id):
 
 
 @login_required(login_url='login')
-@check_creatoPTransported
+@check_creatorPTransported
 def delete_product(request, pk):
     try:
         ptransported = PTransported.objects.get(id=pk)
