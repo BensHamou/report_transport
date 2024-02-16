@@ -14,14 +14,8 @@ from django.views.generic.edit import CreateView, UpdateView
 from django_filters.views import FilterView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
 from django.views.generic.detail import DetailView
-from django.db.models import Count
-from django.template.defaulttags import register
 from functools import wraps
-from django.core.mail import send_mail
-from django.utils.html import format_html
-from datetime import datetime
 
 
 def check_creator(view_func):
