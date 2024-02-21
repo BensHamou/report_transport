@@ -16,7 +16,22 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
 from functools import wraps
+from django.template.defaulttags import register
 
+@register.filter
+def startwith(value, word):
+    return str(value).startswith(word)
+
+@register.filter
+def is_login(messages):
+    for message in messages:
+        if str(message).startswith('LOGIN : '):
+            return True
+    return False
+
+@register.filter
+def loginerror(value, word):
+    return str(value)[len(word):]
 
 def check_creator(view_func):
     @wraps(view_func)

@@ -5,12 +5,14 @@
 {% load static %} 
 {% block login %}
 
-{% if messages %}
+{% if messages|is_login %}
 <div class="alert alert-danger" style="z-index: 2; position: absolute; width: 100vw;">
-    <strong>Erreur:</strong>
+  <strong style="font-weight: normal;">Erreur:</strong>
     <ul>
       {% for message in messages %}
-        {{ message }}
+        {% if message|startwith:'LOGIN : ' %}
+          <li>{{ message|loginerror:'LOGIN : ' }}</li>
+        {% endif %}
       {% endfor %}
     </ul>
 </div>
