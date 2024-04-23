@@ -12,7 +12,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
-      - "5469:5432"
+      - "5166:5432"
   app:
     build:
       context: .
@@ -21,14 +21,14 @@ services:
     restart: unless-stopped
     container_name: PUMA_APP
     ports:
-      - "8069:8069"
+      - "8166:8166"
     volumes:
       - ./report_transport:/report_transport
 
     command: >
       sh -c " python manage.py makemigrations &&
               python manage.py migrate &&
-              python manage.py runserver 0.0.0.0:8069"
+              python manage.py runserver 0.0.0.0:8166"
     depends_on:
       - db
     environment:
@@ -44,4 +44,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.16.67.0/24
+        - subnet: 172.16.78.0/24
