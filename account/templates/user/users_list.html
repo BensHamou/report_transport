@@ -30,6 +30,7 @@ Utilisateurs
                   <th class="d-none d-md-table-cell">Nom</th>
                   <th>Prénom</th>
                   <th class="d-none d-md-table-cell">Sites</th>
+                  <th class="d-none d-md-table-cell">Profile</th>
                   <th>Admin</th>
                   <th>Actions</th>
                 </tr>
@@ -48,6 +49,7 @@ Utilisateurs
                             <span class="badge" style="color: #bcc2cf;">Pas de sites associées.</span>
                         {% endfor %}
                     </td>
+                    <td class="d-none d-md-table-cell" onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">{{ usr.role }}</td>
                     <td onclick="window.location='{% url 'details' usr.id %}'" style="cursor: pointer;">
                         {% if usr.is_admin %}
                             <i class="fas fa-check"></i>

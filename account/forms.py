@@ -7,16 +7,17 @@ from report.forms import getAttrs
 class UserForm(ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'fullname', 'email', 'is_admin', 'first_name', 'last_name', 'sites']
+        fields = ['username', 'email', 'is_admin', 'first_name', 'last_name', 'sites', 'role']
 
     attr = {'class': 'form-control', 'style': 'background-color: #cacfd7;', 'readonly':'readonly'}
+    attr_select = {'class': 'form-select', 'style': 'background-color: #cacfd7;', 'readonly':'readonly'}
 
     username = forms.CharField(widget=forms.TextInput(attrs=attr))
     last_name = forms.CharField(widget=forms.TextInput(attrs=attr))
     first_name = forms.CharField(widget=forms.TextInput(attrs=attr))
-    fullname = forms.CharField(widget=forms.TextInput(attrs=attr))
     email = forms.EmailField(widget=forms.EmailInput(attrs=attr))
     sites = forms.SelectMultiple(attrs={'class': 'form-select'})
+    role = forms.ChoiceField(choices=User.ROLE_CHOICES, widget=forms.Select(attrs=attr_select))
     is_admin = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'secondary', 'data-toggle':'switchbutton'}))
 
 class SiteForm(ModelForm):

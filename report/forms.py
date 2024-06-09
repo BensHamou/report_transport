@@ -148,6 +148,16 @@ class ReportForm(ModelForm):
         site = cleaned_data.get('site')
         date_dep = cleaned_data.get('date_dep')
 
+        
+        if self.instance.pk:
+            today = timezone.localdate()
+            five_days_ago = today - timezone.timedelta(days=5)
+            if self.instance.creator.role == 'Logisticien' and date_dep < five_days_ago and self.instance.date_dep != date_dep:
+                self.add_error('date_dep', 'Vous ne pouvez pas modifier un rapport de plus de 5 jours.')
+        else:
+            if date_dep < five_days_ago:
+                self.add_error('date_dep', 'Vous ne pouvez pas créer un rapport de plus de 5 jours.')
+
         if n_bl and n_bl != 0 and site:
             if self.instance.pk:
                 existing_report = Report.objects.filter(Q(n_bl=n_bl, site=site) |  Q(n_bl_2=n_bl, site=site), date_dep__year=date_dep.year).exclude( Q(id=self.instance.pk) | Q(state='Annulé')).exists()
@@ -163,8 +173,6 @@ class ReportForm(ModelForm):
                 existing_report_2 = Report.objects.filter(Q(n_bl=n_bl_2, site=site) |  Q(n_bl_2=n_bl_2, site=site), date_dep__year=date_dep.year).exclude(state='Annulé').exists()
             if existing_report_2:
                 self.add_error('n_bl_2', 'Un rapport avec ce numéro de BL existe déjà pour ce site.')
-        
-        
 
         if n_btr and n_btr != 0 and site:
             if self.instance.pk:

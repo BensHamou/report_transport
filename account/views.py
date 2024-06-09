@@ -63,13 +63,13 @@ def refreshUsersList(request):
         new_users_list = [user for user in data['users'] if user['fullname'] in group_users and user['AD2000'] not in usernames]
 
         for user in new_users_list:
-            user = User(username= user['AD2000'], password='password', fullname=user['fullname'], is_admin=False, first_name= user['fname'], email= user['mail'], last_name = user['lname'])
+            user = User(username= user['AD2000'], password='password', fullname=user['fullname'], role='Nouveau', is_admin=False, first_name= user['fname'], email= user['mail'], last_name = user['lname'])
             user.save()
     else:
         print('Error: could not fetch data from API')
 
     cache_param = str(uuid.uuid4())
-    url_path = reverse('users')
+    url_path = reverse('new_users')
     redirect_url = f'{url_path}?cache={cache_param}'
 
     return redirect(redirect_url)
@@ -108,7 +108,7 @@ def deleteUserView(request, id):
 @admin_required
 def listUsersView(request):
 
-    users = User.objects.exclude(username='admin').order_by('id')
+    users = User.objects.exclude(role='Nouveau').exclude(username='admin').order_by('id')
     filteredData = UserFilter(request.GET, queryset=users)
     users = filteredData.qs
 
@@ -116,9 +116,25 @@ def listUsersView(request):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    context = {
-        'page': page, 'filtredData': filteredData,
-    }
+    context = {'page': page, 'filtredData': filteredData,}
+    return render(request, 'users_list.html', context)
+
+
+
+@login_required(login_url='login')
+@admin_required
+def listNewUsersView(request):
+
+    users = User.objects.filter(role='Nouveau').order_by('id')
+    filteredData = UserFilter(request.GET, queryset=users)
+    users = filteredData.qs
+
+    paginator = Paginator(users, 10) 
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    context = {'page': page, 'filtredData': filteredData,}
+
     return render(request, 'users_list.html', context)
 
 @login_required(login_url='login')

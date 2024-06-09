@@ -17,10 +17,20 @@ class Site(models.Model):
 
 class User(AbstractUser):
 
+    ROLE_CHOICES = [
+        ('Nouveau', 'Nouveau'),
+        ('Logisticien', 'Logisticien'),
+        ('Commercial', 'Commercial'),
+        ('ADV', 'ADV'),
+        ('Observateur', 'Observateur'),
+        ('Admin', 'Admin'),
+    ]
+
     username = models.CharField(max_length=255, unique=True)
     password = models.CharField(max_length=255)
     fullname = models.CharField(max_length=255)
     is_admin = models.BooleanField(default=False)
+    role = models.CharField(choices=ROLE_CHOICES, max_length=30)
     sites = models.ManyToManyField(Site, blank=True)
 
     fields = ('username', 'fullname', 'email', 'is_admin', 'first_name', 'last_name', 'sites')

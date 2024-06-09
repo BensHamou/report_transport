@@ -10,6 +10,7 @@ urlpatterns = [
     path("users/edit-user/<int:id>", views.editUserView, name="edit_user"),
     path("users/delete-user/<int:id>", views.deleteUserView, name="delete_user"),
     path("users/", views.listUsersView, name="users"),
+    path("new_users/", views.listNewUsersView, name="new_users"),
     path('users/details/<int:id>', views.userDetailsView, name='details'),
 
     path('sites/', views.listSiteView, name='sites'),
