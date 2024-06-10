@@ -9,6 +9,8 @@ from django.db.models import Q
 def getAttrs(type, placeholder='', other={}):
     ATTRIBUTES = {
         'control': {'class': 'form-control', 'style': 'background-color: #ebecee;', 'placeholder': ''},
+        'controlID': {'class': 'form-control search-input-id', 'autocomplete': "off", 'style': 'background-color: #ebecee; border-color: #ebecee;', 'placeholder': ''},
+        'controlSearch': {'class': 'form-control search-input', 'autocomplete': "off", 'style': 'background-color: #ebecee; border-color: #ebecee;', 'placeholder': ''},
         'search': {'class': 'form-control form-input', 'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; text-indent: 33px; border-radius: 5px;', 'type': 'search', 'placeholder': '', 'id': 'search'},
         'select': {'class': 'form-select', 'style': 'background-color: #ebecee;'},
         'select2': {'class': 'form-select', 'style': 'background-color: #ebecee; width: 100%;'},
@@ -116,6 +118,7 @@ class ReportForm(ModelForm):
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
         sites = kwargs.pop('sites', None)
+        self.role = kwargs.pop('role', None)
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields["prix"].widget.attrs['disabled'] = True
         self.fields["price"].widget.attrs['disabled'] = True
@@ -148,15 +151,15 @@ class ReportForm(ModelForm):
         site = cleaned_data.get('site')
         date_dep = cleaned_data.get('date_dep')
 
-        
-        if self.instance.pk:
-            today = timezone.localdate()
-            five_days_ago = today - timezone.timedelta(days=5)
-            if self.instance.creator.role == 'Logisticien' and date_dep < five_days_ago and self.instance.date_dep != date_dep:
-                self.add_error('date_dep', 'Vous ne pouvez pas modifier un rapport de plus de 5 jours.')
-        else:
-            if date_dep < five_days_ago:
-                self.add_error('date_dep', 'Vous ne pouvez pas créer un rapport de plus de 5 jours.')
+        if self.role != 'Admin':
+            if self.instance.pk:
+                today = timezone.localdate()
+                five_days_ago = today - timezone.timedelta(days=5)
+                if date_dep < five_days_ago and self.instance.date_dep != date_dep:
+                    self.add_error('date_dep', 'Vous ne pouvez pas modifier un rapport de plus de 5 jours.')
+            else:
+                if date_dep < five_days_ago:
+                    self.add_error('date_dep', 'Vous ne pouvez pas créer un rapport de plus de 5 jours.')
 
         if n_bl and n_bl != 0 and site:
             if self.instance.pk:

@@ -1,0 +1,461 @@
+{% extends "main.html" %}
+
+{% block title %}
+Rapport
+{% endblock %}
+{% load static %} 
+{% load widget_tweaks %}
+{% block activeCreatePlanning %} {% include 'active_bar.html' %} {% endblock %}
+{% block content %}
+<div class="d-flex justify-content-left mb-3">
+<a href="{% url 'plannings' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: #133356; letter-spacing: 1.2px;">
+    <i class="fas fa-caret-left me-2" style="color: #133356;"></i>
+    <p class="lead m-0 p-0" style="color: #133356;">retour</p>
+</a>
+</div>
+<h4 class="mb-4" style="color: #133356;">{% if planning %}Modification du planning - {{ planning }}{% else %}Création d'un planning{% endif %}</h4>
+
+<form method="POST">
+    {% csrf_token %}
+    <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm-6 mb-2">
+                <div class="form-outline">
+                <label class="form-label labelCustom" for="site">Site</label><br>
+                {{ form.site }}
+                    {% if form.site.errors %}
+                        <div style="color: red;">
+                        {% for error in form.site.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 mb-2">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="date_planning">Date de Planning</label><br>
+                    {{ form.date_planning }}
+                    {% if form.date_planning.errors %}
+                        <div style="color: red;">
+                        {% for error in form.date_planning.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm-6 mb-2">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="distributeur">Distributeur</label><br>
+                    {{ form.distributeur }}
+                    {{ form.distributeur_id }}
+                    <div id="suggestions" class="sugdiv"></div>
+                    {% if form.distributeur.errors %}
+                        <div style="color: red;">
+                        {% for error in form.distributeur.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 mb-2">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="client">Client</label><br>
+                    {{ form.client }}
+                    {{ form.client_id }}
+                    <div id="suggestions" class="sugdiv"></div>
+                    {% if form.client.errors %}
+                        <div style="color: red;">
+                        {% for error in form.client.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-4 col-sm-6 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="tonnage">Tonnage</label>
+                        {{ form.tonnage }}
+                        {% if form.tonnage.errors %}
+                            <div style="color: red;">
+                            {% for error in form.tonnage.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+            </div>
+            <div class="col-md-4 col-sm-6 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="destination">Déstination</label>
+                        {{ form.destination }}
+                        {% if form.destination.errors %}
+                            <div style="color: red;">
+                            {% for error in form.destination.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+            </div>
+            <div class="col-md-4 col-sm-6 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="livraison">Livraison</label>
+                        {{ form.livraison }}
+                        {% if form.livraison.errors %}
+                            <div style="color: red;">
+                            {% for error in form.livraison.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-outline">
+                    <label class="form-label mt-2 labelCustom" for="observation_comm">Observation</label>
+                    {{ form.observation_comm }}
+                    {% if form.observation_comm.errors %}
+                        <div style="color: red;">
+                        {% for error in form.observation_comm.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if planning.state not in 'Brouillon,Annulé' and user.role == 'Admin' %}
+            <div class="row mb-4">
+                <div class="col-md-4 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="fournisseur">Fournisseur</label><br>
+                        {{ form.fournisseur }}
+                            {% if form.fournisseur.errors %}
+                                <div style="color: red;">
+                                {% for error in form.fournisseur.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="chauffeur">Chauffeur</label><br>
+                        {{ form.chauffeur }}
+                            {% if form.chauffeur.errors %}
+                                <div style="color: red;">
+                                {% for error in form.chauffeur.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="immatriculation">Immatriculation</label><br>
+                        {{ form.immatriculation }}
+                            {% if form.immatriculation.errors %}
+                                <div style="color: red;">
+                                {% for error in form.immatriculation.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="form-outline">
+                        <label class="form-label mt-2 labelCustom" for="observation_logi">Observation</label>
+                        {{ form.observation_logi }}
+                        {% if form.observation_logi.errors %}
+                            <div style="color: red;">
+                            {% for error in form.observation_logi.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+  {% with named_formsets.pplanneds as formset %}
+      {{ formset.management_form }}
+      <script type="text/html" id="pplanneds-template">
+          <tr id="pplanneds-__prefix__" class= hide_all>
+                {% for fields in formset.empty_form.hidden_fields %}
+                    {{ fields }}
+                {% endfor %}
+                <td></td>
+                {% for field in formset.empty_form.visible_fields %}
+                <td>
+                    {% if field.label == 'Supprimer' %}
+                        <div class="d-flex justify-content-center">
+                            <button type="button" onclick="deleteRow(this.parentNode.parentNode.parentNode)" class="btn" style="color: white;">
+                                <i class="far fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <span style="color: red">*{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+              {% endfor %}
+          </tr>
+      </script>
+      <div class="table-responsive card mt-4" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+          <div class="card-header card-header-secondary">
+              <p class="card-title lead" style="font-size: 26px; color: rgb(237, 243, 253)">Produits</p>
+          </div>
+          <table class="table card-header">
+              <tbody id="item-pplanneds">
+                  {% for error in formset.non_form_errors %}
+                      <span style="color: red">*{{ error }}</span>
+                  {% endfor %}
+                  {% for formss in formset %}
+                      {{ formss.management_form }}
+                      <tr id="pplanneds-{{ forloop.counter0 }}" class= hide_all>
+                          {{ formss.id }}
+                          <td></td>
+                          {% for field in formss.visible_fields %}
+                              {% if not field.label == 'Supprimer' %}
+                                  <td>
+                                      {{ field }}
+                                      {% for error in field.errors %}
+                                          <span style="color: red">*{{ error }}</span>
+                                      {% endfor %}
+                                  </td>
+                              {% endif %}
+                          {% endfor %}
+                          {% if formss.instance.pk %}
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                <button type="button" onclick="confirmPPlannedDel('{{formss.instance.pk|escapejs}}')" class="btn" style="color: white;">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            </td>    
+                          {% else %}
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>    
+                          {% endif %}
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+          <div class="d-flex justify-content-end align-items-center m-2">
+                <a href="#" id="add-pplanneds-button" class="btn btn-secondary add-pplanneds" style="background-color: #979ba3; border-color: #979ba3;" role="button"><i class="fas fa-plus"></i></a>
+          </div>
+      </div>    
+  {% endwith %}
+    <div class="d-flex justify-content-center align-items-center form-group m-4">
+        <button type="submit" class="btn btn-secondary btn-block customSaveButton">
+            {% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}
+        </button>
+    </div>
+</form>
+
+<style>
+    #suggestions {
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      max-height: 200px;
+      overflow-y: scroll;
+      display: none;
+      border-radius: 0 0 10px 10px;
+    }
+    
+    .suggestion {
+      padding: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    
+    .suggestion:hover {
+      background-color: #eee;
+    }
+    
+    #suggestions.loading {
+      background-color: #f2f2f2;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    #suggestions.loading .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ccc;
+      border-top: 2px solid #333;
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .highlight {
+        border: 2px solid green;
+        animation: highlightAnimation 1s ease-in-out;
+    }
+    .highlight {
+        border: 2px solid green;
+        animation: highlightAnimation 1s ease-in-out;
+    }
+    .select2-search {
+        background-color: #ebecee !important;
+    }
+    .select2-search input {
+        background-color: #ebecee !important;
+    }
+    
+    .select2-results {
+        background-color: #ebecee !important;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection {
+        border-color: #ebecee !important;
+        background-color: #ebecee !important;
+    }
+    @media only screen and (max-width: 767px) {
+        td {
+            display: block;
+            width: 100%;
+            text-align: left;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+    }
+    
+    @keyframes highlightAnimation {
+        0% {
+            border: 2px solid green;
+        }
+        100% {
+            border: 1px solid rgba(118, 118, 118, 0.3);
+        }
+    }
+</style>
+
+<script>
+    const setValue = (e, selectedId) => {
+        var suggestions = e.parentNode;
+        var fieldIdInput = suggestions.previousElementSibling;
+        console.log(fieldIdInput);
+        var fieldInput = fieldIdInput.previousElementSibling;
+        if (fieldIdInput && fieldInput && suggestions) {
+          fieldIdInput.value = selectedId;
+          fieldInput.value = e.innerHTML;
+          suggestions.innerHTML = '';
+          suggestions.style.display = 'none';
+        }
+    };
+    const deleteRow = (row) => {
+        row.remove();
+        $('#id_pplanneds-TOTAL_FORMS').val($('#id_pplanneds-TOTAL_FORMS').val() - 1);
+    }
+    const confirmPPlannedDel = (produitId) => {
+        swal({ 
+        title: `Confirmation de la suppression.`,   
+        text: `Etes-vous sûr que vous voulez supprimer ce produit de cette liste?`,   
+        type: "warning",
+        showCancelButton: true,   
+        confirmButtonColor: "#DD6B55",   
+        confirmButtonText: "Oui",   
+        cancelButtonText: "Non",   
+        closeOnConfirm: true,   
+        closeOnCancel: true }, 
+        function(isConfirm){   
+            if (isConfirm){
+              window.location.href = "{% url 'planning_delete_product' 123456789 %}".replace(/123456789/, produitId);
+            }});
+    }
+    
+    $(document).ready(function() {
+        $('.search-input').keyup(function() {
+            var suggestions = $(this).siblings('#suggestions');
+            var searchInput = $(this);
+            var searchInputID = $(this).siblings('.search-input-id');
+            searchInputID.val('');
+            if (searchInput.val()) {
+                suggestions.addClass('loading');
+                $.ajax({url: '{% url "live_search" %}', type: 'GET', data: { 'search_term': searchInput.val(), 'search_for': searchInput.attr('name') }, dataType: 'json',
+                    success: function(response) {
+                        var suggestionsHTML = '';
+                        if (response.length > 0) {
+                            for (var i = 0; i < response.length; i++) {
+                                var result = response[i];
+                                suggestionsHTML += `<div class="suggestion" onClick="setValue(this, ${result.id})">${result.name}</div>`;
+                            }
+                            suggestions.html(suggestionsHTML);
+                            suggestions.removeClass('loading');
+                            suggestions.show();
+                        } else {
+                            suggestionsHTML = '<p>Aucune suggestion trouvée</p>';
+                            suggestions.html(suggestionsHTML);
+                            suggestions.removeClass('loading');
+                            suggestions.show();
+                        }
+                    }
+            });
+            } else {
+                suggestions.empty();
+                suggestions.hide();
+            }
+        });
+        $('.form-select').select2({
+            theme: 'bootstrap-5', 
+            allowClear: true, 
+        });
+        $('.add-pplanneds').click(function(ev) {
+            ev.preventDefault();
+            var count = $('#item-pplanneds').children().length;
+            var tmplMarkup = $('#pplanneds-template').html();
+            var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+            $('#item-pplanneds').append(compiledTmpl);
+            
+            $('#id_pplanneds-TOTAL_FORMS').attr('value', count+1);
+            $('.form-select').select2({theme: 'bootstrap-5', allowClear: true,});
+            var newElement = $('#item-pplanneds').children().last()[0];
+            newElement.scrollIntoView({ behavior: 'smooth' });
+        });
+        $('form').submit(function (event) {
+            event.preventDefault();
+            $('[disabled]').removeAttr('disabled');
+            this.submit(); 
+        });
+    });
+</script>
+
+{% endblock %}

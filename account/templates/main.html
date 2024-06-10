@@ -50,6 +50,18 @@
                   <h4 class="mx-auto"><a href="{% url 'reports' %}" class="text-reset"><i class="fas fa-rectangle-list menu_item"></i></a></h4>
                 </div>
               {% endif %}
+              {% if user.role in 'Commercial,Observateur,Admin' %}
+                <div class="d-flex" style="width: 100%; margin: 5px 15px;">
+                  {% block activeCreatePlanning %}{% endblock %}
+                  <h4 class="mx-auto"><a href="{% url 'create_planning' %}" class="text-reset"><i class="far fa-calendar-plus menu_item"></i></a></h4>
+                </div>
+              {% endif %}
+              {% if user.role in 'Logisticien,Observateur,Admin,Commercial' %}
+                <div class="d-flex" style="width: 100%; margin: 0px 15px;">
+                  {% block activeListPlanning %}{% endblock %}
+                  <h4 class="mx-auto"><a href="{% url 'plannings' %}" class="text-reset"><i class="far fa-calendar-days menu_item"></i></a></h4>
+                </div>
+              {% endif %}
               <div class="d-flex" style="width: 100%; margin: 5px 15px;">
                 {% if user.is_admin %}
                   {% block activeUsers %}{% endblock %}
@@ -169,7 +181,7 @@
           font-size: 14px;
       }
       .customSaveButton{
-          background-color: #133356; 
+          background-color: #36516f; 
           border-color: transparent; 
           box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
       }

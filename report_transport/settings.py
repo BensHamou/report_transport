@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "account",
     "report",
+    "commercial",
     'bootstrap5',
     'fontawesomefree',
     'django_filters',
@@ -59,6 +60,7 @@ TEMPLATES = [
                  os.path.join(BASE_DIR, 'report', 'templates', 'fournisseur'), os.path.join(BASE_DIR, 'report', 'templates', 'price'), 
                  os.path.join(BASE_DIR, 'report', 'templates', 'tonnage'), os.path.join(BASE_DIR, 'report', 'templates', 'product'), 
                  os.path.join(BASE_DIR, 'report', 'templates', 'modal'), os.path.join(BASE_DIR, 'report', 'templates', 'report'), 
+                 os.path.join(BASE_DIR, 'commercial', 'templates', 'planning'), os.path.join(BASE_DIR, 'commercial', 'templates', 'fragments'), 
                  ],
         "APP_DIRS": True,
         "OPTIONS": {

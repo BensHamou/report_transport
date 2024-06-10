@@ -7,6 +7,7 @@ class Site(models.Model):
     address = models.CharField(max_length=250, null=True)
     prefix_site = models.CharField(max_length=6, blank=True, null=True)
     btr_prefix_site = models.CharField(max_length=25, blank=True, null=True)
+    planning_prefix = models.CharField(max_length=25, blank=True, null=True)
     include_cron = models.BooleanField(default=False)
     
     def products(self):
@@ -21,7 +22,6 @@ class User(AbstractUser):
         ('Nouveau', 'Nouveau'),
         ('Logisticien', 'Logisticien'),
         ('Commercial', 'Commercial'),
-        ('ADV', 'ADV'),
         ('Observateur', 'Observateur'),
         ('Admin', 'Admin'),
     ]
@@ -33,7 +33,7 @@ class User(AbstractUser):
     role = models.CharField(choices=ROLE_CHOICES, max_length=30)
     sites = models.ManyToManyField(Site, blank=True)
 
-    fields = ('username', 'fullname', 'email', 'is_admin', 'first_name', 'last_name', 'sites')
+    fields = ('username', 'fullname', 'email', 'is_admin', 'first_name', 'last_name', 'sites', 'role')
     
     def __str__(self):
         return self.fullname

@@ -1,0 +1,67 @@
+<div class="modal" id="missModal" tabindex="-1" aria-labelledby="missModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <form class="container" method="POST" action="{% url 'miss_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}">
+            <div class="modal-content contentStyle">
+                <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
+                    <h4 class="headerStyle mb-0">Motif de ratage</h4>
+                    <button type="button" class="btn-close" data-dismiss="modal" id="buttonMissX" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <textarea class="form-control" placeholder="Veuillez indiquer la raison de votre ratage." id="miss_reason" name="miss_reason" style="background-color: #cacfd7;" rows="4"></textarea>
+                </div>
+                <div class="modal-footer" style="border-color: transparent;">
+                    <button type="submit" class="btn btn-block subButton">Soumettre</button>
+                    <button type="button" class="btn btn-secondary cancelButton" id="buttonMissCancel" data-dismiss="modal">Annuler</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .subButton{
+        background-color: #23305d; 
+        color: white;
+    }
+    .cancelButton{
+        background-color: #b7b9bd; 
+        color: white;
+        border-color: transparent;
+    }
+    .contentStyle {
+        background: rgba(107, 122, 147, 0.75); 
+        border-radius: 16px; 
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+        backdrop-filter: blur(2px);
+    }
+    @media only screen and (max-width: 767px) {
+        .contentStyle {
+            background: rgba(236, 239, 242, 0.95);
+            border-radius: 16px; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+            backdrop-filter: blur(2px);
+        }
+        .headerStyle{
+            color: #0c2858;
+            font-weight: bold;
+        }
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        $('#miss-planning').click(function () {
+            $("#missModal").prependTo("body");
+            $('#missModal').modal('show');
+
+        });
+        $('#buttonMissX').click(function () {
+            $('#missModal').modal('hide')
+
+        });
+        $('#buttonMissCancel').click(function () {
+            $('#missModal').modal('hide')
+        });
+    });
+</script>

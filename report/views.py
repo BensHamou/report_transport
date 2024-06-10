@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from account.models import *
 from .models import *
 from django.shortcuts import render, redirect
@@ -41,7 +40,7 @@ def check_creator(view_func):
         elif 'pk' in kwargs:
             rep_id = kwargs['pk']
         report = Report.objects.get(id=rep_id)
-        if report.creator != request.user and request.user.is_admin:
+        if report.creator != request.user and request.user.role != 'Admin':
             return render(request, '403.html', status=403)
         return view_func(request, *args, **kwargs)
     return wrapper
@@ -418,6 +417,7 @@ class ReportInline():
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['sites'] = self.request.user.sites.all()
+        kwargs['role'] = self.request.user.role
         return kwargs
 
     def form_valid(self, form):

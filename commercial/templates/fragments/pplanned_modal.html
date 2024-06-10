@@ -1,0 +1,121 @@
+<div class="modal" id="pplannedsModal" tabindex="-1" aria-labelledby="pplannedsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content contentStyle">
+            <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
+                <h4 class="headerStyle mb-0">Produits Plannifier - {{ planning }}</h4>
+                <p class="lead mb-0 dateStyle">{{ planning.date_planning|date:"d/m/Y"}}</p>
+                <button type="button" class="btn-close" style="margin-left: 10px;" data-dismiss="modal" id="buttonPPX" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table card-header text-white" style="background: rgba(0, 0, 0, 0);">
+                    <thead style="border-color: white;">
+                        <th class="d-none d-md-table-cell">Produit</th>
+                        <th class="d-none d-md-table-cell">Palette</th>
+                    </thead>
+                    <tbody id="item-pplanneds">
+                        {% for pplanned in planning.pplanneds.all %}
+                            <tr class="trS">
+                                <td>
+                                    <div>
+                                        <p class="tdLabel">Produit</p>
+                                        <p class="valueLead mb-0">{{ pplanned.product }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <p class="tdLabel">Palette</p>
+                                        <p class="valueLead mb-0">{{ pplanned.palette }}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr class="trS">
+                                <td>Pas d'enregistrements.</td>
+                                <td>Pas d'enregistrements.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer" style="border-color: transparent;">
+                <button type="button" class="btn" style="background-color: #23305d; color: white;" id="buttonPPClose" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#pplanneds-card').click(function () {
+            $("#pplannedsModal").prependTo("body");
+            $('#pplannedsModal').modal('show');
+
+        });
+        $('#buttonPPX').click(function () {
+            $('#pplannedsModal').modal('hide')
+
+        });
+        $('#buttonPPClose').click(function () {
+            $('#pplannedsModal').modal('hide')
+        });
+    });
+</script>
+
+<style>
+    .contentStyle {
+        background: rgba(107, 122, 147, 0.75); 
+        border-radius: 16px; 
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+        backdrop-filter: blur(2px);
+    }
+    .tdLabel{
+        display: none;
+    }
+    .trS {
+        border-color: transparent; 
+        color: #d9dce1;
+    }
+    .dateStyle{
+        margin-left: auto; 
+    }
+    @media only screen and (max-width: 767px) {
+        .contentStyle {
+            background: rgba(236, 239, 242, 0.95);
+            border-radius: 16px; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+            backdrop-filter: blur(2px);
+        }
+        .dateStyle{
+            color: #747474;
+        }
+        .headerStyle{
+            color: #0c2858;
+            font-weight: bold;
+        }
+        td {
+            display: block;
+            width: 100%;
+            text-align: left;
+            box-sizing: border-box;
+            margin: 0 0 2px 10px;
+        }
+        .trS {
+            border-left: 4px solid #8b99b0;
+            border-radius: 5px;
+            color: #5b5b5b;
+            border-top: 10px solid transparent;
+        }
+        .tdLast{
+            border-bottom: 2px solid white;
+        }
+        .valueLead{
+            font-size: 16px;
+        }
+        .tdLabel{
+            display: block;
+            color: #929292; 
+            font-size: 16px; 
+            margin-bottom: 5px;
+        }
+    }
+</style>

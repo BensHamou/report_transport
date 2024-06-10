@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile
     image: puma_trans:latest
     restart: unless-stopped
-    container_name: PUMA_APP
+    container_name: PUMA_TRANS
     ports:
       - "8166:8166"
     volumes:
