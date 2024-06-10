@@ -371,7 +371,7 @@ def editPriceView(request, id):
 
 class CheckEditorMixin:
     def check_editor(self, report):
-        if self.request.user.is_admin or self.request.user.role == 'Admin':
+        if self.request.user.role == 'Admin':
             return True
         if report.creator == self.request.user and report.state == 'Brouillon' and self.request.user.role == 'Logisticien':
             return True
@@ -385,7 +385,7 @@ class CheckEditorMixin:
     
 class CheckReportViewerMixin:
     def check_viewer(self, report):
-        if self.request.user.is_admin or self.request.user.role == 'Admin':
+        if self.request.user.role == 'Admin':
             return True
         sites = self.request.user.sites.all()
         if report.site in sites and self.request.user.role in ['Observateur', 'Logisticien']:
@@ -400,7 +400,7 @@ class CheckReportViewerMixin:
     
 class CheckReportListViewerMixin:
     def check_viewer(self):
-        if self.request.user.is_admin or self.request.user.role in ['Admin', 'Logisticien']:
+        if self.request.user.role in ['Admin', 'Logisticien', 'Observateur']:
             return True
         return False
 
