@@ -15,6 +15,7 @@ urlpatterns = [
     path('planning/<int:pk>/cancel/', cancelPlanning, name='cancel_planning'),
     path('planning/<int:pk>/validate/', validatePlanning, name='validate_planning'),
     path('planning/<int:pk>/miss/', missPlanning, name='miss_planning'),
+    path('planning/<int:pk>/draft/', makeDraftPlanning, name='make_draft_planning'),
     
     path('live_search/', live_search, name='live_search'),
 ]

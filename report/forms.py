@@ -152,9 +152,9 @@ class ReportForm(ModelForm):
         date_dep = cleaned_data.get('date_dep')
 
         if self.role != 'Admin':
+            today = timezone.localdate()
+            five_days_ago = today - timezone.timedelta(days=5)
             if self.instance.pk:
-                today = timezone.localdate()
-                five_days_ago = today - timezone.timedelta(days=5)
                 if date_dep < five_days_ago and self.instance.date_dep != date_dep:
                     self.add_error('date_dep', 'Vous ne pouvez pas modifier un rapport de plus de 5 jours.')
             else:

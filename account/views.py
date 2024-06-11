@@ -25,7 +25,7 @@ def login_success(request):
 
 def admin_required(view_func):
     def wrapper(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_admin:
+        if request.user.is_authenticated and request.user.role == 'Admin':
             return view_func(request, *args, **kwargs)
         else:
             return render(request, '403.html', status=403)

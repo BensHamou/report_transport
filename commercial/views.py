@@ -34,6 +34,14 @@ def check_validator(view_func):
             return render(request, '403.html', status=403)
         return view_func(request, *args, **kwargs)
     return wrapper
+
+def check_return_to_draft(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.user.role not in ['Admin']:
+            return render(request, '403.html', status=403)
+        return view_func(request, *args, **kwargs)
+    return wrapper
     
 
 def check_creatorPPlanned(view_func):
@@ -379,6 +387,39 @@ def missPlanning(request, pk):
     cache_param = str(uuid.uuid4())
     redirect_url = f'{url_path}?cache={cache_param}'
     return redirect(redirect_url)
+
+@login_required(login_url='login')
+@check_return_to_draft
+def makeDraftPlanning(request, pk):
+    try:
+        planning = Planning.objects.get(id=pk)
+    except Planning.DoesNotExist:
+        messages.success(request, 'Planning Does not exit')
+
+    if planning.state == 'Brouillon':
+        url_path = reverse('view_planning', args=[planning.id])
+        cache_param = str(uuid.uuid4())
+        redirect_url = f'{url_path}?cache={cache_param}'
+        return redirect(redirect_url)
+    
+    old_state = planning.state
+    
+    planning.state = 'Brouillon'
+
+    new_state = planning.state
+    actor = request.user
+
+    validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
+    planning.save()
+    validation.save()
+
+    messages.success(request, 'Planning définir comme brouillon avec succès')
+    url_path = reverse('view_planning', args=[planning.id])
+    cache_param = str(uuid.uuid4())
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+
 
 @login_required(login_url='login')
 def live_search(request):

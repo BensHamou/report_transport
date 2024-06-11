@@ -60,6 +60,10 @@ Planning - {{ planning }}
                         <a id="miss-planning" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0">Raté</p>
                         </a>
+                    {% elif planning.state in 'Planning Confirmé,Raté' and user.role in 'Admin' %}
+                        <a href="{% url 'make_draft_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
+                            <p class="lead m-0 p-0">Retour au brouillon</p>
+                        </a>
                     {% else %}
                         <h4 class="lead text-white"><strong></br></strong></h4>
                     {% endif %}
