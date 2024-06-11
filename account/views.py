@@ -21,11 +21,11 @@ def login_success(request):
     if user.is_authenticated:
         if user.is_admin:
             return redirect("home")
-        elif not user.role == 'Logisticien':
+        elif user.role == 'Logisticien':
             return redirect("reports")
-        elif not user.role == 'Commercial':
+        elif user.role == 'Commercial':
             return redirect("plannings")
-    return redirect("home")
+    return redirect("reports")
 
 def admin_required(view_func):
     def wrapper(request, *args, **kwargs):
