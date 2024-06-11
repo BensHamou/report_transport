@@ -61,7 +61,7 @@ Planning - {{ planning }}
                             <p class="lead m-0 p-0">Raté</p>
                         </a>
                     {% elif planning.state in 'Planning Confirmé,Raté' and user.role in 'Admin' %}
-                        <a href="{% url 'make_draft_planning' planning.id %}" class="btn btn-info text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
+                        <a href="{% url 'make_draft_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0">Retour</p>
                         </a>
                     {% else %}
