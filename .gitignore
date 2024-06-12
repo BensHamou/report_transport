@@ -3,6 +3,8 @@ transV
 report/__pycache__/
 report_transport/__pycache__/
 
+*.pyc
+
 account/migrations/*
 !account/migrations/__init__.py
 report/migrations/*

@@ -154,12 +154,12 @@ class ReportForm(ModelForm):
         if self.role != 'Admin':
             today = timezone.localdate()
             five_days_ago = today - timezone.timedelta(days=5)
-            if self.instance.pk:
-                if date_dep < five_days_ago and self.instance.date_dep != date_dep:
-                    self.add_error('date_dep', 'Vous ne pouvez pas modifier un rapport de plus de 5 jours.')
-            else:
-                if date_dep < five_days_ago:
-                    self.add_error('date_dep', 'Vous ne pouvez pas créer un rapport de plus de 5 jours.')
+            if date_dep < five_days_ago:
+                if date_dep.month != today.month or date_dep.year != today.year:
+                    if self.instance.date_dep != date_dep:
+                        self.add_error('date_dep', 'Vous ne pouvez pas créer un rapport de plus de 5 jours dans un nouveau mois.')
+                else:
+                        self.add_error('date_dep', 'Vous ne pouvez pas créer un rapport de plus de 5 jours dans un nouveau mois.')
 
         if n_bl and n_bl != 0 and site:
             if self.instance.pk:

@@ -92,7 +92,20 @@ Planning - {{ planning }}
     {% csrf_token %}
     <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
         <div class="row mb-4">
-            <div class="col-md-4 col-sm-12 mb-2">
+            <div class="col-md-3 col-md-6 col-sm-12 mb-2">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="date_honored">Date Honorée</label><br>
+                    {{ form.date_honored }}
+                        {% if form.date_honored.errors %}
+                            <div style="color: red;">
+                            {% for error in form.date_honored.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                </div>
+            </div>
+            <div class="col-md-3 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="fournisseur">Fournisseur</label><br>
                     {{ form.fournisseur }}
@@ -105,7 +118,7 @@ Planning - {{ planning }}
                         {% endif %}
                 </div>
             </div>
-            <div class="col-md-4 col-sm-12 mb-2">
+            <div class="col-md-3 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="chauffeur">Chauffeur</label><br>
                     {{ form.chauffeur }}
@@ -118,7 +131,7 @@ Planning - {{ planning }}
                         {% endif %}
                 </div>
             </div>
-            <div class="col-md-4 col-sm-12 mb-2">
+            <div class="col-md-3 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="immatriculation">Immatriculation</label><br>
                     {{ form.immatriculation }}
@@ -151,5 +164,10 @@ Planning - {{ planning }}
             <button type="submit" class="btn btn-secondary btn-block customSaveButton">Sauvegarder les modifications</button>
         </div>
 </form>
-
+<script>
+    $('.form-select').select2({
+        theme: 'bootstrap-5', 
+        allowClear: true, 
+    });
+</script>
 {% endblock %}

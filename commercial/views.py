@@ -38,7 +38,7 @@ def check_validator(view_func):
 def check_return_to_draft(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if request.user.role not in ['Admin']:
+        if request.user.role not in ['Admin','Logisticien']:
             return render(request, '403.html', status=403)
         return view_func(request, *args, **kwargs)
     return wrapper
@@ -220,6 +220,13 @@ def completePlanning(request, id):
         form = PlanningLogiForm(request.POST, instance=planning)
         if form.is_valid():
             form.save()
+            old_state = planning.state
+            planning.state = 'Planning Confirmé'
+            new_state = planning.state
+            actor = request.user
+            validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
+            planning.save()
+            validation.save()
             url_path = reverse('view_planning', args=[planning.id])
             page = request.GET.get('page', '1')
             page_size = request.GET.get('page_size', '12')
@@ -355,6 +362,33 @@ def validatePlanning(request, pk):
     redirect_url = f'{url_path}?cache={cache_param}'
     return redirect(redirect_url)
 
+@login_required(login_url='login')
+@check_validator
+def deliverPlanning(request, pk):
+    try:
+        planning = Planning.objects.get(id=pk)
+    except Planning.DoesNotExist:
+        messages.success(request, 'Planning Does not exit')
+
+    if planning.state == 'Livraison confirmer':
+        url_path = reverse('view_planning', args=[planning.id])
+        cache_param = str(uuid.uuid4())
+        redirect_url = f'{url_path}?cache={cache_param}'
+        return redirect(redirect_url)
+    
+    old_state = planning.state
+    planning.state = 'Livraison confirmer'
+    new_state = planning.state
+    actor = request.user
+    validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
+    planning.save()
+    validation.save()
+
+    messages.success(request, 'Livraison confirmé avec succès')
+    url_path = reverse('view_planning', args=[planning.id])
+    cache_param = str(uuid.uuid4())
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
 
 @login_required(login_url='login')
 @check_validator
@@ -396,30 +430,27 @@ def makeDraftPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
-    if planning.state == 'Brouillon':
+    if planning.state == 'Planning':
         url_path = reverse('view_planning', args=[planning.id])
         cache_param = str(uuid.uuid4())
         redirect_url = f'{url_path}?cache={cache_param}'
         return redirect(redirect_url)
-    
     old_state = planning.state
-    
-    planning.state = 'Brouillon'
-
+    planning.state = 'Planning'
+    planning.date_honored = None
+    planning.chauffeur = None
+    planning.immatriculation = None
     new_state = planning.state
     actor = request.user
-
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
     planning.save()
     validation.save()
 
-    messages.success(request, 'Planning définir comme brouillon avec succès')
+    messages.success(request, 'Planning définir comme Planning avec succès')
     url_path = reverse('view_planning', args=[planning.id])
     cache_param = str(uuid.uuid4())
     redirect_url = f'{url_path}?cache={cache_param}'
     return redirect(redirect_url)
-
-
 
 @login_required(login_url='login')
 def live_search(request):

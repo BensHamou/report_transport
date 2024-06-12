@@ -19,11 +19,11 @@ def execute_query(query, params=None):
     return records
 
 def getDistributeurId(distributeur_name):
-    query = """SELECT id, name FROM res_partner WHERE name ILIKE %s AND  state = 'validate' LIMIT 5;"""
+    query = """SELECT id, name FROM res_partner WHERE name ILIKE %s AND state = 'validate' LIMIT 5;"""
     params = ('%' + distributeur_name.upper() + '%',)
     return execute_query(query, params)
 
 def getClientId(client_name):
-    query = """SELECT id, name FROM res_partner WHERE name ILIKE %s AND supplier = true AND customer = true AND state = 'validate' LIMIT 5;"""
+    query = """SELECT id, name FROM res_partner WHERE name ILIKE %s AND state = 'validate' LIMIT 5;"""
     params = ('%' + client_name.upper() + '%',)
     return execute_query(query, params)
