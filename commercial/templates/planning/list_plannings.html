@@ -12,49 +12,50 @@ Liste des plannings
 {% block content %}
 
 <div class="row mb-3">
+    <form method="GET" style="{% if page %}margin: 20px 0px 0px 0px;{% else %}margin-top: 13%;{% endif %}">
+        {% csrf_token %}
+        <div class="row height d-flex justify-content-center align-items-center">
+            <div class="col-lg-4 col-md-3 col-sm-6 mb-2">
+                <div class="form" style="position: relative;">
+                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>{{ filter.form.search }}
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                {{ filter.form.start_date }}
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                {{ filter.form.end_date }}
+            </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                {{ filter.form.site }}
+            </div>
+            <div class="col-md-1 col-sm-6 mb-2">
+                <input type="number" class="form-control" value="{% if request.GET.page_size %}{{ request.GET.page_size }}{% else %}12{% endif %}" style="background-color: #ebecee; 
+                border-color: transparent; color: #133356; height: 40px;" name="page_size">
+            </div>
+            <div class="col-md-1 col-sm-6 mb-2">
+                <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">Appliquer</button>
+            </div>
+        </div>
+        <div class="row height d-flex justify-content-center align-items-center">
+            <div class="col-md-4 col-sm-6 mb-2">
+                {{ filter.form.state }}
+            </div>
+        </div>
+    </form>
     {% if page %}
-        <form method="GET" style="{% if page %}margin: 20px 0px 0px 0px;{% else %}margin-top: 13%;{% endif %}">
-            {% csrf_token %}
-            <div class="row height d-flex justify-content-center align-items-center">
-                <div class="col-lg-4 col-md-3 col-sm-6 mb-2">
-                    <div class="form" style="position: relative;">
-                        <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>{{ filter.form.search }}
-                    </div>
-                </div>
-                <div class="col-md-2 col-sm-6 mb-2">
-                    {{ filter.form.start_date }}
-                </div>
-                <div class="col-md-2 col-sm-6 mb-2">
-                    {{ filter.form.end_date }}
-                </div>
-                <div class="col-md-2 col-sm-6 mb-2">
-                    {{ filter.form.site }}
-                </div>
-                <div class="col-md-1 col-sm-6 mb-2">
-                    <input type="number" class="form-control" value="{% if request.GET.page_size %}{{ request.GET.page_size }}{% else %}12{% endif %}" style="background-color: #ebecee; 
-                    border-color: transparent; color: #133356; height: 40px;" name="page_size">
-                </div>
-                <div class="col-md-1 col-sm-6 mb-2">
-                    <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">Appliquer</button>
-                </div>
-            </div>
-            <div class="row height d-flex justify-content-center align-items-center">
-                <div class="col-md-4 col-sm-6 mb-2">
-                    {{ filter.form.state }}
-                </div>
-            </div>
-        </form>
         <div class="tableStyle mb-2"><div id="send-planning-container" class="mb-3" style="display: none;">
-            <button id="send-planning-button" class="btn btn-primary" onclick="sendSelectedPlannings()">Send Planning</button>
+            <button id="send-planning-button" class="btn btn-primary" onclick="sendSelectedPlannings()">Envoyer le planning</button>
         </div>
         <section class="sectionList"> 
+            <div class="tableStyle">
                 <table class="table table-borderless">
                     <thead style="border-bottom: 2px solid white;">
                         <tr class="text-white" style="vertical-align: middle;">
-                            {% if user.role in 'Commercial,Admin' %}<th><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>{% endif %}
+                            {% if user.role in 'Commercial,Admin' %}<th class="d-none d-lg-table-cell"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>{% endif %}
                             <th>N° Planning</th>
                             <th>Créateur</th>
-                            <th class="d-none d-lg-table-cell" style="width: 10vw;">Date de création</th>
+                            <th style="width: 10vw;">Date de création</th>
                             <th>Distributeur</th>
                             <th>Client</th>
                             <th>Tonnage</th>
@@ -63,22 +64,24 @@ Liste des plannings
                             <th>Livraison</th>
                             <th>Fournisseur</th>
                             <th>État</th>
-                            {% if user.role in 'Commercial,Admin' %}<th>Actions</th>{% endif %}
+                            {% if user.role in 'Commercial,Admin' %}<th class="d-none d-lg-table-cell">Actions</th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for planning in page %}
                         <tr style="color: #dde3f0;">
-                            <td>
-                                {% if planning.state == 'Planning' and user.role in 'Commercial,Admin' %}
-                                    {% if planning.creator == user or user.role == 'Admin' %}
-                                        <input type="checkbox" class="planning-checkbox" value="{{ planning.id }}" onclick="toggleSendPlanningButton()">
+                            {% if user.role in 'Commercial,Admin' %}
+                                <td>
+                                    {% if planning.state == 'Planning' and user.role in 'Commercial,Admin' %}
+                                        {% if planning.creator == user or user.role == 'Admin' %}
+                                            <input type="checkbox" class="planning-checkbox" value="{{ planning.id }}" onclick="toggleSendPlanningButton()">
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
-                            </td>
+                                </td>
+                            {% endif %}
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning }}</td>
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.creator }}</td>
-                            <td class="d-none d-lg-table-cell" onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.date_created|date:"d/m/Y H:i" }}</td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.date_created|date:"d/m/Y H:i" }}</td>
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.distributeur }}</td>
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.client }}</td>
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.tonnage }}</td>

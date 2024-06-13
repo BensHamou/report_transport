@@ -22,7 +22,7 @@ class Planning(models.Model):
         ('Brouillon', 'Brouillon'),
         ('Planning', 'Planning'),
         ('Planning Confirmé', 'Planning Confirmé'),
-        ('Livraison confirmé', 'Livraison confirmé'),
+        ('Livraison Confirmé', 'Livraison Confirmé'),
         ('Raté', 'Raté'),
         ('Annulé', 'Annulé')
     ]
@@ -76,7 +76,7 @@ class Validation(models.Model):
         ('Brouillon', 'Brouillon'),
         ('Planning', 'Planning'),
         ('Planning Confirmé', 'Planning Confirmé'),
-        ('Livraison confirmé', 'Livraison confirmé'),
+        ('Livraison Confirmé', 'Livraison Confirmé'),
         ('Raté', 'Raté'),
         ('Annulé', 'Annulé')
     ]
