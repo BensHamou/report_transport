@@ -10,6 +10,12 @@ class Setting(models.Model):
     def __str__(self):
         return self.name + ' : ' + self.value
 
+class Livraison(models.Model):
+    designation = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.designation
+
 class Planning(models.Model):
  
     STATE_PLANNING = [
@@ -36,8 +42,8 @@ class Planning(models.Model):
     client = models.CharField(max_length=255)
 
     tonnage = models.ForeignKey(Tonnage, on_delete=models.CASCADE)
-    destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'is_destination': True}, related_name='destination')
-    livraison = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'is_delivery': True}, related_name='livraison')
+    destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE)
+    livraison = models.ForeignKey(Livraison, on_delete=models.CASCADE)
     observation_comm = models.TextField(null=True, blank=True)
 
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.CASCADE, null=True)

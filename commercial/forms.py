@@ -6,6 +6,14 @@ from django.utils import timezone
 from report.models import Price
 from report.forms import getAttrs
 
+
+class LivraisonForm(ModelForm):
+    class Meta:
+        model = Livraison
+        fields = ['designation']
+
+    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Designation')))
+
 class PlanningCommForm(ModelForm):
 
     class Meta:
@@ -23,8 +31,8 @@ class PlanningCommForm(ModelForm):
     client = forms.CharField(widget=forms.TextInput(attrs=getAttrs('controlSearch','Client')))
 
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
-    destination = forms.ModelChoiceField(queryset=Emplacement.objects.filter(is_destination=True).order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
-    livraison = forms.ModelChoiceField(queryset=Emplacement.objects.filter(is_delivery=True).order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Livraison")
+    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
+    livraison = forms.ModelChoiceField(queryset=Livraison.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Livraison")
     observation_comm = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur", required=False)

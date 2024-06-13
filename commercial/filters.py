@@ -4,6 +4,17 @@ from django_filters import FilterSet, CharFilter, ChoiceFilter, ModelChoiceFilte
 from .models import *
 from account.models import Site
 from report.forms import getAttrs
+
+class LivraisonFilter(FilterSet):
+
+    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Livraison..') ))
+
+    def filter_search(self, queryset, name, value):
+        return queryset.filter(Q(designation__icontains=value)).distinct()
+
+    class Meta:
+        model = Livraison
+        fields = ['search']
         
 class PlanningFilter(FilterSet):
 

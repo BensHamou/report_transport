@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 
 {% block title %}
-Emplacements
+Livraisons
 {% endblock %}
 {% load static %} 
 {% block activeSettings %} {% include 'active_bar.html' %} {% endblock %}
@@ -25,7 +25,7 @@ Emplacements
                 <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">Appliquer</button>
             </div>
             <div class="col-md-1 mb-2">
-                <a href="{% url 'create_emplacement' %}" class="btn btn-secondary" style="background-color: #2a4767; border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); height: 40px;">Nouveau</a>
+                <a href="{% url 'create_livraison' %}" class="btn btn-secondary" style="background-color: #2a4767; border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); height: 40px;">Nouveau</a>
             </div>
         </div>
     </form>  
@@ -36,19 +36,17 @@ Emplacements
                 <tr class="text-white">
                 <th>#</th>
                 <th>Désignation</th>
-                <th>Région</th>
                 <th style="width: 40vh; text-align: center;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for emplacement in page %}
+                {% for livraison in page %}
                 <tr style="color: #dde3f0;">
-                    <td>{{ emplacement.id }}</td>
-                    <td>{{ emplacement.designation }}</td>
-                    <td>{{ emplacement.region }}</td>
+                    <td>{{ livraison.id }}</td>
+                    <td>{{ livraison.designation }}</td>
                     <td style="vertical-align: middle; text-align: center;">
-                        <button type="button" onclick="window.location='{% url 'edit_emplacement' emplacement.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
-                        <button type="button" onclick="confirmEmplacementDel('{{emplacement.id|escapejs}}', '{{emplacement.designation|escapejs}}')" class="btn" style="color: white; padding: 2px;"><i class="far fa-trash-alt"></i></button>
+                        <button type="button" onclick="window.location='{% url 'edit_livraison' livraison.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
+                        <button type="button" onclick="confirmLivraisonDel('{{livraison.id|escapejs}}', '{{livraison.designation|escapejs}}')" class="btn" style="color: white; padding: 2px;"><i class="far fa-trash-alt"></i></button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -63,10 +61,10 @@ Emplacements
     {% endif %}
 </div>
 <script>
-    const confirmEmplacementDel = (emplacementId, emplacementDes) => {
+    const confirmLivraisonDel = (livraisonId, livraisonDes) => {
         swal({ 
         title: `Confirmation de la suppression.`,   
-        text: `Etes-vous sûr que vous voulez supprimer ${emplacementDes}?`,   
+        text: `Etes-vous sûr que vous voulez supprimer ${livraisonDes}?`,   
         type: "warning",
         showCancelButton: true,   
         confirmButtonColor: "#DD6B55",   
@@ -76,7 +74,7 @@ Emplacements
         closeOnCancel: true }, 
         function(isConfirm){   
             if (isConfirm){
-              window.location.href = "{% url 'delete_emplacement' 123456789 %}".replace(/123456789/, emplacementId);
+              window.location.href = "{% url 'delete_livraison' 123456789 %}".replace(/123456789/, livraisonId);
             }});
     }
 </script>

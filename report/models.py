@@ -13,8 +13,6 @@ class Emplacement(models.Model):
 
     designation = models.CharField(max_length=100)
     region = models.CharField(choices=REGION, max_length=20, default='Ouest')
-    is_destination = models.BooleanField(default=True)
-    is_delivery = models.BooleanField(default=False)
 
     def prices(self):
         return Price.objects.filter(destination=self)
@@ -45,7 +43,7 @@ class Product(models.Model):
 
 class Price(models.Model):
 
-    destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'is_destination': True})
+    destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE)
     depart = models.ForeignKey(Site, on_delete=models.CASCADE)
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.CASCADE)
     tonnage = models.ForeignKey(Tonnage, on_delete=models.CASCADE)

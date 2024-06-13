@@ -44,10 +44,6 @@ class EmplacementForm(ModelForm):
     
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Désignation')))
     region = forms.ChoiceField(choices=Emplacement.REGION, widget=forms.Select(attrs=getAttrs('select')))
-    is_destination = forms.BooleanField(required=False, initial=True, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'primary', 
-                                                                                    'data-toggle':'switchbutton',  'data-onlabel': "Destin", 'data-offlabel': "Non"}))
-    is_delivery = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'primary', 
-                                                                                    'data-toggle':'switchbutton',  'data-onlabel': "Liv", 'data-offlabel': "Non"}))
 
 class TonnageForm(ModelForm):
     class Meta:
@@ -110,7 +106,7 @@ class ReportForm(ModelForm):
     n_btr = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BTR')), required=False)
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
-    destination = forms.ModelChoiceField(queryset=Emplacement.objects.filter(is_destination=True).order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
+    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur")
     price = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Prix')))

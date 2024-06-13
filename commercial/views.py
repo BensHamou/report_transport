@@ -15,6 +15,7 @@ from functools import wraps
 from .utils import *
 import json
 from django.core.mail import send_mail
+from report.views import admin_required
 from django.utils.html import format_html
 
 
@@ -65,6 +66,72 @@ def check_creatorPPlanned(view_func):
             return render(request, '403.html', status=403)
         return view_func(request, *args, **kwargs)
     return wrapper
+
+# LIVRAISONS
+@login_required(login_url='login')
+@admin_required 
+def listLivraisonList(request):
+    livraisons = Livraison.objects.all().order_by('id')
+    filteredData = LivraisonFilter(request.GET, queryset=livraisons)
+    livraisons = filteredData.qs
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12   
+    paginator = Paginator(livraisons, page_size)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {'page': page, 'filtredData': filteredData, }
+    return render(request, 'list_livraisons.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def deleteLivraisonView(request, id):
+    livraison = Livraison.objects.get(id=id)
+    livraison.delete()
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('livraisons')
+
+    redirect_url = f'{url_path}?cache={cache_param}'
+
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@admin_required
+def createLivraisonView(request):
+    form = LivraisonForm()
+    if request.method == 'POST':
+        form = LivraisonForm(request.POST)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('livraisons')
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
+            return redirect(redirect_url)
+    context = {'form': form }
+    return render(request, 'livraison_form.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def editLivraisonView(request, id):
+    livraison = Livraison.objects.get(id=id)
+
+    form = LivraisonForm(instance=livraison)
+    if request.method == 'POST':
+        form = LivraisonForm(request.POST, instance=livraison)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('livraisons')
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
+            return redirect(redirect_url)
+    context = {'form': form, 'livraison': livraison }
+
+    return render(request, 'livraison_form.html', context)
 
 # PLANNINGS
 

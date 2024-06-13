@@ -2,6 +2,11 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
+    
+    path('livraisons/', listLivraisonList, name='livraisons'),
+    path("livraisons/delete-livraison/<int:id>", deleteLivraisonView, name="delete_livraison"),
+    path("livraisons/edit-livraison/<int:id>", editLivraisonView, name="edit_livraison"),
+    path("livraisons/create-livraison/", createLivraisonView, name="create_livraison"),
 
     path('plannings/', PlanningList.as_view(), name='plannings'),
     path("planning/<int:pk>", PlanningDetail.as_view(), name="view_planning"),
