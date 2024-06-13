@@ -70,8 +70,10 @@ Liste des plannings
                         {% for planning in page %}
                         <tr style="color: #dde3f0;">
                             <td>
-                                {% if planning.state == 'Planning' and user.role in 'Commercial,Admin'%}
-                                    <input type="checkbox" class="planning-checkbox" value="{{ planning.id }}" onclick="toggleSendPlanningButton()">
+                                {% if planning.state == 'Planning' and user.role in 'Commercial,Admin' %}
+                                    {% if planning.creator == user or user.role == 'Admin' %}{% endif %}
+                                        <input type="checkbox" class="planning-checkbox" value="{{ planning.id }}" onclick="toggleSendPlanningButton()">
+                                    {% endif %}
                                 {% endif %}
                             </td>
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning }}</td>
