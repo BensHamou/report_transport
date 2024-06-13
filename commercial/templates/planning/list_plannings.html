@@ -44,11 +44,14 @@ Liste des plannings
                 </div>
             </div>
         </form>
+        <div class="tableStyle mb-2"><div id="send-planning-container" class="mb-3" style="display: none;">
+            <button id="send-planning-button" class="btn btn-primary" onclick="sendSelectedPlannings()">Send Planning</button>
+        </div>
         <section class="sectionList"> 
-            <div class="tableStyle mb-2">
                 <table class="table table-borderless">
                     <thead style="border-bottom: 2px solid white;">
                         <tr class="text-white" style="vertical-align: middle;">
+                            {% if user.role in 'Commercial,Admin' %}<th><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>{% endif %}
                             <th>N° Planning</th>
                             <th>Créateur</th>
                             <th class="d-none d-lg-table-cell" style="width: 10vw;">Date de création</th>
@@ -66,6 +69,11 @@ Liste des plannings
                     <tbody>
                         {% for planning in page %}
                         <tr style="color: #dde3f0;">
+                            <td>
+                                {% if planning.state == 'Planning' and user.role in 'Commercial,Admin'%}
+                                    <input type="checkbox" class="planning-checkbox" value="{{ planning.id }}" onclick="toggleSendPlanningButton()">
+                                {% endif %}
+                            </td>
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning }}</td>
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.creator }}</td>
                             <td class="d-none d-lg-table-cell" onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.date_created|date:"d/m/Y H:i" }}</td>
@@ -79,8 +87,8 @@ Liste des plannings
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.state }}</td>
                             {% if user.role in 'Commercial,Admin' %}
                                 <td style="vertical-align: middle;">
-                                    <button type="button" {% if planning.state != 'Brouillon' or planning.creator != user %} disabled {% endif %} style="padding: 2px;" onclick="window.location='{% url 'edit_planning' planning.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
-                                    <button type="button" {% if planning.state != 'Brouillon' or planning.creator != user %} disabled {% endif %} style="padding: 2px;" onclick="confirmPlanningDel('{{planning.id|escapejs}}', '{{planning|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
+                                    <button type="button" {% if planning.state != 'Brouillon' and not user.is_admin or planning.creator != user and not user.is_admin %} disabled {% endif %} style="padding: 2px;" onclick="window.location='{% url 'edit_planning' planning.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
+                                    <button type="button" {% if planning.state != 'Brouillon' and not user.is_admin or planning.creator != user and not user.is_admin %} disabled {% endif %} style="padding: 2px;" onclick="confirmPlanningDel('{{planning.id|escapejs}}', '{{planning|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
                                 </td>
                             {% endif %}
                         </tr>
@@ -153,6 +161,36 @@ Liste des plannings
 </style>
 
 <script>
+    function toggleSelectAll(source) {
+        checkboxes = document.getElementsByClassName('planning-checkbox');
+        for(var i = 0, n = checkboxes.length; i < n; i++) {
+            checkboxes[i].checked = source.checked;
+        }
+        toggleSendPlanningButton();
+    }
+
+    function toggleSendPlanningButton() {
+        const checkboxes = document.querySelectorAll('.planning-checkbox:checked');
+        const sendPlanningContainer = document.getElementById('send-planning-container');
+        if (checkboxes.length > 0) {
+            sendPlanningContainer.style.display = 'block';
+        } else {
+            sendPlanningContainer.style.display = 'none';
+        }
+    }
+
+    function sendSelectedPlannings() {
+        const checkboxes = document.querySelectorAll('.planning-checkbox:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+        const url = "{% url 'send_selected_plannings' %}";
+        const csrfToken = "{{ csrf_token }}";
+        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),}).then(response => {
+            if(response.ok){
+                swal("Succès", "Les plannings ont été envoyés avec succès.", "success");
+                setTimeout(function() {window.location.reload();}, 3000);
+            }
+        });
+    }
     const confirmPlanningDel = (planningID, planningDes) => {
         swal({ 
         title: `Confirmation de la suppression.`,   

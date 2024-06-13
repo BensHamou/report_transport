@@ -3,7 +3,7 @@ from django import forms
 from .models import *
 from account.models import *
 from django.utils import timezone
-from django.db.models import Q
+from report.models import Price
 from report.forms import getAttrs
 
 class PlanningCommForm(ModelForm):
@@ -23,8 +23,8 @@ class PlanningCommForm(ModelForm):
     client = forms.CharField(widget=forms.TextInput(attrs=getAttrs('controlSearch','Client')))
 
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
-    destination = forms.ModelChoiceField(queryset=Emplacement.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
-    livraison = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Livraison')), required=False)
+    destination = forms.ModelChoiceField(queryset=Emplacement.objects.filter(is_destination=True).order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
+    livraison = forms.ModelChoiceField(queryset=Emplacement.objects.filter(is_delivery=True).order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Livraison")
     observation_comm = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur", required=False)
@@ -32,6 +32,26 @@ class PlanningCommForm(ModelForm):
     immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')), required=False)
     date_honored = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'), required=False)
     observation_logi = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        site = cleaned_data.get('site')
+        tonnage = cleaned_data.get('tonnage')
+        destination = cleaned_data.get('destination')
+        fournisseur = cleaned_data.get('fournisseur')
+        if fournisseur:
+            if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, fournisseur=fournisseur).exists():
+                self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+                self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+                self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+                self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+        else:
+            if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage).exists():
+                self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+                self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+                self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+        
+        return cleaned_data
 
 
     def __init__(self, *args, **kwargs):
@@ -64,3 +84,10 @@ class PlanningLogiForm(ModelForm):
     immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')))
     date_honored = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
     observation_logi = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
+    def clean(self):
+        cleaned_data = super().clean()
+        fournisseur = cleaned_data.get('fournisseur')
+        if fournisseur:
+            if not Price.objects.filter(depart=self.instance.site, destination=self.instance.destination, tonnage=self.instance.tonnage, fournisseur=fournisseur).exists():
+                self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+        return cleaned_data

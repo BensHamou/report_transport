@@ -45,5 +45,24 @@ Utilisateur - {{ user_details.username }}
         </div>
       </div>
     </div>
+  
+    <div class="row mb-4">
+      <div class="col-md-6 col-sm-6">
+        <div class="form-outline">
+            <label class="form-label labelCustom" for="role">Profile</label>
+            <input type="text" id="role" class="form-control" value="{{ user_details.role }}" disabled/>
+        </div>
+      </div>
+      <div class="col-md-6 col-sm-6">
+          <div class="form-outline">
+              <label class="form-label labelCustom" for="sites">Sites</label> </br>
+              {% for usine in user_details.sites.all %}
+                <span class="badge formBadge"><p class="lead p-0 m-0 formBadgeText">{{ usine.designation }}</p></span>
+              {% empty %}
+                <span class="badge" style="color: #698ed0;">Pas d'usine associées.</span>
+              {% endfor %}
+          </div>
+      </div>
+    </div>
   </div>
 {% endblock %}

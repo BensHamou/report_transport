@@ -5,6 +5,9 @@ Emplacement
 {% endblock %}
 {% load static %} 
 {% block activeSettings %} {% include 'active_bar.html' %} {% endblock %}
+{% block scripts %}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.1.0/css/bootstrap-switch-button.min.css" rel="stylesheet" />
+{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-left mb-3">
@@ -31,7 +34,23 @@ Emplacement
             {{ form.region }}
         </div>
       </div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-sm-2">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="is_destination">Déstination?</label>
+        </br>
+          {{ form.is_destination }}
+        </div>
       </div>
+      <div class="col-lg-6 col-md-6 col-sm-12 mb-sm-2">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="is_delivery">Livraison?</label>
+        </br>
+          {{ form.is_delivery }}
+        </div>
+      </div>
+    </div>
   </div>
   <div class="float-end mt-4">
     <input type='submit' class="btn btn-secondary customSaveButton" name='save' value="Sauvgardez"/>

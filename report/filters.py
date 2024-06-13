@@ -23,10 +23,7 @@ class EmplacementFilter(FilterSet):
     search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Emplacement..')))
 
     def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(designation__icontains=value) |
-            Q(region__icontains=value)
-        ).distinct()
+        return queryset.filter(Q(designation__icontains=value) |Q(region__icontains=value)).distinct()
 
     class Meta:
         model = Emplacement
@@ -37,9 +34,7 @@ class FournisseurFilter(FilterSet):
     search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Fournisseur..') ))
 
     def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(designation__icontains=value)
-        ).distinct()
+        return queryset.filter(Q(designation__icontains=value)).distinct()
 
     class Meta:
         model = Fournisseur
@@ -50,9 +45,7 @@ class TonnageFilter(FilterSet):
     search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Tonnage..')))
 
     def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(designation__icontains=value)
-        ).distinct()
+        return queryset.filter(Q(designation__icontains=value)).distinct()
 
     class Meta:
         model = Tonnage

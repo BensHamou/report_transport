@@ -19,6 +19,7 @@
     <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.1.0/css/bootstrap-switch-button.min.css" rel="stylesheet" />
     <link rel="icon" type="image/ico" href="{% static 'img/favicon.ico' %}">
     <link href="https://fonts.cdnfonts.com/css/arial" rel="stylesheet">
+    {% block scripts %} {% endblock %}
   </head>
   <body style="background-color: #ffffff; min-height: 100vh;">
     {% if not user.is_authenticated %}
@@ -148,12 +149,12 @@
         font-size: 22px;
       }
       .formBadge{
-            background-color: #0e2a5b; 
+            background-color: #133356; 
             padding: 8px; 
             margin-right: 5px;
       }
       .listBadge{
-            background-color: #0e2a5b; 
+            background-color: #133356; 
             padding: 8px; 
             margin-right: 5px;
       }

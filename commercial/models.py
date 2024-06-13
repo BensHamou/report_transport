@@ -36,8 +36,8 @@ class Planning(models.Model):
     client = models.CharField(max_length=255)
 
     tonnage = models.ForeignKey(Tonnage, on_delete=models.CASCADE)
-    destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE)
-    livraison = models.CharField(max_length=255)
+    destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'is_destination': True}, related_name='destination')
+    livraison = models.ForeignKey(Emplacement, on_delete=models.CASCADE, limit_choices_to={'is_delivery': True}, related_name='livraison')
     observation_comm = models.TextField(null=True, blank=True)
 
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.CASCADE, null=True)
@@ -70,6 +70,7 @@ class Validation(models.Model):
         ('Brouillon', 'Brouillon'),
         ('Planning', 'Planning'),
         ('Planning Confirmé', 'Planning Confirmé'),
+        ('Livraison confirmer', 'Livraison confirmer'),
         ('Raté', 'Raté'),
         ('Annulé', 'Annulé')
     ]

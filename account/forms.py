@@ -18,7 +18,8 @@ class UserForm(ModelForm):
     email = forms.EmailField(widget=forms.EmailInput(attrs=attr))
     sites = forms.SelectMultiple(attrs={'class': 'form-select'})
     role = forms.ChoiceField(choices=User.ROLE_CHOICES, widget=forms.Select(attrs=attr_select))
-    is_admin = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'secondary', 'data-toggle':'switchbutton'}))
+    is_admin = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'primary', 
+                                                                                    'data-toggle':'switchbutton',  'data-onlabel': "Adminnn", 'data-offlabel': "User"}))
 
 class SiteForm(ModelForm):
     class Meta:
