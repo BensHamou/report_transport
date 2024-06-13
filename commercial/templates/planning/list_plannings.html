@@ -71,7 +71,7 @@ Liste des plannings
                         <tr style="color: #dde3f0;">
                             <td>
                                 {% if planning.state == 'Planning' and user.role in 'Commercial,Admin' %}
-                                    {% if planning.creator == user or user.role == 'Admin' %}{% endif %}
+                                    {% if planning.creator == user or user.role == 'Admin' %}
                                         <input type="checkbox" class="planning-checkbox" value="{{ planning.id }}" onclick="toggleSendPlanningButton()">
                                     {% endif %}
                                 {% endif %}
