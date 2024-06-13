@@ -450,14 +450,14 @@ def deliverPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
-    if planning.state == 'Livraison confirmer':
+    if planning.state == 'Livraison confirmé':
         url_path = reverse('view_planning', args=[planning.id])
         cache_param = str(uuid.uuid4())
         redirect_url = f'{url_path}?cache={cache_param}'
         return redirect(redirect_url)
     
     old_state = planning.state
-    planning.state = 'Livraison confirmer'
+    planning.state = 'Livraison confirmé'
     new_state = planning.state
     actor = request.user
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
