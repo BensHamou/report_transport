@@ -17,6 +17,7 @@ import json
 from django.core.mail import send_mail
 from report.views import admin_required
 from django.utils.html import format_html
+from collections import defaultdict
 
 
 def check_creator(view_func):
@@ -28,6 +29,14 @@ def check_creator(view_func):
             plan_id = kwargs['pk']
         planning = Planning.objects.get(id=plan_id)
         if planning.creator != request.user and request.user.role != 'Admin':
+            return render(request, '403.html', status=403)
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+def check_marker(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.user.role != 'Admin' and (request.user.role != 'Logisticien' or not request.user.is_admin):
             return render(request, '403.html', status=403)
         return view_func(request, *args, **kwargs)
     return wrapper
@@ -300,6 +309,32 @@ def completePlanning(request, id):
         if form.is_valid():
             form.save()
             old_state = planning.state
+            planning.state = 'Planning en Attente'
+            new_state = planning.state
+            actor = request.user
+            validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
+            planning.save()
+            validation.save()
+            url_path = reverse('view_planning', args=[planning.id])
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            cache_param = str(uuid.uuid4())
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
+            return redirect(redirect_url)
+    context = {'form': form, 'planning': planning}
+
+    return render(request, 'planning_complete.html', context)
+
+@login_required(login_url='login')
+def finishPlanning(request, id):
+    planning = Planning.objects.get(id=id)
+    form = PlanningConfirmForm(instance=planning)
+    if request.method == 'POST':
+        form = PlanningConfirmForm(request.POST, instance=planning)
+        if form.is_valid():
+            form.save()
+            old_state = planning.state
             planning.state = 'Planning Confirmé'
             new_state = planning.state
             actor = request.user
@@ -316,7 +351,7 @@ def completePlanning(request, id):
             return redirect(redirect_url)
     context = {'form': form, 'planning': planning}
 
-    return render(request, 'planning_complete.html', context)
+    return render(request, 'planning_finish.html', context)
 
 @login_required(login_url='login')
 @check_creator
@@ -456,7 +491,9 @@ def deliverPlanning(request, pk):
         redirect_url = f'{url_path}?cache={cache_param}'
         return redirect(redirect_url)
     
+    n_bl = request.POST.get('n_bl')
     old_state = planning.state
+    planning.n_bl = n_bl
     planning.state = 'Livraison Confirmé'
     new_state = planning.state
     actor = request.user
@@ -501,6 +538,53 @@ def missPlanning(request, pk):
     cache_param = str(uuid.uuid4())
     redirect_url = f'{url_path}?cache={cache_param}'
     return redirect(redirect_url)
+
+@login_required(login_url='login')
+@check_marker
+def markPlanning(request, pk):
+    try:
+        planning = Planning.objects.get(id=pk)
+    except Planning.DoesNotExist:
+        messages.success(request, 'Planning Does not exit')
+
+    if planning.is_marked:
+        url_path = reverse('view_planning', args=[planning.id])
+        cache_param = str(uuid.uuid4())
+        redirect_url = f'{url_path}?cache={cache_param}'
+        return redirect(redirect_url)
+    
+    planning.is_marked = True
+    planning.save()
+
+    messages.success(request, 'Planning visé avec succès')
+    url_path = reverse('view_planning', args=[planning.id])
+    cache_param = str(uuid.uuid4())
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@check_marker
+def unmarkPlanning(request, pk):
+    try:
+        planning = Planning.objects.get(id=pk)
+    except Planning.DoesNotExist:
+        messages.success(request, 'Planning Does not exit')
+
+    if not planning.is_marked:
+        url_path = reverse('view_planning', args=[planning.id])
+        cache_param = str(uuid.uuid4())
+        redirect_url = f'{url_path}?cache={cache_param}'
+        return redirect(redirect_url)
+    
+    planning.is_marked = False
+    planning.save()
+
+    messages.success(request, 'Planning dévisé avec succès')
+    url_path = reverse('view_planning', args=[planning.id])
+    cache_param = str(uuid.uuid4())
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
 
 @login_required(login_url='login')
 @check_return_to_draft
@@ -564,9 +648,9 @@ def sendSelectedPlannings(request):
         <h3 style="color: red;">PLANNING DU JOUR</h3>
         <p>Veuillez trouver ci-dessous le planning des livraisons du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
         if missed_plannings:
-            message = getTable(message, missed_plannings, title_missing, True)
+            message = getTable(message, missed_plannings, title_missing, True, False)
         if selected_plannings:
-            message = getTable(message, selected_plannings, title_planned, False)
+            message = getTable(message, selected_plannings, title_planned, False, False)
 
         if site.address:
             recipient_list = site.address.split('&')
@@ -577,21 +661,53 @@ def sendSelectedPlannings(request):
             send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
     return JsonResponse({'message': 'Courrier envoyé avec succès'}, safe=False)
 
-def getTable(msg, plannings, title, addDate):
+@login_required(login_url='login')
+@checkAdminOrCommercial
+def sendPlanningSupplier(request):
+    data = json.loads(request.body)
+    ids = data.get('ids', [])
+    selected_plannings = Planning.objects.filter(id__in=ids, state='Planning en Attente')
+    plannings_by_fournisseur = defaultdict(list)
+    for planning in selected_plannings:
+        plannings_by_fournisseur[planning.fournisseur].append(planning)
+
+    for fournisseur, plannings in plannings_by_fournisseur.items():
+        subject = f"Planning PUMA du {timezone.localdate().strftime('%d/%m/%Y')}."
+        message = f'''<p>Bonjour {fournisseur.designation},</p>'''
+        title_planned = f'''
+        <h3 style="color: red;">PLANNING DU JOUR</h3>
+        <p>Veuillez trouver ci-dessous le planning des livraisons du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
+        if plannings:
+            message = getTable(message, plannings, title_planned, True, True)
+
+        if fournisseur.address:
+            recipient_list = fournisseur.address.split('&')
+        else:
+            recipient_list = ['benshamou@gmail.com']
+        formatHtml = format_html(message)
+        if plannings:
+            send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
+    return JsonResponse({'message': 'Courrier envoyé avec succès'}, safe=False)
+
+
+def getTable(msg, plannings, title, addDate, addSupp):
     old_message = msg
     style_th = ' style="color: white; background-color: #002060; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
     style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
     style_td_last = ' style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
-    date_column = f'<th{style_th}>Date</th>' if addDate else ''
+    date_column = f'<th{style_th}>Date Planning</th>' if addDate else ''
+    supp_column = f'<th{style_th}>Date Honorée</th>' if addSupp else ''
+    
     table_header = f'''
     <table><thead>
         <tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Distributeur</th><th{style_th}>Client</th><th{style_th}>Produit</th>
-        <th{style_th}>Palette</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th>{date_column}<th{style_th}>Livraison</th><th{style_th}>Observation</th></tr></thead><tbody>'''
+        <th{style_th}>Palette</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th>{date_column}{supp_column}<th{style_th}>Livraison</th><th{style_th}>Observation</th></tr></thead><tbody>'''
     old_message += title
     for planning in plannings:
         obs = planning.observation_comm if planning.observation_comm else '/'
         old_message += table_header
         date_row = f'<td{style_td}>{ planning.date_planning }</td>' if addDate else ''
+        supp_row = f'<td{style_td}>{ planning.date_honored }</td>' if addSupp else ''
         for product in planning.pplanneds():
             old_message += f'''<tr>
             <td{style_td}>{ planning.__str__() }</td>
@@ -603,6 +719,7 @@ def getTable(msg, plannings, title, addDate):
             <td{style_td}>{ planning.tonnage.designation }</td>
             <td{style_td}>{ planning.destination.designation }</td>
             {date_row}
+            {supp_row}
             <td{style_td}>{ planning.livraison.designation }</td>
             <td{style_td_last}>{ obs }</td></tr>
             '''
@@ -631,7 +748,7 @@ def sendValidationMail(planning):
     <table><thead><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
     <th colspan="{min_prices}" style='border: 1px solid gray; white-space: nowrap; color: green; font-weight: bold;'>{price.price:,.2f} DA</th></thead><thead><tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Distributeur</th><th{style_th}>Client</th>
     <th{style_th}>Produit</th><th{style_th}>Palette</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th><th{style_th}>Livraison</th>
-    <th{style_th}>Observation</th><th{style_th}>Fournisseur</th><th{style_th}>Chauffeur</th><th{style_th}>Immatrucilation</th>{prices_header}
+    <th{style_th}>Observation</th><th{style_th}>Fournisseur</th><th{style_th}>Chauffeur</th><th{style_th}>Immatrucilation</th><th{style_th}>N° BL</th>{prices_header}
     </tr></thead><tbody>'''
     message += table_header
     obs = planning.observation_comm if planning.observation_comm else '/'
@@ -650,6 +767,7 @@ def sendValidationMail(planning):
         <td{style_td}>{ planning.fournisseur }</td>
         <td{style_td}>{ planning.chauffeur }</td>
         <td{style_td}>{ planning.immatriculation }</td>
+        <td{style_td}>{ planning.n_bl }</td>
         '''
         for p in prices:
             message += f'<th{style_td_price}>{p.price:,.2f} DA</th>'

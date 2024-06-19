@@ -84,6 +84,22 @@ Planning - {{ planning }}
                         </div>
                     </div>
                 </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Fournisseur</label>
+                    <div class="col-sm-9">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ planning.fournisseur }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Date Honorée</label>
+                    <div class="col-sm-9">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ planning.date_honored }}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -94,11 +110,11 @@ Planning - {{ planning }}
         <div class="row mb-4">
             <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
-                    <label class="form-label labelCustom" for="date_honored">Date Honorée</label><br>
-                    {{ form.date_honored }}
-                        {% if form.date_honored.errors %}
+                    <label class="form-label labelCustom" for="chauffeur">Chauffeur</label><br>
+                    {{ form.chauffeur }}
+                        {% if form.chauffeur.errors %}
                             <div style="color: red;">
-                            {% for error in form.date_honored.errors %}
+                            {% for error in form.chauffeur.errors %}
                                 *{{ error }}
                             {% endfor %}
                             </div>
@@ -107,11 +123,26 @@ Planning - {{ planning }}
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
-                    <label class="form-label labelCustom" for="fournisseur">Fournisseur</label><br>
-                    {{ form.fournisseur }}
-                    {% if form.fournisseur.errors %}
+                    <label class="form-label labelCustom" for="immatriculation">Immatriculation</label><br>
+                    {{ form.immatriculation }}
+                        {% if form.immatriculation.errors %}
+                            <div style="color: red;">
+                            {% for error in form.immatriculation.errors %}
+                                *{{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-outline">
+                    <label class="form-label mt-2 labelCustom" for="observation_logi">Observation</label>
+                    {{ form.observation_logi }}
+                    {% if form.observation_logi.errors %}
                         <div style="color: red;">
-                        {% for error in form.fournisseur.errors %}
+                        {% for error in form.observation_logi.errors %}
                             *{{ error }}
                         {% endfor %}
                         </div>

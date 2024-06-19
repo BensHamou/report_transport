@@ -37,6 +37,11 @@ Planning - {{ planning }}
                         <i class="fas fa-check"></i>
                     </button>
                 {% endif %}
+                {% if user.role in 'Admin,Logisticien' and planning.state == 'Planning en Attente' %}
+                    <button onclick="window.location='{% url 'finish_planning' planning.id %}'" class="btn btn-success btn-block customSaveButton" style="margin-left: 2%; white-space: nowrap;">
+                        <i class="fas fa-check"></i>
+                    </button>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -53,19 +58,15 @@ Planning - {{ planning }}
                             class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Annuler</p>
                         </a>
-                    {% elif planning.state == 'Planning' and user.role == 'Admin' %}
+                    {% elif planning.state == 'Planning' and user.role in 'Admin,Logisticien' %}
                         {% comment %} <a href="{% url 'validate_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Confirmer</p>
                         </a> {% endcomment %}
                         <a id="miss-planning" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 18px; white-space: nowrap;">Raté</p>
                         </a>
-                    {% elif planning.state == 'Planning' and user.role == 'Logisticien' %}
-                        <a id="miss-planning" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
-                            <p class="lead m-0 p-0" style="font-size: 18px; white-space: nowrap;">Raté</p>
-                        </a>
                     {% elif planning.state == 'Planning Confirmé' and user.role in 'Admin,Logisticien' %}
-                        <a href="{% url 'validate_delivery' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
+                        <a id="validate-planning" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Livraison Validée</p>
                         </a>
                         <a id="miss-planning" class="btn btn-danger text-white" style="width: 90%; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
@@ -74,6 +75,14 @@ Planning - {{ planning }}
                     {% elif planning.state in 'Raté' and user.role == 'Admin' %}
                         <a href="{% url 'make_draft_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Retour en Planning</p>
+                        </a>
+                    {% elif planning.state in 'Livraison Confirmé' and user.is_admin and not planning.is_marked %}
+                        <a href="{% url 'mark_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
+                            <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Visé</p>
+                        </a>
+                    {% elif planning.state in 'Livraison Confirmé' and user.is_admin and planning.is_marked %}
+                        <a href="{% url 'unmark_planning' planning.id %}" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
+                            <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Dévisé</p>
                         </a>
                     {% else %}
                         <h4 class="lead text-white"><strong></br></strong></h4>
@@ -92,10 +101,20 @@ Planning - {{ planning }}
                     <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">N° Planning</label>
                     <div class="col-sm-9">
                         <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                            {{ planning }}
+                            {{ planning }} {% if planning.is_marked %}(Visé){% endif %}
                         </div>
                     </div>
                 </div>
+                {% if planning.state == 'Livraison Confirmé' %}
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">N° BL</label>
+                        <div class="col-sm-9">
+                            <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                                {{ planning.n_bl }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="form-group row mb-1">
                     <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Créer par</label>
                     <div class="col-sm-9">
@@ -162,6 +181,28 @@ Planning - {{ planning }}
                 </div>
             </div>
         </div>
+        {% if planning.state == 'Planning en Attente' %}
+            <div class="card mt-2" style="background: rgba(19, 51, 86, 0.85); border-radius: 2px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); color: #b7b9bd;">
+                <div class="card-body p-3">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Fournisseur</label>
+                        <div class="col-sm-9">
+                            <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                                {% if planning.fournisseur  %}{{ planning.fournisseur }}{% else %}/{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Date Honorée</label>
+                        <div class="col-sm-9">
+                            <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                                {% if planning.date_honored  %}{{ planning.date_honored }}{% else %}/{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         {% if 'Confirmé' in planning.state %}
             <div class="card mt-2" style="background: rgba(19, 51, 86, 0.85); border-radius: 2px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); color: #b7b9bd;">
                 <div class="card-body p-3">
@@ -245,4 +286,5 @@ Planning - {{ planning }}
 {% include 'pplanned_modal.html' %}
 {% include 'validation_modal.html' %}
 {% include 'miss_planning_modal.html' %}
+{% include 'validate_planning_modal.html' %}
 {% endblock %}

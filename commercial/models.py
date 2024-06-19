@@ -21,6 +21,7 @@ class Planning(models.Model):
     STATE_PLANNING = [
         ('Brouillon', 'Brouillon'),
         ('Planning', 'Planning'),
+        ('Planning en Attente', 'Planning en Attente'),
         ('Planning Confirmé', 'Planning Confirmé'),
         ('Livraison Confirmé', 'Livraison Confirmé'),
         ('Raté', 'Raté'),
@@ -50,6 +51,8 @@ class Planning(models.Model):
     chauffeur = models.CharField(max_length=100, null=True, blank=True)
     immatriculation = models.CharField(max_length=100, null=True, blank=True)
     date_honored = models.DateField(null=True)
+    n_bl = models.CharField(max_length=100, null=True, blank=True)
+    is_marked = models.BooleanField(default=False)
     observation_logi = models.TextField(null=True, blank=True)
 
     def pplanneds(self):
@@ -75,6 +78,7 @@ class Validation(models.Model):
     STATE_PLANNING = [
         ('Brouillon', 'Brouillon'),
         ('Planning', 'Planning'),
+        ('Planning en Attente', 'Planning en Attente'),
         ('Planning Confirmé', 'Planning Confirmé'),
         ('Livraison Confirmé', 'Livraison Confirmé'),
         ('Raté', 'Raté'),

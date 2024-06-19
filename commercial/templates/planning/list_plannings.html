@@ -44,32 +44,43 @@ Liste des plannings
         </div>
     </form>
     {% if page %}
-        <div class="tableStyle mb-2"><div id="send-planning-container" class="mb-3" style="display: none;">
-            <button id="send-planning-button" class="btn btn-primary" onclick="sendSelectedPlannings()">Envoyer le planning</button>
-        </div>
+        {% if user.role in 'Commercial,Admin' %}
+            <div class="mb-2"><div id="send-planning-container" class="mb-3" style="display: none;">
+                <button id="send-planning-button" class="btn btn-primary" onclick="sendSelectedPlannings()">Envoyer les Plannings</button>
+            </div>
+            <div class="mb-2"><div id="send-missed-container" class="mb-3">
+                <button id="send-missed-button" class="btn btn-danger" onclick="sendMissedPlannings()">Envoyer les Plannings Ratés Uniquement</button>
+            </div>
+        {% endif %}
+        {% if user.role in 'Logisticien,Admin' %}
+            <div class="mb-2"><div id="send-supplier-container" class="mb-3" style="display: none;">
+                <button id="send-supplier-button" class="btn btn-success" onclick="sendPlanningSupplier()">Envoyer au Fournisseur</button>
+            </div>
+        {% endif %}
         <section class="sectionList"> 
             <div class="tableStyle">
                 <table class="table table-borderless">
                     <thead style="border-bottom: 2px solid white;">
-                        <tr class="text-white" style="vertical-align: middle;">
-                            {% if user.role in 'Commercial,Admin' %}<th class="d-none d-lg-table-cell"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>{% endif %}
-                            <th>N° Planning</th>
-                            <th>Créateur</th>
-                            <th style="width: 10vw;">Date de création</th>
-                            <th>Distributeur</th>
-                            <th>Client</th>
-                            <th>Tonnage</th>
-                            <th>Destination</th>
-                            <th>Date Planning</th>
-                            <th>Livraison</th>
-                            <th>Fournisseur</th>
-                            <th>État</th>
+                        <tr class="text-white" style="vertical-align: middle; font-size: 13px;">
+                            {% if user.role in 'Commercial,Admin' %}<th class="d-none d-lg-table-cell"><input type="checkbox" id="select-all-comm" onclick="toggleSelectCommAll(this)"></th>{% endif %}
+                            {% if user.role in 'Logisticien,Admin' %}<th class="d-none d-lg-table-cell"><input type="checkbox" id="select-all-log" onclick="toggleSelectLogAll(this)"></th>{% endif %}
+                            <th class="d-none d-lg-table-cell">N° Planning</th>
+                            <th class="d-none d-lg-table-cell">Créateur</th>
+                            <th class="d-none d-lg-table-cell" style="width: 10vw;">Date de création</th>
+                            <th class="d-none d-lg-table-cell">Distributeur</th>
+                            <th class="d-none d-lg-table-cell">Client</th>
+                            <th class="d-none d-lg-table-cell">Tonnage</th>
+                            <th class="d-none d-lg-table-cell">Destination</th>
+                            <th class="d-none d-lg-table-cell">Date Planning</th>
+                            <th class="d-none d-lg-table-cell">Fournisseur</th>
+                            <th class="d-none d-lg-table-cell">N° BL</th>
+                            <th class="d-none d-lg-table-cell">État</th>
                             {% if user.role in 'Commercial,Admin' %}<th class="d-none d-lg-table-cell">Actions</th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for planning in page %}
-                        <tr style="color: #dde3f0;">
+                        <tr class="trS">
                             {% if user.role in 'Commercial,Admin' %}
                                 <td>
                                     {% if planning.state == 'Planning' and user.role in 'Commercial,Admin' %}
@@ -79,19 +90,81 @@ Liste des plannings
                                     {% endif %}
                                 </td>
                             {% endif %}
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.creator }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.date_created|date:"d/m/Y H:i" }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.distributeur }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.client }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.tonnage }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.destination }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.date_planning|date:"d/m/Y" }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.livraison }}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{% if planning.fournisseur %}{{ planning.fournisseur }}{% else %}/{% endif %}</td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">{{ planning.state }}</td>
+                            {% if user.role in 'Logisticien,Admin' %}
+                                <td>
+                                    {% if planning.state == 'Planning en Attente' and user.role in 'Logisticien,Admin' %}
+                                        <input type="checkbox" class="supplier-checkbox" value="{{ planning.id }}" onclick="toggleSendSupplierButton()">
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">N° Planning</p>
+                                    <p class="valueLead mb-0">{{ planning }}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">Créateur</p>
+                                    <p class="valueLead mb-0">{{ planning.creator }}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">Date de création</p>
+                                    <p class="valueLead mb-0">{{ planning.date_created|date:"d/m/Y H:i" }}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">Distributeur</p>
+                                    <p class="valueLead mb-0">{{ planning.distributeur }}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">Client</p>
+                                    <p class="valueLead mb-0">{{ planning.client }}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">Tonnage</p>
+                                    <p class="valueLead mb-0">{{ planning.tonnage }}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">Destination</p>
+                                    <p class="valueLead mb-0">{{ planning.destination }}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">Date Planning</p>
+                                    <p class="valueLead mb-0">{{ planning.date_planning|date:"d/m/Y" }}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">Fournisseur</p>
+                                    <p class="valueLead mb-0">{% if planning.fournisseur %}{{ planning.fournisseur }}{% else %}/{% endif %}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">N° BL</p>
+                                    <p class="valueLead mb-0">{% if planning.n_bl %}{{ planning.n_bl }}{% else %}/{% endif %}</p>
+                                </div>
+                            </td>
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}'"  style="cursor: pointer;">
+                                <div>
+                                    <p class="d-lg-none tdLabel">État</p>
+                                    <p class="valueLead mb-0">{{ planning.state }}</p>
+                                </div>
+                            </td>
                             {% if user.role in 'Commercial,Admin' %}
-                                <td style="vertical-align: middle;">
+                                <td class="tdLast td-center">
                                     <button type="button" {% if planning.state != 'Brouillon' and not user.is_admin or planning.creator != user and not user.is_admin %} disabled {% endif %} style="padding: 2px;" onclick="window.location='{% url 'edit_planning' planning.id %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
                                     <button type="button" {% if planning.state != 'Brouillon' and not user.is_admin or planning.creator != user and not user.is_admin %} disabled {% endif %} style="padding: 2px;" onclick="confirmPlanningDel('{{planning.id|escapejs}}', '{{planning|escapejs}}')" class="btn"><i class="far fa-trash-alt" style="color: white;"></i></button>
                                 </td>
@@ -121,66 +194,100 @@ Liste des plannings
         border-radius: 5px; 
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     }
-    @media only screen and (max-width: 1370px) {
-            .tableStyle{
-                overflow-x: auto; 
-                width:  85vw;
-            }
+    td:first-child, th:first-child {
+        border-radius: 10px 0 0 10px;
     }
-    @media only screen and (max-width: 1100px) {
-            .tableStyle{
-                overflow-x: auto; 
-                width:  85vw;
-            }
+    
+    td:last-child, th:last-child {
+        border-radius: 0 10px 10px 0;
     }
-    @media only screen and (max-width: 950px) {
-            .tableStyle{
-                overflow-x: auto; 
-                width:  83vw;
-            }
+    td, th{
+      font-size: 15px;
+      font-weight: 700;
+      color: white;
     }
-    @media only screen and (max-width: 860px) {
-            .tableStyle{
-                overflow-x: auto; 
-                width:  83vw;
-            }
+    .valueLead{
+        color: white;
+        font-size: 13px;
+        font-weight: 400;
     }
-    @media only screen and (max-width: 780px) {
-            table td, table th {
-                white-space: nowrap;
-            }
-            .tableStyle{
-                overflow-x: auto; 
-                width:  80vw;
-            }
+    .valueLeadTotal{
+        color: green;
     }
-    @media only screen and (max-width: 700px) {
-            table td, table th {
-                white-space: nowrap;
-            }
-            .tableStyle{
-                overflow-x: auto; 
-                width:  75vw;
-            }
+    .tdLabel{
+        font-weight: 700;
+        display: block;
+        color: white; 
+        font-size: 13px; 
+        margin-bottom: 5px;
+    }
+    .trS {
+        border-color: transparent; 
+        color: #dde3f0;
+        border-radius: 6px;
+    }
+    .lateMonth{
+      color: red;
+    }
+    
+    @media only screen and (max-width: 992px) {
+        th, td { 
+            width: 100%; 
+            display: block;
+            box-sizing: border-box;
+            margin: 0 0 2px 10px;
+        }
+        .trS {
+            border-left: 4px solid #8b99b0;
+            border-radius: 6px;
+            color: #dde3f0;
+            border-top: 10px solid transparent;
+        }
+        .tdLast{
+            border-bottom: 2px solid #3f9894;
+        }
+        .td-center{
+            text-align: center;
+        }
     }
 </style>
 
 <script>
-    function toggleSelectAll(source) {
+    function toggleSelectCommAll(source) {
         checkboxes = document.getElementsByClassName('planning-checkbox');
         for(var i = 0, n = checkboxes.length; i < n; i++) {
             checkboxes[i].checked = source.checked;
         }
         toggleSendPlanningButton();
     }
+    function toggleSelectLogAll(source) {
+        checkboxes = document.getElementsByClassName('supplier-checkbox');
+        for(var i = 0, n = checkboxes.length; i < n; i++) {
+            checkboxes[i].checked = source.checked;
+        }
+        toggleSendSupplierButton();
+    }
 
     function toggleSendPlanningButton() {
         const checkboxes = document.querySelectorAll('.planning-checkbox:checked');
         const sendPlanningContainer = document.getElementById('send-planning-container');
+        const sendMissedContainer = document.getElementById('send-missed-container');
         if (checkboxes.length > 0) {
             sendPlanningContainer.style.display = 'block';
+            sendMissedContainer.style.display = 'none';
         } else {
             sendPlanningContainer.style.display = 'none';
+            sendMissedContainer.style.display = 'block';
+        }
+    }
+
+    function toggleSendSupplierButton() {
+        const checkboxes = document.querySelectorAll('.supplier-checkbox:checked');
+        const sendSupplierContainer = document.getElementById('send-supplier-container');
+        if (checkboxes.length > 0) {
+            sendSupplierContainer.style.display = 'block';
+        } else {
+            sendSupplierContainer.style.display = 'none';
         }
     }
 
@@ -192,6 +299,30 @@ Liste des plannings
         fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),}).then(response => {
             if(response.ok){
                 swal("Succès", "Les plannings ont été envoyés avec succès.", "success");
+                setTimeout(function() {window.location.reload();}, 3000);
+            }
+        });
+    }
+
+    function sendPlanningSupplier() {
+        const checkboxes = document.querySelectorAll('.supplier-checkbox:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+        const url = "{% url 'send_selected_supplier' %}";
+        const csrfToken = "{{ csrf_token }}";
+        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),}).then(response => {
+            if(response.ok){
+                swal("Succès", "Les plannings ont été envoyés avec succès.", "success");
+                setTimeout(function() {window.location.reload();}, 3000);
+            }
+        });
+    }
+
+    function sendMissedPlannings() {
+        const url = "{% url 'send_selected_plannings' %}";
+        const csrfToken = "{{ csrf_token }}";
+        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: [] }),}).then(response => {
+            if(response.ok){
+                swal("Succès", "Les plannings raté ont été envoyés avec succès.", "success");
                 setTimeout(function() {window.location.reload();}, 3000);
             }
         });

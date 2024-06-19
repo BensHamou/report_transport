@@ -136,7 +136,7 @@ Rapport
         </div>
         {% if planning.state not in 'Brouillon,Annulé' and user.role == 'Admin' %}
             <div class="row mb-4">
-                <div class="col-md-3 col-sm-12 mb-2">
+                <div class="col-md-6 col-sm-12 mb-2">
                     <div class="form-outline">
                         <label class="form-label labelCustom" for="date_honored">Date Honorée</label><br>
                         {{ form.date_honored }}
@@ -149,7 +149,7 @@ Rapport
                             {% endif %}
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-12 mb-2">
+                <div class="col-md-6 col-sm-12 mb-2">
                     <div class="form-outline">
                         <label class="form-label labelCustom" for="fournisseur">Fournisseur</label><br>
                         {{ form.fournisseur }}
@@ -162,7 +162,7 @@ Rapport
                             {% endif %}
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-12 mb-2">
+                <div class="col-md-6 col-sm-12 mb-2">
                     <div class="form-outline">
                         <label class="form-label labelCustom" for="chauffeur">Chauffeur</label><br>
                         {{ form.chauffeur }}
@@ -175,7 +175,7 @@ Rapport
                             {% endif %}
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-12 mb-2">
+                <div class="col-md-6 col-sm-12 mb-2">
                     <div class="form-outline">
                         <label class="form-label labelCustom" for="immatriculation">Immatriculation</label><br>
                         {{ form.immatriculation }}

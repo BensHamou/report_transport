@@ -55,9 +55,10 @@ class TonnageForm(ModelForm):
 class FournisseurForm(ModelForm):
     class Meta:
         model = Fournisseur
-        fields = ['designation']
+        fields = ['designation', 'address']
 
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Désignation')))
+    address = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Address')), required=False)
 
 class PriceForm(ModelForm):
     

@@ -34,7 +34,7 @@ class FournisseurFilter(FilterSet):
     search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Fournisseur..') ))
 
     def filter_search(self, queryset, name, value):
-        return queryset.filter(Q(designation__icontains=value)).distinct()
+        return queryset.filter(Q(designation__icontains=value) | Q(address__icontains=value)).distinct()
 
     class Meta:
         model = Fournisseur

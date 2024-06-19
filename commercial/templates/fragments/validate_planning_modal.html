@@ -1,0 +1,67 @@
+<div class="modal" id="validateModal" tabindex="-1" aria-labelledby="validateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <form class="container" method="POST" action="{% url 'validate_delivery' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}">
+            <div class="modal-content contentStyle">
+                <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
+                    <h4 class="headerStyle mb-0">Validation du Livraison</h4>
+                    <button type="button" class="btn-close" data-disvalidate="modal" id="buttonValidateX" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="text" class="form-control" placeholder="Veuillez indiquer le N° de BL." id="n_bl" name="n_bl" style="background-color: #cacfd7;" required/>
+                </div>
+                <div class="modal-footer" style="border-color: transparent;">
+                    <button type="submit" class="btn btn-block subButton">Soumettre</button>
+                    <button type="button" class="btn btn-secondary cancelButton" id="buttonValidateCancel" data-disvalidate="modal">Annuler</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .subButton{
+        background-color: #23305d; 
+        color: white;
+    }
+    .cancelButton{
+        background-color: #b7b9bd; 
+        color: white;
+        border-color: transparent;
+    }
+    .contentStyle {
+        background: rgba(107, 122, 147, 0.75); 
+        border-radius: 16px; 
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+        backdrop-filter: blur(2px);
+    }
+    @media only screen and (max-width: 767px) {
+        .contentStyle {
+            background: rgba(236, 239, 242, 0.95);
+            border-radius: 16px; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+            backdrop-filter: blur(2px);
+        }
+        .headerStyle{
+            color: #0c2858;
+            font-weight: bold;
+        }
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        $('#validate-planning').click(function () {
+            $("#validateModal").prependTo("body");
+            $('#validateModal').modal('show');
+
+        });
+        $('#buttonValidateX').click(function () {
+            $('#validateModal').modal('hide')
+
+        });
+        $('#buttonValidateCancel').click(function () {
+            $('#validateModal').modal('hide')
+        });
+    });
+</script>
