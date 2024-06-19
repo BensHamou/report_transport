@@ -450,14 +450,14 @@ def deliverPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
-    if planning.state == 'Livraison confirmé':
+    if planning.state == 'Livraison Confirmé':
         url_path = reverse('view_planning', args=[planning.id])
         cache_param = str(uuid.uuid4())
         redirect_url = f'{url_path}?cache={cache_param}'
         return redirect(redirect_url)
     
     old_state = planning.state
-    planning.state = 'Livraison confirmé'
+    planning.state = 'Livraison Confirmé'
     new_state = planning.state
     actor = request.user
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
@@ -543,7 +543,7 @@ def live_search(request):
         records = getClientId(term)
 
     if len(records) > 0:
-        return JsonResponse([{'id': obj[0], 'name': obj[1].replace("'","\\'")} for obj in records], safe=False)
+        return JsonResponse([{'id': obj[0], 'name': f'''{obj[1]} - [ref: 0{obj[0]}] : ({obj[0]})'''.replace("'","\\'")} for obj in records], safe=False)
         
     return JsonResponse([], safe=False)
 
@@ -579,9 +579,9 @@ def sendSelectedPlannings(request):
 
 def getTable(msg, plannings, title, addDate):
     old_message = msg
-    style_th = ' style="color: white; background-color: #002060; border-bottom: 1px solid black;"'
-    style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray;"'
-    style_td_last = ' style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray"'
+    style_th = ' style="color: white; background-color: #002060; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
+    style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
+    style_td_last = ' style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
     date_column = f'<th{style_th}>Date</th>' if addDate else ''
     table_header = f'''
     <table><thead>
@@ -589,6 +589,7 @@ def getTable(msg, plannings, title, addDate):
         <th{style_th}>Palette</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th>{date_column}<th{style_th}>Livraison</th><th{style_th}>Observation</th></tr></thead><tbody>'''
     old_message += title
     for planning in plannings:
+        obs = planning.observation_comm if planning.observation_comm else '/'
         old_message += table_header
         date_row = f'<td{style_td}>{ planning.date_planning }</td>' if addDate else ''
         for product in planning.pplanneds():
@@ -603,7 +604,7 @@ def getTable(msg, plannings, title, addDate):
             <td{style_td}>{ planning.destination.designation }</td>
             {date_row}
             <td{style_td}>{ planning.livraison.designation }</td>
-            <td{style_td_last}>{ planning.observation_comm }</td></tr>
+            <td{style_td_last}>{ obs }</td></tr>
             '''
         old_message += '</tbody></table><br><br>'
     return old_message
@@ -617,8 +618,9 @@ def sendValidationMail(planning):
     price = Price.objects.get(depart=planning.site, destination=planning.destination, fournisseur=planning.fournisseur, tonnage=planning.tonnage)
     prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage).exclude(pk=price.pk).order_by('price')
 
-    style_th = ' style="color: white; background-color: #002060; border-bottom: 1px solid black;"'
-    style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray;"'
+    style_th = ' style="color: white; background-color: #002060; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
+    style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
+    style_td_price = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; color: green; font-weight: bold; text-align: center; padding: 0 10px;"'
 
     min_prices = min(len(prices), 4)
     prices = prices[:min_prices]
@@ -627,13 +629,14 @@ def sendValidationMail(planning):
         prices_header += f'<th{style_th}>{p.fournisseur.designation}</th>'
     table_header = f'''
     <table><thead><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
-    <th colspan="{min_prices}" style='border: 1px solid gray'>{price.price:,.2f} DA</th></thead><thead><tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Distributeur</th><th{style_th}>Client</th>
+    <th colspan="{min_prices}" style='border: 1px solid gray; white-space: nowrap; color: green; font-weight: bold;'>{price.price:,.2f} DA</th></thead><thead><tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Distributeur</th><th{style_th}>Client</th>
     <th{style_th}>Produit</th><th{style_th}>Palette</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th><th{style_th}>Livraison</th>
     <th{style_th}>Observation</th><th{style_th}>Fournisseur</th><th{style_th}>Chauffeur</th><th{style_th}>Immatrucilation</th>{prices_header}
     </tr></thead><tbody>'''
     message += table_header
+    obs = planning.observation_comm if planning.observation_comm else '/'
     for product in planning.pplanneds():
-        message += f'''<tr style='border-left: 1px solid gray;'>
+        message += f'''<tr style='border-left: 1px solid gray; white-space: nowrap;'>
         <td{style_td}>{ planning.__str__() }</td>
         <td{style_td}>{ planning.site.designation }</td>
         <td{style_td}>{ planning.distributeur }</td>
@@ -643,13 +646,13 @@ def sendValidationMail(planning):
         <td{style_td}>{ planning.tonnage.designation }</td>
         <td{style_td}>{ planning.destination.designation }</td>
         <td{style_td}>{ planning.livraison.designation }</td>
-        <td{style_td}>{ planning.observation_comm }</td>
+        <td{style_td}>{ obs }</td>
         <td{style_td}>{ planning.fournisseur }</td>
         <td{style_td}>{ planning.chauffeur }</td>
         <td{style_td}>{ planning.immatriculation }</td>
         '''
         for p in prices:
-            message += f'<th{style_td}>{p.price:,.2f} DA</th>'
+            message += f'<th{style_td_price}>{p.price:,.2f} DA</th>'
         message += '</tr>'
     message += '</tbody></table><br><br>'
     if planning.site.address:
