@@ -599,7 +599,7 @@ def getTable(msg, plannings, title, addDate):
             <td{style_td}>{ planning.distributeur }</td>
             <td{style_td}>{ planning.client }</td>
             <td{style_td}>{ product.product.designation }</td>
-            <td{style_td}>{ product.palette } palettes</td>
+            <td{style_td}>{ int(product.palette) } palettes</td>
             <td{style_td}>{ planning.tonnage.designation }</td>
             <td{style_td}>{ planning.destination.designation }</td>
             {date_row}
@@ -642,7 +642,7 @@ def sendValidationMail(planning):
         <td{style_td}>{ planning.distributeur }</td>
         <td{style_td}>{ planning.client }</td>
         <td{style_td}>{ product.product.designation }</td>
-        <td{style_td}>{ product.palette } palettes</td>
+        <td{style_td}>{ int(product.palette) } palettes</td>
         <td{style_td}>{ planning.tonnage.designation }</td>
         <td{style_td}>{ planning.destination.designation }</td>
         <td{style_td}>{ planning.livraison.designation }</td>
