@@ -18,6 +18,7 @@ from django.core.mail import send_mail
 from report.views import admin_required
 from django.utils.html import format_html
 from collections import defaultdict
+from django.core.mail import EmailMessage
 
 
 def check_creator(view_func):
@@ -340,8 +341,8 @@ def finishPlanning(request, id):
             actor = request.user
             validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
             planning.save()
-            validation.save()
             sendValidationMail(planning)
+            validation.save()
             url_path = reverse('view_planning', args=[planning.id])
             page = request.GET.get('page', '1')
             page_size = request.GET.get('page_size', '12')
@@ -500,7 +501,7 @@ def deliverPlanning(request, pk):
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
     planning.save()
     validation.save()
-    sendValidationMail(planning)
+    # sendValidationMail(planning)
     messages.success(request, 'Livraison confirmé avec succès')
     url_path = reverse('view_planning', args=[planning.id])
     cache_param = str(uuid.uuid4())
@@ -579,7 +580,7 @@ def unmarkPlanning(request, pk):
     planning.is_marked = False
     planning.save()
 
-    messages.success(request, 'Planning dévisé avec succès')
+    messages.success(request, 'Planning non visée avec succès')
     url_path = reverse('view_planning', args=[planning.id])
     cache_param = str(uuid.uuid4())
     redirect_url = f'{url_path}?cache={cache_param}'
@@ -667,26 +668,49 @@ def sendPlanningSupplier(request):
     data = json.loads(request.body)
     ids = data.get('ids', [])
     selected_plannings = Planning.objects.filter(id__in=ids, state='Planning en Attente')
-    plannings_by_fournisseur = defaultdict(list)
+    plannings_by_fournisseur = defaultdict(lambda: defaultdict(list))
+
     for planning in selected_plannings:
-        plannings_by_fournisseur[planning.fournisseur].append(planning)
+        plannings_by_fournisseur[planning.fournisseur][planning.site].append(planning)
 
-    for fournisseur, plannings in plannings_by_fournisseur.items():
+    for fournisseur, sites in plannings_by_fournisseur.items():
         subject = f"Planning PUMA du {timezone.localdate().strftime('%d/%m/%Y')}."
-        message = f'''<p>Bonjour {fournisseur.designation},</p>'''
-        title_planned = f'''
-        <h3 style="color: red;">PLANNING DU JOUR</h3>
-        <p>Veuillez trouver ci-dessous le planning des livraisons du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
-        if plannings:
-            message = getTable(message, plannings, title_planned, True, True)
-
+        message = f'''<p>Bonjour,</p>
+            <p>Veuillez trouver ci-dessous notre besoin pour <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
+        for site, plannings in sites.items():
+            message += f'''<b>DEPART {str(site.designation).upper()}</b>'''
+            style_th_header = ' colspan="7" style="font-size: 24px; color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
+            style_th = ' style="color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
+            style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
+            style_td_last = ' style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
+            table_header = f'''
+            <table><thead><th{style_th_header}>grupopuma</th></thead>
+            <thead>
+                <tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th><th{style_th}>Date Planning</th>
+                <th{style_th}>Livraison</th><th{style_th}>Observation</th></tr></thead><tbody>'''
+            message += table_header
+            for planning in plannings:
+                obs = planning.observation_comm if planning.observation_comm else '/'
+                message += f'''<tr>
+                <td{style_td}>{ planning.__str__() }</td>
+                <td{style_td}>{ planning.site.designation }</td>
+                <td{style_td}>{ planning.tonnage.designation }</td>
+                <td{style_td}>{ planning.destination.designation }</td>
+                <td{style_td}>{ planning.date_planning }</td>
+                <td{style_td}>{ planning.livraison.designation }</td>
+                <td{style_td_last}>{ obs }</td></tr>
+                '''
+            message += '</tbody></table><br><br>'
         if fournisseur.address:
             recipient_list = fournisseur.address.split('&')
         else:
             recipient_list = ['benshamou@gmail.com']
-        formatHtml = format_html(message)
-        if plannings:
-            send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
+        recipient_list = ['benshamou@gmail.com']
+        cc_settings = Setting.objects.filter(name='in_cc').values_list('value', flat=True)
+        cc_list = list(cc_settings)
+        email = EmailMessage( subject, message, 'Puma Trans', recipient_list, cc=cc_list)
+        email.content_subtype = "html" 
+        email.send(fail_silently=False)
     return JsonResponse({'message': 'Courrier envoyé avec succès'}, safe=False)
 
 
@@ -745,7 +769,7 @@ def sendValidationMail(planning):
     for p in prices:
         prices_header += f'<th{style_th}>{p.fournisseur.designation}</th>'
     table_header = f'''
-    <table><thead><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
+    <table><thead><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
     <th colspan="{min_prices}" style='border: 1px solid gray; white-space: nowrap; color: green; font-weight: bold;'>{price.price:,.2f} DA</th></thead><thead><tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Distributeur</th><th{style_th}>Client</th>
     <th{style_th}>Produit</th><th{style_th}>Palette</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th><th{style_th}>Livraison</th>
     <th{style_th}>Observation</th><th{style_th}>Fournisseur</th><th{style_th}>Chauffeur</th><th{style_th}>Immatrucilation</th><th{style_th}>N° BL</th>{prices_header}

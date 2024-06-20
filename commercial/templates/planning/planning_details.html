@@ -34,12 +34,12 @@ Planning - {{ planning }}
                 {% endif %}
                 {% if user.role in 'Admin,Logisticien' and planning.state == 'Planning' %}
                     <button onclick="window.location='{% url 'complete_planning' planning.id %}'" class="btn btn-success btn-block customSaveButton" style="margin-left: 2%; white-space: nowrap;">
-                        <i class="fas fa-check"></i>
+                        Compléter
                     </button>
                 {% endif %}
                 {% if user.role in 'Admin,Logisticien' and planning.state == 'Planning en Attente' %}
                     <button onclick="window.location='{% url 'finish_planning' planning.id %}'" class="btn btn-success btn-block customSaveButton" style="margin-left: 2%; white-space: nowrap;">
-                        <i class="fas fa-check"></i>
+                        Compléter
                     </button>
                 {% endif %}
             </div>
@@ -76,13 +76,17 @@ Planning - {{ planning }}
                         <a href="{% url 'make_draft_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Retour en Planning</p>
                         </a>
+                    {% elif planning.state in 'Planning en Attente' and user.role == 'Admin' %}
+                        <a id="miss-planning" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
+                            <p class="lead m-0 p-0" style="font-size: 18px; white-space: nowrap;">Raté</p>
+                        </a>
                     {% elif planning.state in 'Livraison Confirmé' and user.is_admin and not planning.is_marked %}
                         <a href="{% url 'mark_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Visé</p>
                         </a>
                     {% elif planning.state in 'Livraison Confirmé' and user.is_admin and planning.is_marked %}
                         <a href="{% url 'unmark_planning' planning.id %}" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
-                            <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Dévisé</p>
+                            <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Non visée</p>
                         </a>
                     {% else %}
                         <h4 class="lead text-white"><strong></br></strong></h4>

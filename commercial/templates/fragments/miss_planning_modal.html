@@ -3,7 +3,7 @@
         <form class="container" method="POST" action="{% url 'miss_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}">
             <div class="modal-content contentStyle">
                 <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
-                    <h4 class="headerStyle mb-0">Motif de ratage</h4>
+                    <h4 class="headerStyle mb-0">Motif</h4>
                     <button type="button" class="btn-close" data-dismiss="modal" id="buttonMissX" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
