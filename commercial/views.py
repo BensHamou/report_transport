@@ -705,7 +705,6 @@ def sendPlanningSupplier(request):
             recipient_list = fournisseur.address.split('&')
         else:
             recipient_list = ['benshamou@gmail.com']
-        recipient_list = ['benshamou@gmail.com']
         cc_settings = Setting.objects.filter(name='in_cc').values_list('value', flat=True)
         cc_list = list(cc_settings)
         email = EmailMessage( subject, message, 'Puma Trans', recipient_list, cc=cc_list)
