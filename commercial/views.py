@@ -668,21 +668,47 @@ def sendPlanningSupplier(request):
     data = json.loads(request.body)
     ids = data.get('ids', [])
     selected_plannings = Planning.objects.filter(id__in=ids, state='Planning en Attente')
+    
     plannings_by_fournisseur = defaultdict(lambda: defaultdict(list))
 
     for planning in selected_plannings:
         plannings_by_fournisseur[planning.fournisseur][planning.site].append(planning)
 
     for fournisseur, sites in plannings_by_fournisseur.items():
+        missed_plannings = Planning.objects.filter(state='Raté', fournisseur=fournisseur)
+        print(missed_plannings)
         subject = f"Planning PUMA du {timezone.localdate().strftime('%d/%m/%Y')}."
-        message = f'''<p>Bonjour,</p>
-            <p>Veuillez trouver ci-dessous notre besoin pour <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
+        message = f'''<p>Bonjour {fournisseur.designation},</p>'''
+        style_th_header = ' colspan="7" style="font-size: 24px; color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
+        style_th = ' style="color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
+        style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
+        style_td_last = ' style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
+        if missed_plannings:
+            message += f'''
+            <h3 style="color: red;">ROTATION RATÉES</h3>'''
+            table_header = f'''
+            <table><thead>
+                <tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th><th{style_th}>Date Planning</th>
+                <th{style_th}>Livraison</th><th{style_th}>Observation</th></tr></thead><tbody>'''
+            message += table_header
+            for planning in missed_plannings:
+                obs = planning.observation_comm if planning.observation_comm else '/'
+                message += f'''<tr>
+                <td{style_td}>{ planning.__str__() }</td>
+                <td{style_td}>{ planning.site.designation }</td>
+                <td{style_td}>{ planning.tonnage.designation }</td>
+                <td{style_td}>{ planning.destination.designation }</td>
+                <td{style_td}>{ planning.date_planning }</td>
+                <td{style_td}>{ planning.livraison.designation }</td>
+                <td{style_td_last}>{ obs }</td></tr>
+                '''
+            message += '</tbody></table><br><br>'
+
+        message += f'''
+        <h3 style="color: red;">PLANNING DU JOUR</h3>
+        <p>Veuillez trouver ci-dessous notre besoin pour <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
         for site, plannings in sites.items():
             message += f'''<b>DEPART {str(site.designation).upper()}</b>'''
-            style_th_header = ' colspan="7" style="font-size: 24px; color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
-            style_th = ' style="color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
-            style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
-            style_td_last = ' style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
             table_header = f'''
             <table><thead><th{style_th_header}>grupopuma</th></thead>
             <thead>
