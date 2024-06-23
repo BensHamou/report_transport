@@ -28,7 +28,7 @@ class Tonnage(models.Model):
 
 class Fournisseur(models.Model):
     designation = models.CharField(max_length=100)
-    address = models.CharField(max_length=250, null=True)
+    address = models.CharField(max_length=1000, null=True)
 
     def prices(self):
         return self.price_set.all()
