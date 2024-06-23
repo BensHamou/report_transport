@@ -58,6 +58,14 @@ def checkAdminOrCommercial(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+def checkAdminOrLogisticien(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.user.role not in ['Admin', 'Logisticien']:
+            return render(request, '403.html', status=403)
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
 def check_return_to_draft(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -663,7 +671,7 @@ def sendSelectedPlannings(request):
     return JsonResponse({'message': 'Courrier envoyé avec succès'}, safe=False)
 
 @login_required(login_url='login')
-@checkAdminOrCommercial
+@checkAdminOrLogisticien
 def sendPlanningSupplier(request):
     data = json.loads(request.body)
     ids = data.get('ids', [])
