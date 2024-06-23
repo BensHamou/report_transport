@@ -684,7 +684,6 @@ def sendPlanningSupplier(request):
 
     for fournisseur, sites in plannings_by_fournisseur.items():
         missed_plannings = Planning.objects.filter(state='Raté', fournisseur=fournisseur)
-        print(missed_plannings)
         subject = f"Planning PUMA du {timezone.localdate().strftime('%d/%m/%Y')}."
         message = f'''<p>Bonjour {fournisseur.designation},</p>'''
         style_th_header = ' colspan="7" style="font-size: 24px; color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
