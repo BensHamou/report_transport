@@ -798,6 +798,7 @@ def getTable(msg, plannings, title, addDate, addSupp):
     old_message += title
     for planning in plannings:
         obs = planning.observation_comm if planning.observation_comm else '/'
+        tonnage = planning.tonnage.designation if planning.tonnage else '/'
         old_message += table_header
         rowspan = len(planning.pplanneds())
         date_row = f'<td{style_td} rowspan="{rowspan}">{ planning.date_planning }</td>' if addDate else ''
@@ -812,7 +813,7 @@ def getTable(msg, plannings, title, addDate, addSupp):
                 <td{style_td} rowspan="{rowspan}">{ planning.client }</td>
                 <td{style_td}>{ product.product.designation }</td>
                 <td{style_td}>{ int(product.palette) } palettes</td>
-                <td{style_td} rowspan="{rowspan}">{ planning.tonnage.designation }</td>
+                <td{style_td} rowspan="{rowspan}">{ tonnage }</td>
                 <td{style_td} rowspan="{rowspan}">{ planning.destination.designation }</td>
                 {date_row}
                 {supp_row}
