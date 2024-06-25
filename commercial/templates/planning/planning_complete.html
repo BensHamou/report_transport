@@ -53,14 +53,6 @@ Planning - {{ planning }}
                     </div>
                 </div>
                 <div class="form-group row mb-1">
-                    <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Tonnage</label>
-                    <div class="col-sm-9">
-                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                            {{ planning.tonnage }}
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group row mb-1">
                     <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Destination</label>
                     <div class="col-sm-9">
                         <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
@@ -92,7 +84,7 @@ Planning - {{ planning }}
     {% csrf_token %}
     <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
         <div class="row mb-4">
-            <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
+            <div class="col-lg-4 col-md-4 col-sm-12 mb-2">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="date_honored">Date Honorée</label><br>
                     {{ form.date_honored }}
@@ -105,13 +97,26 @@ Planning - {{ planning }}
                         {% endif %}
                 </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
+            <div class="col-lg-4 col-md-4 col-sm-12 mb-2">
                 <div class="form-outline">
                     <label class="form-label labelCustom" for="fournisseur">Fournisseur</label><br>
                     {{ form.fournisseur }}
                     {% if form.fournisseur.errors %}
                         <div style="color: red;">
                         {% for error in form.fournisseur.errors %}
+                            *{{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-12 mb-2">
+                <div class="form-outline">
+                    <label class="form-label labelCustom" for="tonnage">Tonnage</label><br>
+                    {{ form.tonnage }}
+                    {% if form.tonnage.errors %}
+                        <div style="color: red;">
+                        {% for error in form.tonnage.errors %}
                             *{{ error }}
                         {% endfor %}
                         </div>

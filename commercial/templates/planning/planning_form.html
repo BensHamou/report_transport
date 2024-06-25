@@ -79,20 +79,7 @@ Rapport
             </div>
         </div>
         <div class="row mb-4">
-            <div class="col-md-4 col-sm-6 mb-2">
-                    <div class="form-outline">
-                        <label class="form-label labelCustom" for="tonnage">Tonnage</label>
-                        {{ form.tonnage }}
-                        {% if form.tonnage.errors %}
-                            <div style="color: red;">
-                            {% for error in form.tonnage.errors %}
-                                *{{ error }}
-                            {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-2">
+            <div class="col-md-6 col-sm-6 mb-2">
                     <div class="form-outline">
                         <label class="form-label labelCustom" for="destination">Déstination</label>
                         {{ form.destination }}
@@ -105,7 +92,7 @@ Rapport
                         {% endif %}
                     </div>
             </div>
-            <div class="col-md-4 col-sm-6 mb-2">
+            <div class="col-md-6 col-sm-6 mb-2">
                     <div class="form-outline">
                         <label class="form-label labelCustom" for="livraison">Livraison</label>
                         {{ form.livraison }}

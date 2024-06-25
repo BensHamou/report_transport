@@ -38,7 +38,12 @@ Liste des plannings
             </div>
         </div>
         <div class="row height d-flex justify-content-center align-items-center">
-            <div class="col-md-4 col-sm-6 mb-2">
+            <div class="col-md-4 col-sm-12 mb-2">
+                <div class="form" style="position: relative;">
+                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>{{ filter.form.distru }}
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12 mb-2">
                 {{ filter.form.state }}
             </div>
         </div>
@@ -298,6 +303,7 @@ Liste des plannings
         const csrfToken = "{{ csrf_token }}";
         fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),}).then(response => {
             if(response.ok){
+                console.log(response);
                 swal("Succès", "Les plannings ont été envoyés avec succès.", "success");
                 setTimeout(function() {window.location.reload();}, 3000);
             }
@@ -311,6 +317,7 @@ Liste des plannings
         const csrfToken = "{{ csrf_token }}";
         fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),}).then(response => {
             if(response.ok){
+                console.log(response);
                 swal("Succès", "Les plannings ont été envoyés avec succès.", "success");
                 setTimeout(function() {window.location.reload();}, 3000);
             }
@@ -322,6 +329,7 @@ Liste des plannings
         const csrfToken = "{{ csrf_token }}";
         fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: [] }),}).then(response => {
             if(response.ok){
+                console.log(response);
                 swal("Succès", "Les plannings raté ont été envoyés avec succès.", "success");
                 setTimeout(function() {window.location.reload();}, 3000);
             }

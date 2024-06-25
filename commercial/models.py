@@ -42,7 +42,7 @@ class Planning(models.Model):
     client_id = models.IntegerField()
     client = models.CharField(max_length=255)
 
-    tonnage = models.ForeignKey(Tonnage, on_delete=models.CASCADE)
+    tonnage = models.ForeignKey(Tonnage, on_delete=models.CASCADE, null=True, blank=True)
     destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE)
     livraison = models.ForeignKey(Livraison, on_delete=models.CASCADE)
     observation_comm = models.TextField(null=True, blank=True)

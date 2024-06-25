@@ -18,7 +18,7 @@ class PlanningCommForm(ModelForm):
 
     class Meta:
         model = Planning
-        fields = ['site', 'date_planning', 'distributeur_id', 'distributeur','client_id', 'client', 'tonnage', 'destination', 
+        fields = ['site', 'date_planning', 'distributeur_id', 'distributeur','client_id', 'client', 'destination', 
                   'livraison', 'observation_comm', 'fournisseur', 'chauffeur', 'immatriculation', 'date_honored', 'observation_logi']
 
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
@@ -30,7 +30,6 @@ class PlanningCommForm(ModelForm):
     client_id = forms.IntegerField(widget=forms.HiddenInput(attrs=getAttrs('controlID','ID_clinet_id')))
     client = forms.CharField(widget=forms.TextInput(attrs=getAttrs('controlSearch','Client')))
 
-    tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
     destination = forms.ModelChoiceField(queryset=Emplacement.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Déstination")
     livraison = forms.ModelChoiceField(queryset=Livraison.objects.all().order_by('id'), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Livraison")
     observation_comm = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
@@ -39,6 +38,7 @@ class PlanningCommForm(ModelForm):
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')), required=False)
     immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')), required=False)
     date_honored = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'), required=False)
+    tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage", required=False)
     observation_logi = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
     def clean(self):
@@ -85,10 +85,11 @@ class PlanningLogiForm(ModelForm):
 
     class Meta:
         model = Planning
-        fields = ['fournisseur', 'date_honored', 'observation_logi']
+        fields = ['fournisseur', 'date_honored', 'tonnage', 'observation_logi']
 
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur")
     date_honored = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
+    tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
     def clean(self):
         cleaned_data = super().clean()
         fournisseur = cleaned_data.get('fournisseur')
