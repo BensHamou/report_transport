@@ -48,16 +48,27 @@ class PlanningCommForm(ModelForm):
         destination = cleaned_data.get('destination')
         fournisseur = cleaned_data.get('fournisseur')
         if fournisseur:
-            if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, fournisseur=fournisseur).exists():
-                self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
-                self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
-                self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
-                self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+            if tonnage:
+                if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, fournisseur=fournisseur).exists():
+                    self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+                    self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+                    self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+                    self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+            else:
+                if not Price.objects.filter(depart=site, destination=destination, fournisseur=fournisseur).exists():
+                    self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+                    self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+                    self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
         else:
-            if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage).exists():
-                self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
-                self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
-                self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+            if tonnage:
+                if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage).exists():
+                    self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+                    self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+                    self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+            else:
+                if not Price.objects.filter(depart=site, destination=destination).exists():
+                    self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+                    self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
         
         return cleaned_data
 
@@ -93,9 +104,11 @@ class PlanningLogiForm(ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         fournisseur = cleaned_data.get('fournisseur')
-        if fournisseur:
-            if not Price.objects.filter(depart=self.instance.site, destination=self.instance.destination, tonnage=self.instance.tonnage, fournisseur=fournisseur).exists():
+        tonnage = cleaned_data.get('tonnage')
+        if fournisseur and tonnage:
+            if not Price.objects.filter(depart=self.instance.site, destination=self.instance.destination, tonnage=tonnage, fournisseur=fournisseur).exists():
                 self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+                self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
         return cleaned_data
     
 class PlanningConfirmForm(ModelForm):

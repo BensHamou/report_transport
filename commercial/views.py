@@ -509,7 +509,7 @@ def deliverPlanning(request, pk):
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
     planning.save()
     validation.save()
-    # sendValidationMail(planning)
+    sendValidationMail(planning)
     messages.success(request, 'Livraison confirmé avec succès')
     url_path = reverse('view_planning', args=[planning.id])
     cache_param = str(uuid.uuid4())
@@ -644,7 +644,6 @@ def live_search(request):
 @checkAdminOrCommercial
 def sendSelectedPlannings(request):
     have_draft = Planning.objects.filter(creator=request.user, state='Brouillon').exists()
-    print(have_draft)
     if have_draft:
         return JsonResponse({'message': 'Vous devez vous assurer de ne pas avoir de planning en brouillon avant d\'envoyer l\'émail.', 'OK': False}, safe=False)
 
@@ -679,7 +678,7 @@ def sendSelectedPlannings(request):
             formatHtml = format_html(message)
             if selected_plannings or missed_plannings:
                 send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
-        return JsonResponse({'message': 'Courrier envoyé avec succès.', 'OK': True}, safe=False)
+        return JsonResponse({'message': 'Les plannings ont été envoyés avec succès.', 'OK': True}, safe=False)
     else:
         missed_plannings = Planning.objects.filter(state='Raté')
         plannings_by_site = defaultdict(list)
@@ -702,9 +701,9 @@ def sendSelectedPlannings(request):
                 title_missing = f'''<h3 style="color: red;">ROTATION RATÉES {site.designation}</h3>'''
                 message = getTable(message, plannings, title_missing, True, False)
         formatHtml = format_html(message)
-        # if missed_plannings:
-            # send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
-        return JsonResponse({'message': 'Courrier envoyé avec succès.', 'OK': True}, safe=False)
+        if missed_plannings:
+            send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
+        return JsonResponse({'message': 'Les plannings ratés ont été envoyés avec succès.', 'OK': True}, safe=False)
 
 @login_required(login_url='login')
 @checkAdminOrLogisticien
@@ -779,7 +778,7 @@ def sendPlanningSupplier(request):
         email = EmailMessage( subject, message, 'Puma Trans', recipient_list, cc=cc_list)
         email.content_subtype = "html" 
         email.send(fail_silently=False)
-    return JsonResponse({'message': 'Courrier envoyé avec succès'}, safe=False)
+    return JsonResponse({'message': 'Les plannings ratés ont été envoyés avec succès.', 'OK': True}, safe=False)
 
 
 def getTable(msg, plannings, title, addDate, addSupp):
@@ -798,24 +797,31 @@ def getTable(msg, plannings, title, addDate, addSupp):
     for planning in plannings:
         obs = planning.observation_comm if planning.observation_comm else '/'
         old_message += table_header
+        rowspan = len(planning.pplanneds())
         date_row = f'<td{style_td} rowspan="{rowspan}">{ planning.date_planning }</td>' if addDate else ''
         supp_row = f'<td{style_td} rowspan="{rowspan}">{ planning.date_honored }</td>' if addSupp else ''
-        rowspan = len(planning.pplanneds())
+        has_printed = False
         for product in planning.pplanneds():
-            old_message += f'''<tr>
-            <td{style_td} rowspan="{rowspan}">{ planning.__str__() }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.site.designation }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.distributeur }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.client }</td>
-            <td{style_td}>{ product.product.designation }</td>
-            <td{style_td}>{ int(product.palette) } palettes</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.tonnage.designation }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.destination.designation }</td>
-            {date_row}
-            {supp_row}
-            <td{style_td} rowspan="{rowspan}">{ planning.livraison.designation }</td>
-            <td{style_td_last} rowspan="{rowspan}">{ obs }</td></tr>
-            '''
+            if not has_printed:
+                old_message += f'''<tr>
+                <td{style_td} rowspan="{rowspan}">{ planning.__str__() }</td>
+                <td{style_td} rowspan="{rowspan}">{ planning.site.designation }</td>
+                <td{style_td} rowspan="{rowspan}">{ planning.distributeur }</td>
+                <td{style_td} rowspan="{rowspan}">{ planning.client }</td>
+                <td{style_td}>{ product.product.designation }</td>
+                <td{style_td}>{ int(product.palette) } palettes</td>
+                <td{style_td} rowspan="{rowspan}">{ planning.tonnage.designation }</td>
+                <td{style_td} rowspan="{rowspan}">{ planning.destination.designation }</td>
+                {date_row}
+                {supp_row}
+                <td{style_td} rowspan="{rowspan}">{ planning.livraison.designation }</td>
+                <td{style_td_last} rowspan="{rowspan}">{ obs }</td></tr>
+                '''
+                has_printed = True
+            else:
+                old_message += f'''<tr>
+                <td{style_td}>{ product.product.designation }</td>
+                <td{style_td}>{ int(product.palette) } palettes</td></tr>'''
         old_message += '</tbody></table><br><br>'
     return old_message
 
@@ -845,25 +851,33 @@ def sendValidationMail(planning):
     </tr></thead><tbody>'''
     message += table_header
     obs = planning.observation_comm if planning.observation_comm else '/'
+    rowspan = len(planning.pplanneds())
+    has_printed = False
     for product in planning.pplanneds():
-        message += f'''<tr style='border-left: 1px solid gray; white-space: nowrap;'>
-        <td{style_td}>{ planning.__str__() }</td>
-        <td{style_td}>{ planning.site.designation }</td>
-        <td{style_td}>{ planning.distributeur }</td>
-        <td{style_td}>{ planning.client }</td>
-        <td{style_td}>{ product.product.designation }</td>
-        <td{style_td}>{ int(product.palette) } palettes</td>
-        <td{style_td}>{ planning.tonnage.designation }</td>
-        <td{style_td}>{ planning.destination.designation }</td>
-        <td{style_td}>{ planning.livraison.designation }</td>
-        <td{style_td}>{ obs }</td>
-        <td{style_td}>{ planning.fournisseur }</td>
-        <td{style_td}>{ planning.chauffeur }</td>
-        <td{style_td}>{ planning.immatriculation }</td>
-        <td{style_td}>{ planning.n_bl }</td>
-        '''
-        for p in prices:
-            message += f'<th{style_td_price}>{p.price:,.2f} DA</th>'
+        if not has_printed:
+            message += f'''<tr style='border-left: 1px solid gray; white-space: nowrap;'>
+            <td{style_td} rowspan="{rowspan}">{ planning.__str__() }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.site.designation }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.distributeur }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.client }</td>
+            <td{style_td}>{ product.product.designation }</td>
+            <td{style_td}>{ int(product.palette) } palettes</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.tonnage.designation }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.destination.designation }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.livraison.designation }</td>
+            <td{style_td} rowspan="{rowspan}">{ obs }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.fournisseur }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.chauffeur }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.immatriculation }</td>
+            <td{style_td} rowspan="{rowspan}">{ planning.n_bl }</td>
+            '''
+            for p in prices:
+                message += f'<th{style_td_price} rowspan="{rowspan}">{p.price:,.2f} DA</th>'
+            has_printed = True
+        else:
+            message += f'''<tr>
+            <td{style_td}>{ product.product.designation }</td>
+            <td{style_td}>{ int(product.palette) } palettes</td>'''
         message += '</tr>'
     message += '</tbody></table><br><br>'
     if planning.site.address:

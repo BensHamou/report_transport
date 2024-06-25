@@ -50,7 +50,7 @@ class Planning(models.Model):
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.CASCADE, null=True)
     chauffeur = models.CharField(max_length=100, null=True, blank=True)
     immatriculation = models.CharField(max_length=100, null=True, blank=True)
-    date_honored = models.DateField(null=True)
+    date_honored = models.DateField(null=True, blank=True)
     n_bl = models.CharField(max_length=100, null=True, blank=True)
     is_marked = models.BooleanField(default=False)
     observation_logi = models.TextField(null=True, blank=True)

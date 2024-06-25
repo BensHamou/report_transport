@@ -301,10 +301,14 @@ Liste des plannings
         const ids = Array.from(checkboxes).map(cb => cb.value);
         const url = "{% url 'send_selected_plannings' %}";
         const csrfToken = "{{ csrf_token }}";
-        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),}).then(response => {
-            if(response.ok){
-                console.log(response);
-                swal("Succès", "Les plannings ont été envoyés avec succès.", "success");
+        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),})
+        .then(response => {
+            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
+            return response.json();
+        }).then(data => {
+            if(!data.OK){swal("Attention", data.message, "warning");}
+            else{
+                swal("Succès", data.message, "success");
                 setTimeout(function() {window.location.reload();}, 3000);
             }
         });
@@ -315,10 +319,14 @@ Liste des plannings
         const ids = Array.from(checkboxes).map(cb => cb.value);
         const url = "{% url 'send_selected_supplier' %}";
         const csrfToken = "{{ csrf_token }}";
-        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),}).then(response => {
-            if(response.ok){
-                console.log(response);
-                swal("Succès", "Les plannings ont été envoyés avec succès.", "success");
+        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),})
+        .then(response => {
+            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
+            return response.json();
+        }).then(data => {
+            if(!data.OK){swal("Attention", data.message, "warning");}
+            else{
+                swal("Succès", data.message, "success");
                 setTimeout(function() {window.location.reload();}, 3000);
             }
         });
@@ -327,10 +335,14 @@ Liste des plannings
     function sendMissedPlannings() {
         const url = "{% url 'send_selected_plannings' %}";
         const csrfToken = "{{ csrf_token }}";
-        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: [] }),}).then(response => {
-            if(response.ok){
-                console.log(response);
-                swal("Succès", "Les plannings raté ont été envoyés avec succès.", "success");
+        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: [] }),})
+        .then(response => {
+            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
+            return response.json();
+        }).then(data => {
+            if(!data.OK){swal("Attention", data.message, "warning");}
+            else{
+                swal("Succès", data.message, "success");
                 setTimeout(function() {window.location.reload();}, 3000);
             }
         });
