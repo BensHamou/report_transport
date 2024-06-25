@@ -33,7 +33,7 @@ class PlanningFilter(FilterSet):
         return queryset.filter(
             Q(destination__designation__icontains=value) | Q(tonnage__designation__icontains=value) |
             Q(fournisseur__designation__icontains=value) | Q(creator__fullname__icontains=value) |
-            Q(chauffeur__icontains=value)).distinct()
+            Q(chauffeur__icontains=value) | Q(pk__icontains=value)).distinct()
 
 
     def distru_search(self, queryset, name, value):
