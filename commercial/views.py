@@ -643,12 +643,12 @@ def live_search(request):
 @login_required(login_url='login')
 @checkAdminOrCommercial
 def sendSelectedPlannings(request):
-    have_draft = Planning.objects.filter(creator=request.user, state='Brouillon').exists()
-    if have_draft:
-        return JsonResponse({'message': 'Vous devez vous assurer de ne pas avoir de planning en brouillon avant d\'envoyer l\'émail.', 'OK': False}, safe=False)
 
     data = json.loads(request.body)
     ids = data.get('ids', [])
+    have_draft = Planning.objects.filter(creator=request.user, state='Brouillon').exists()
+    if have_draft and ids:
+        return JsonResponse({'message': 'Vous devez vous assurer de ne pas avoir de planning en brouillon avant d\'envoyer l\'émail.', 'OK': False}, safe=False)
     if ids:
         for site in request.user.sites.all():
             selected_plannings = Planning.objects.filter(id__in=ids, site=site)
