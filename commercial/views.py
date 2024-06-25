@@ -349,7 +349,7 @@ def finishPlanning(request, id):
             actor = request.user
             validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
             planning.save()
-            sendValidationMail(planning)
+            sendValidationMail(planning, request.user.fullname)
             validation.save()
             url_path = reverse('view_planning', args=[planning.id])
             page = request.GET.get('page', '1')
@@ -509,7 +509,7 @@ def deliverPlanning(request, pk):
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
     planning.save()
     validation.save()
-    sendValidationMail(planning)
+    # sendValidationMail(planning, request.user.fullname)
     messages.success(request, 'Livraison confirmé avec succès')
     url_path = reverse('view_planning', args=[planning.id])
     cache_param = str(uuid.uuid4())
@@ -613,6 +613,8 @@ def makeDraftPlanning(request, pk):
     planning.date_honored = None
     planning.chauffeur = None
     planning.immatriculation = None
+    planning.fournisseur = None
+    planning.tonnage = None
     new_state = planning.state
     actor = request.user
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
@@ -825,11 +827,11 @@ def getTable(msg, plannings, title, addDate, addSupp):
         old_message += '</tbody></table><br><br>'
     return old_message
 
-def sendValidationMail(planning):
+def sendValidationMail(planning, user):
     subject = f"Livraison de planning N° {planning} ({timezone.localdate().strftime('%d/%m/%Y')})."
     message = f'''<p>Bonjour l'équipe,</p>'''
     message += f'''
-        <p>Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
+        <p>Le planning a été confirmé par <b style="color: #002060">{user}</b>. Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
     
     price = Price.objects.get(depart=planning.site, destination=planning.destination, fournisseur=planning.fournisseur, tonnage=planning.tonnage)
     prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage).exclude(pk=price.pk).order_by('price')
