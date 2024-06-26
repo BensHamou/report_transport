@@ -380,14 +380,14 @@ Rapport
             }
         });
         const checkFields = () => {
-            if($('#id_destination').val() &&  $('#id_site').val() &&  $('#id_tonnage').val() &&  $('#id_fournisseur').val()){
-                getPrice($('#id_destination').val(), $('#id_site').val(), $('#id_tonnage').val(), $('#id_fournisseur').val());
+            if($('#id_destination').val() &&  $('#id_site').val() &&  $('#id_tonnage').val() &&  $('#id_fournisseur').val() &&  $('#id_date_dep').val()){
+                getPrice($('#id_destination').val(), $('#id_site').val(), $('#id_tonnage').val(), $('#id_fournisseur').val(), $('#id_date_dep').val());
             }
         }
-        const getPrice = (dest, site, ton, four) => {
+        const getPrice = (dest, site, ton, four, date) => {
             var csrf = $('input[name=csrfmiddlewaretoken]').val();
             $.ajax({ url: '{% url 'get_price' %}', type: 'GET',
-                data: {'destination': dest, 'site': site, 'tonnage': ton, 'fournisseur': four, 'csrfmiddlewaretoken': csrf},
+                data: {'destination': dest, 'site': site, 'tonnage': ton, 'fournisseur': four, 'date': date, 'csrfmiddlewaretoken': csrf},
                     success: function(response) {
                         if(response.exist){
                             $('#id_prix').val(response.price_id);

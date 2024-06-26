@@ -1,6 +1,7 @@
 from django.forms import ModelForm, inlineformset_factory
 from django import forms
 from .models import *
+from django.db.models import Q
 from account.models import *
 from django.utils import timezone
 from report.models import Price
@@ -48,26 +49,28 @@ class PlanningCommForm(ModelForm):
         tonnage = cleaned_data.get('tonnage')
         destination = cleaned_data.get('destination')
         fournisseur = cleaned_data.get('fournisseur')
+        date_planning = cleaned_data.get('date_planning')
         if fournisseur:
             if tonnage:
-                if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, fournisseur=fournisseur).exists():
+                if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, 
+                                            fournisseur=fournisseur, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
                     self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
                     self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
                     self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
                     self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
             else:
-                if not Price.objects.filter(depart=site, destination=destination, fournisseur=fournisseur).exists():
+                if not Price.objects.filter(depart=site, destination=destination, fournisseur=fournisseur, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
                     self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
                     self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
                     self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
         else:
             if tonnage:
-                if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage).exists():
+                if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
                     self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
                     self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
                     self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
             else:
-                if not Price.objects.filter(depart=site, destination=destination).exists():
+                if not Price.objects.filter(depart=site, destination=destination, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
                     self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
                     self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
         
@@ -106,8 +109,10 @@ class PlanningLogiForm(ModelForm):
         cleaned_data = super().clean()
         fournisseur = cleaned_data.get('fournisseur')
         tonnage = cleaned_data.get('tonnage')
+        date_planning = self.instance.date_planning
         if fournisseur and tonnage:
-            if not Price.objects.filter(depart=self.instance.site, destination=self.instance.destination, tonnage=tonnage, fournisseur=fournisseur).exists():
+            if not Price.objects.filter(depart=self.instance.site, destination=self.instance.destination, tonnage=tonnage, 
+                                        fournisseur=fournisseur, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
                 self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
                 self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
         return cleaned_data

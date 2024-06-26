@@ -19,6 +19,7 @@ from report.views import admin_required
 from django.utils.html import format_html
 from collections import defaultdict
 from django.core.mail import EmailMessage
+from django.db.models import Q
 
 
 def check_creator(view_func):
@@ -662,19 +663,19 @@ def sendSelectedPlannings(request):
             <h3 style="color: red;">PLANNING DU JOUR</h3>
             <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous le planning des livraisons du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>
             
-            <ul><li><p><b>Nombres de Commandes : {len(selected_plannings)}</b></p></li></ul>
+            <ul><li><p><b>Nombres de Commandes : {len(plannings)}</b></p></li></ul>
             '''
             if missed_plannings:
                 message = getTable(message, missed_plannings, title_missing, True, False)
-            if selected_plannings:
-                message = getTable(message, selected_plannings, title_planned, False, False)
+            if plannings:
+                message = getTable(message, plannings, title_planned, False, False)
 
             if site.address:
                 recipient_list = site.address.split('&')
             else:
                 recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
             formatHtml = format_html(message)
-            if selected_plannings or missed_plannings:
+            if plannings or missed_plannings:
                 send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
         return JsonResponse({'message': 'Les plannings ont été envoyés avec succès.', 'OK': True}, safe=False)
     else:
@@ -827,8 +828,15 @@ def sendValidationMail(request):
         recipient_list += site.address.split('&')
         message += f'''<b>SITE {site.designation.upper()}</b>'''
         for planning in plannings:
-            price = Price.objects.get(depart=planning.site, destination=planning.destination, fournisseur=planning.fournisseur, tonnage=planning.tonnage)
-            prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage).exclude(pk=price.pk).order_by('price')
+            date_planning = planning.date_planning
+            price = Price.objects.filter(
+                depart=planning.site,
+                destination=planning.destination,
+                fournisseur=planning.fournisseur,
+                tonnage=planning.tonnage,
+                date_from__lte=planning.date_planning,
+            ).filter(Q(date_to__gte=planning.date_planning) | Q(date_to__isnull=True)).get()
+            prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exclude(pk=price.pk).order_by('price')
             min_prices = min(len(prices), 4)
             prices = prices[:min_prices]
             prices_header = ''

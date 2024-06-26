@@ -598,8 +598,9 @@ def getPrice(request):
         price = Price.objects.filter(destination=request.GET.get('destination'),
                                     depart=request.GET.get('site'),
                                     tonnage=request.GET.get('tonnage'),
-                                    fournisseur=request.GET.get('fournisseur')
-                                ).order_by('id').last()
+                                    fournisseur=request.GET.get('fournisseur'),
+                                    date_from__lte=request.GET.get('date')
+                                ).filter(Q(date_to__gte=request.GET.get('date')) | Q(date_to__isnull=True)).order_by('id').last()
         if price:
             return JsonResponse({'exist': True, 'price_id': price.id, 'price_prix': price.price })
         else:

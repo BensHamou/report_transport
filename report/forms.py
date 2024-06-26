@@ -67,9 +67,11 @@ class PriceForm(ModelForm):
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur")
     price = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Prix')))
+    date_from = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
+    date_to = forms.DateField(widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'), required=False)
     class Meta:
         model = Price
-        fields = ['destination', 'depart', 'fournisseur', 'tonnage', 'price']
+        fields = ['destination', 'depart', 'fournisseur', 'tonnage', 'price', 'date_from', 'date_to']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)

@@ -11,6 +11,8 @@ class Setting(models.Model):
         return self.name + ' : ' + self.value
 
 class Livraison(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     designation = models.CharField(max_length=50)
 
     def __str__(self):
@@ -67,6 +69,8 @@ class Planning(models.Model):
 class PPlanned(models.Model):
     planning = models.ForeignKey(Planning, on_delete=models.CASCADE)
     
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     product = models.ForeignKey(Product, null=True, on_delete=models.CASCADE)
     palette = models.FloatField(default=0, validators=[MinValueValidator(0)])
 

@@ -11,6 +11,8 @@ class Emplacement(models.Model):
         ('Centre/Ouest', 'Centre/Ouest'),
     ]
 
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     designation = models.CharField(max_length=100)
     region = models.CharField(choices=REGION, max_length=20, default='Ouest')
 
@@ -21,12 +23,16 @@ class Emplacement(models.Model):
         return self.designation
 
 class Tonnage(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     designation = models.CharField(max_length=100)
 
     def __str__(self):
         return self.designation
 
 class Fournisseur(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     designation = models.CharField(max_length=100)
     address = models.CharField(max_length=1000, null=True)
 
@@ -37,18 +43,24 @@ class Fournisseur(models.Model):
         return self.designation
     
 class Product(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     designation = models.CharField(max_length=100)
     
     def __str__(self):
         return self.designation
 
 class Price(models.Model):
-
+    
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     destination = models.ForeignKey(Emplacement, on_delete=models.CASCADE)
     depart = models.ForeignKey(Site, on_delete=models.CASCADE)
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.CASCADE)
     tonnage = models.ForeignKey(Tonnage, on_delete=models.CASCADE)
     price = models.FloatField(default=0, validators=[MinValueValidator(0)])
+    date_from = models.DateField()
+    date_to = models.DateField(null=True)
 
     def __str__(self):
         return "De '" + self.depart.designation + "' au '" + self.destination.designation + "', par " + self.fournisseur.designation + " - " + self.tonnage.designation + " / " + str(self.price) + "DA"
