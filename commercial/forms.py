@@ -5,6 +5,7 @@ from account.models import *
 from django.utils import timezone
 from report.models import Price
 from report.forms import getAttrs
+from datetime import timedelta
 
 
 class LivraisonForm(ModelForm):
@@ -22,7 +23,7 @@ class PlanningCommForm(ModelForm):
                   'livraison', 'observation_comm', 'fournisseur', 'chauffeur', 'immatriculation', 'date_honored', 'observation_logi']
 
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
-    date_planning = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
+    date_planning = forms.DateField(initial=timezone.now().date() + timedelta(days=1), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
 
     distributeur_id = forms.IntegerField(widget=forms.HiddenInput(attrs=getAttrs('controlID','ID_dist_id')))
     distributeur = forms.CharField(widget=forms.TextInput(attrs=getAttrs('controlSearch','Distributeur')))

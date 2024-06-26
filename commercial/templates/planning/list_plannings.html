@@ -50,16 +50,23 @@ Liste des plannings
     </form>
     {% if page %}
         {% if user.role in 'Commercial,Admin' %}
-            <div class="mb-2"><div id="send-planning-container" class="mb-3" style="display: none;">
-                <button id="send-planning-button" class="btn btn-primary" onclick="sendSelectedPlannings()">Envoyer les Plannings</button>
-            </div>
-            <div class="mb-2"><div id="send-missed-container" class="mb-3">
-                <button id="send-missed-button" class="btn btn-danger" onclick="sendMissedPlannings()">Envoyer les Plannings Ratés Uniquement</button>
+            <div class="mb-2">
+                <div id="send-planning-container" class="mb-3" style="display: none;">
+                    <button id="send-planning-button" class="btn btn-primary" onclick="sendSelectedPlannings()">Envoyer les Plannings</button>
+                </div>
+                <div class="mb-2"><div id="send-missed-container" class="mb-3">
+                    <button id="send-missed-button" class="btn btn-danger" onclick="sendMissedPlannings()">Envoyer les Plannings Ratés Uniquement</button>
+                </div>
             </div>
         {% endif %}
         {% if user.role in 'Logisticien,Admin' %}
-            <div class="mb-2"><div id="send-supplier-container" class="mb-3" style="display: none;">
-                <button id="send-supplier-button" class="btn btn-success" onclick="sendPlanningSupplier()">Envoyer au Fournisseur</button>
+            <div class="mb-2 d-flex">
+                <div id="send-supplier-container" class="mb-3" style="display: none; margin-right: 5px;">
+                    <button id="send-supplier-button" class="btn btn-success" onclick="sendPlanningSupplier()">Envoyer au Fournisseur</button>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-secondary" onclick="sendPlanningConfirmed()">Envoyer les plannings confirmés</button>
+                </div>
             </div>
         {% endif %}
         <section class="sectionList"> 
@@ -320,6 +327,22 @@ Liste des plannings
         const url = "{% url 'send_selected_supplier' %}";
         const csrfToken = "{{ csrf_token }}";
         fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),})
+        .then(response => {
+            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
+            return response.json();
+        }).then(data => {
+            if(!data.OK){swal("Attention", data.message, "warning");}
+            else{
+                swal("Succès", data.message, "success");
+                setTimeout(function() {window.location.reload();}, 3000);
+            }
+        });
+    }
+    
+    function sendPlanningConfirmed() {
+        const url = "{% url 'send_confirmed' %}";
+        const csrfToken = "{{ csrf_token }}";
+        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,},})
         .then(response => {
             if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
             return response.json();

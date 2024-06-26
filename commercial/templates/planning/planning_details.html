@@ -72,7 +72,7 @@ Planning - {{ planning }}
                         <a id="miss-planning" class="btn btn-danger text-white" style="width: 90%; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Raté</p>
                         </a>
-                    {% elif planning.state in 'Raté' and user.role == 'Admin' %}
+                    {% elif planning.state in 'Raté' and user.role == 'Admin,Logisticien' %}
                         <a href="{% url 'make_draft_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Retour en Planning</p>
                         </a>

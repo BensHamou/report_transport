@@ -27,6 +27,7 @@ urlpatterns = [
     path('planning/<int:pk>/deliver/', deliverPlanning, name='validate_delivery'),
     path('planning/mail/', sendSelectedPlannings, name='send_selected_plannings'),
     path('planning/supplier/', sendPlanningSupplier, name='send_selected_supplier'),
+    path('planning/finished/', sendValidationMail, name='send_confirmed'),
     
     path('live_search/', live_search, name='live_search'),
 ]

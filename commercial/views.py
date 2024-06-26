@@ -66,15 +66,6 @@ def checkAdminOrLogisticien(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-def check_return_to_draft(view_func):
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        if request.user.role not in ['Admin']:
-            return render(request, '403.html', status=403)
-        return view_func(request, *args, **kwargs)
-    return wrapper
-    
-
 def check_creatorPPlanned(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -349,7 +340,7 @@ def finishPlanning(request, id):
             actor = request.user
             validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
             planning.save()
-            sendValidationMail(planning, request.user.fullname)
+            # sendValidationMail(planning, request.user.fullname)
             validation.save()
             url_path = reverse('view_planning', args=[planning.id])
             page = request.GET.get('page', '1')
@@ -596,7 +587,7 @@ def unmarkPlanning(request, pk):
 
 
 @login_required(login_url='login')
-@check_return_to_draft
+@checkAdminOrLogisticien
 def makeDraftPlanning(request, pk):
     try:
         planning = Planning.objects.get(id=pk)
@@ -652,14 +643,19 @@ def sendSelectedPlannings(request):
     if have_draft and ids:
         return JsonResponse({'message': 'Vous devez vous assurer de ne pas avoir de planning en brouillon avant d\'envoyer l\'émail.', 'OK': False}, safe=False)
     if ids:
-        for site in request.user.sites.all():
-            selected_plannings = Planning.objects.filter(id__in=ids, site=site)
+        selected_plannings = Planning.objects.filter(id__in=ids, state='Planning')
+        date_planning = selected_plannings[0].date_planning
+        plannings_by_site = defaultdict(list)
+        for planning in selected_plannings:
+            plannings_by_site[planning.site].append(planning)
+
+        for site, plannings in plannings_by_site.items():
             missed_plannings = Planning.objects.filter(state='Raté', site=site)
             subject = f"Planning {site.designation} du {timezone.localdate().strftime('%d/%m/%Y')}."
             message = f'''<p>Bonjour l'équipe,</p>'''
             title_missing = f'''
             <h3 style="color: red;">RAPPEL ROTATION RATÉ</h3>
-            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>
+            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{date_planning.strftime('%d/%m/%Y')}</b></p>
             <ul><li><p><b>Rotation Ratés {site.designation} : {len(missed_plannings)}</b></p></li></ul>
             '''
             title_planned = f'''
@@ -676,7 +672,7 @@ def sendSelectedPlannings(request):
             if site.address:
                 recipient_list = site.address.split('&')
             else:
-                recipient_list = ['benshamou@gmail.com']
+                recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
             formatHtml = format_html(message)
             if selected_plannings or missed_plannings:
                 send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
@@ -695,7 +691,7 @@ def sendSelectedPlannings(request):
             <ul><li><p><b>Rotation Ratés : {len(missed_plannings)}</b></p></li>'''
         recipient_list = []
         for site in all_sites:
-            message += f'''<li><p><b>Rotation Ratés {site.designation} : {len(site.planning_set.all())}</b></p></li>'''
+            message += f'''<li><p><b>Rotation Ratés {site.designation} : {len(site.planning_set.filter(state='Raté'))}</b></p></li>'''
             recipient_list.append(site.address)
         message += '''</ul>'''
         for site, plannings in plannings_by_site.items():
@@ -713,6 +709,7 @@ def sendPlanningSupplier(request):
     data = json.loads(request.body)
     ids = data.get('ids', [])
     selected_plannings = Planning.objects.filter(id__in=ids, state='Planning en Attente')
+    date_planning = selected_plannings[0].date_planning
     
     plannings_by_fournisseur = defaultdict(lambda: defaultdict(list))
 
@@ -720,39 +717,17 @@ def sendPlanningSupplier(request):
         plannings_by_fournisseur[planning.fournisseur][planning.site].append(planning)
 
     for fournisseur, sites in plannings_by_fournisseur.items():
-        missed_plannings = Planning.objects.filter(state='Raté', fournisseur=fournisseur)
         subject = f"Planning PUMA du {timezone.localdate().strftime('%d/%m/%Y')}."
         message = f'''<p>Bonjour {fournisseur.designation},</p>'''
         style_th_header = ' colspan="7" style="font-size: 24px; color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
         style_th = ' style="color: white; background-color: #2a4767; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
         style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
         style_td_last = ' style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
-        if missed_plannings:
-            message += f'''
-            <h3 style="color: red;">ROTATION RATÉES</h3>'''
-            table_header = f'''
-            <table><thead>
-                <tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th><th{style_th}>Date Planning</th>
-                <th{style_th}>Livraison</th><th{style_th}>Observation</th></tr></thead><tbody>'''
-            message += table_header
-            for planning in missed_plannings:
-                obs = planning.observation_comm if planning.observation_comm else '/'
-                message += f'''<tr>
-                <td{style_td}>{ planning.__str__() }</td>
-                <td{style_td}>{ planning.site.designation }</td>
-                <td{style_td}>{ planning.tonnage.designation }</td>
-                <td{style_td}>{ planning.destination.designation }</td>
-                <td{style_td}>{ planning.date_planning }</td>
-                <td{style_td}>{ planning.livraison.designation }</td>
-                <td{style_td_last}>{ obs }</td></tr>
-                '''
-            message += '</tbody></table><br><br>'
-
         message += f'''
         <h3 style="color: red;">PLANNING DU JOUR</h3>
-        <p>Veuillez trouver ci-dessous notre besoin pour <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
+        <p>Veuillez trouver ci-dessous notre besoin pour <b>{date_planning}</b></p>'''
         for site, plannings in sites.items():
-            message += f'''<b>DEPART {str(site.designation).upper()}</b>'''
+            message += f'''<b>DEPART {site.designation.upper()}</b>'''
             table_header = f'''
             <table><thead><th{style_th_header}>grupopuma</th></thead>
             <thead>
@@ -774,14 +749,13 @@ def sendPlanningSupplier(request):
         if fournisseur.address:
             recipient_list = fournisseur.address.split('&')
         else:
-            recipient_list = ['benshamou@gmail.com']
+            recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
         cc_settings = Setting.objects.filter(name='in_cc').values_list('value', flat=True)
         cc_list = list(cc_settings)
         email = EmailMessage( subject, message, 'Puma Trans', recipient_list, cc=cc_list)
         email.content_subtype = "html" 
         email.send(fail_silently=False)
     return JsonResponse({'message': 'Les plannings ratés ont été envoyés avec succès.', 'OK': True}, safe=False)
-
 
 def getTable(msg, plannings, title, addDate, addSupp):
     old_message = msg
@@ -828,64 +802,78 @@ def getTable(msg, plannings, title, addDate, addSupp):
         old_message += '</tbody></table><br><br>'
     return old_message
 
-def sendValidationMail(planning, user):
-    subject = f"Livraison de planning N° {planning} ({timezone.localdate().strftime('%d/%m/%Y')})."
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def sendValidationMail(request):
+    plannings = Planning.objects.filter(creator=request.user, state = 'Planning Confirmé')
+    if not plannings:
+        return JsonResponse({'message': 'Assurez-vous d\'avoir au moins une planification confirmée.', 'OK': False}, safe=False)
+    date_planning = plannings[0].date_planning
+    subject = f"Livraison de lannings ({timezone.localdate().strftime('%d/%m/%Y')})."
     message = f'''<p>Bonjour l'équipe,</p>'''
     message += f'''
-        <p>Le planning a été confirmé par <b style="color: #002060">{user}</b>. Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>'''
+        <p>Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning}</b></p>'''
     
-    price = Price.objects.get(depart=planning.site, destination=planning.destination, fournisseur=planning.fournisseur, tonnage=planning.tonnage)
-    prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage).exclude(pk=price.pk).order_by('price')
-
     style_th = ' style="color: white; background-color: #002060; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
     style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
     style_td_price = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; color: green; font-weight: bold; text-align: center; padding: 0 10px;"'
 
-    min_prices = min(len(prices), 4)
-    prices = prices[:min_prices]
-    prices_header = ''
-    for p in prices:
-        prices_header += f'<th{style_th}>{p.fournisseur.designation}</th>'
-    table_header = f'''
-    <table><thead><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
-    <th colspan="{min_prices}" style='border: 1px solid gray; white-space: nowrap; color: green; font-weight: bold;'>{price.price:,.2f} DA</th></thead><thead><tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Distributeur</th><th{style_th}>Client</th>
-    <th{style_th}>Produit</th><th{style_th}>Palette</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th><th{style_th}>Livraison</th>
-    <th{style_th}>Observation</th><th{style_th}>Fournisseur</th><th{style_th}>Chauffeur</th><th{style_th}>Immatrucilation</th><th{style_th}>N° BL</th>{prices_header}
-    </tr></thead><tbody>'''
-    message += table_header
-    obs = planning.observation_comm if planning.observation_comm else '/'
-    rowspan = len(planning.pplanneds())
-    has_printed = False
-    for product in planning.pplanneds():
-        if not has_printed:
-            message += f'''<tr style='border-left: 1px solid gray; white-space: nowrap;'>
-            <td{style_td} rowspan="{rowspan}">{ planning.__str__() }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.site.designation }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.distributeur }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.client }</td>
-            <td{style_td}>{ product.product.designation }</td>
-            <td{style_td}>{ int(product.palette) } palettes</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.tonnage.designation }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.destination.designation }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.livraison.designation }</td>
-            <td{style_td} rowspan="{rowspan}">{ obs }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.fournisseur }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.chauffeur }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.immatriculation }</td>
-            <td{style_td} rowspan="{rowspan}">{ planning.n_bl }</td>
-            '''
+    plannings_by_site = defaultdict(list)
+    for planning in plannings:
+        plannings_by_site[planning.site].append(planning)
+    
+    recipient_list = []
+    for site, plannings in plannings_by_site.items():
+        recipient_list += site.address.split('&')
+        message += f'''<b>SITE {site.designation.upper()}</b>'''
+        for planning in plannings:
+            price = Price.objects.get(depart=planning.site, destination=planning.destination, fournisseur=planning.fournisseur, tonnage=planning.tonnage)
+            prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage).exclude(pk=price.pk).order_by('price')
+            min_prices = min(len(prices), 4)
+            prices = prices[:min_prices]
+            prices_header = ''
             for p in prices:
-                message += f'<th{style_td_price} rowspan="{rowspan}">{p.price:,.2f} DA</th>'
-            has_printed = True
-        else:
-            message += f'''<tr>
-            <td{style_td}>{ product.product.designation }</td>
-            <td{style_td}>{ int(product.palette) } palettes</td>'''
-        message += '</tr>'
-    message += '</tbody></table><br><br>'
-    if planning.site.address:
-        recipient_list = planning.site.address.split('&')
-    else:
-        recipient_list = ['benshamou@gmail.com']
+                prices_header += f'<th{style_th}>{p.fournisseur.designation}</th>'
+            table_header = f'''
+            <table><thead><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
+            <th colspan="{min_prices}" style='border: 1px solid gray; white-space: nowrap; color: green; font-weight: bold;'>Prix accordé : {price.price:,.2f} DA</th></thead><thead><tr><th{style_th}>N°</th><th{style_th}>SITE</th><th{style_th}>Distributeur</th><th{style_th}>Client</th>
+            <th{style_th}>Produit</th><th{style_th}>Palette</th><th{style_th}>Tonnage</th><th{style_th}>Destination</th><th{style_th}>Livraison</th>
+            <th{style_th}>Observation</th><th{style_th}>Fournisseur</th><th{style_th}>Chauffeur</th><th{style_th}>Immatrucilation</th><th{style_th}>N° BL</th>{prices_header}
+            </tr></thead><tbody>'''
+            message += table_header
+            obs = planning.observation_comm if planning.observation_comm else '/'
+            rowspan = len(planning.pplanneds())
+            has_printed = False
+            for product in planning.pplanneds():
+                if not has_printed:
+                    message += f'''<tr style='border-left: 1px solid gray; white-space: nowrap;'>
+                    <td{style_td} rowspan="{rowspan}">{ planning.__str__() }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.site.designation }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.distributeur }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.client }</td>
+                    <td{style_td}>{ product.product.designation }</td>
+                    <td{style_td}>{ int(product.palette) } palettes</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.tonnage.designation }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.destination.designation }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.livraison.designation }</td>
+                    <td{style_td} rowspan="{rowspan}">{ obs }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.fournisseur }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.chauffeur }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.immatriculation }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.n_bl }</td>
+                    '''
+                    for p in prices:
+                        message += f'<th{style_td_price} rowspan="{rowspan}">{p.price:,.2f} DA</th>'
+                    has_printed = True
+                else:
+                    message += f'''<tr>
+                    <td{style_td}>{ product.product.designation }</td>
+                    <td{style_td}>{ int(product.palette) } palettes</td>'''
+            message += '</tr>'
+            message += '</tbody></table><br><br>'
+
+    if not recipient_list:
+        recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
     formatHtml = format_html(message)
     send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
+    return JsonResponse({'message': 'Les plannings confirmés ont été envoyés avec succès.', 'OK': True}, safe=False)
