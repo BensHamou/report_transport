@@ -56,6 +56,7 @@ class Planning(models.Model):
     date_honored = models.DateField(null=True, blank=True)
     n_bl = models.CharField(max_length=100, null=True, blank=True)
     is_marked = models.BooleanField(default=False)
+    supplier_informed = models.BooleanField(default=False)
     observation_logi = models.TextField(null=True, blank=True)
 
     def pplanneds(self):

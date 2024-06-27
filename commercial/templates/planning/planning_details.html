@@ -184,7 +184,7 @@ Planning - {{ planning }}
                         <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Fournisseur</label>
                         <div class="col-sm-9">
                             <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                                {% if planning.fournisseur  %}{{ planning.fournisseur }}{% else %}/{% endif %}
+                                {% if planning.fournisseur  %}{{ planning.fournisseur }}{% if planning.supplier_informed %}*{% endif %}{% else %}/{% endif %}
                             </div>
                         </div>
                     </div>

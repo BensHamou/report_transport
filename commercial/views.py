@@ -662,7 +662,7 @@ def sendSelectedPlannings(request):
 def sendPlanningSupplier(request):
     data = json.loads(request.body)
     ids = data.get('ids', [])
-    selected_plannings = Planning.objects.filter(id__in=ids, state='Planning en Attente')
+    selected_plannings = Planning.objects.filter(id__in=ids, state='Planning en Attente', supplier_informed=False)
     date_honored = selected_plannings[0].date_honored
     
     plannings_by_fournisseur = defaultdict(lambda: defaultdict(list))
@@ -700,6 +700,7 @@ def sendPlanningSupplier(request):
                 <td{style_td_last}>{ obs }</td></tr>
                 '''
             message += '</tbody></table><br><br>'
+
         if fournisseur.address:
             recipient_list = fournisseur.address.split('&')
         else:
@@ -709,6 +710,7 @@ def sendPlanningSupplier(request):
         email = EmailMessage( subject, message, 'Puma Trans', recipient_list, cc=cc_list)
         email.content_subtype = "html" 
         email.send(fail_silently=False)
+        selected_plannings.update(supplier_informed=True)
     return JsonResponse({'message': 'Les plannings ratés ont été envoyés avec succès.', 'OK': True}, safe=False)
 
 def getTable(msg, plannings, title, addDate, addSupp):
