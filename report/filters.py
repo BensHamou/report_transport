@@ -53,19 +53,20 @@ class TonnageFilter(FilterSet):
 
 class PriceFilter(FilterSet):
 
-    other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
 
     search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Liste des Prix..')))
-    depart = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="All")
-    tonnage = ModelChoiceFilter(queryset=Tonnage.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="All")
+    depart = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Départ")
+    tonnage = ModelChoiceFilter(queryset=Tonnage.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Tonnage")
+    destination = ModelChoiceFilter(queryset=Emplacement.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Destination")
+    fournisseur = ModelChoiceFilter(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Fournisseur")
 
 
     def filter_search(self, queryset, name, value):
-        return queryset.filter( Q(destination__designation__icontains=value) | Q(fournisseur__designation__icontains=value) | Q(price__icontains=value) ).distinct()
+        return queryset.filter( Q(price__icontains=value) ).distinct()
 
     class Meta:
         model = Price
-        fields = ['search', 'depart', 'tonnage']
+        fields = ['search', 'depart', 'tonnage', 'destination', 'fournisseur']
         
 class ReportFilter(FilterSet):
 

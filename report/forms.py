@@ -80,23 +80,46 @@ class PriceForm(ModelForm):
             self.fields['depart'].queryset = user.sites.all()
     
     
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     destination = cleaned_data.get('destination')
-    #     depart = cleaned_data.get('depart')
-    #     fournisseur = cleaned_data.get('fournisseur')
-    #     tonnage = cleaned_data.get('tonnage')
+    def clean(self):
+        cleaned_data = super().clean()
+        destination = cleaned_data.get('destination')
+        depart = cleaned_data.get('depart')
+        fournisseur = cleaned_data.get('fournisseur')
+        tonnage = cleaned_data.get('tonnage')
+        date_from = cleaned_data.get('date_from')
+        date_to = cleaned_data.get('date_to')
 
-    #     if destination and depart and fournisseur and tonnage:
-    #         if self.instance.pk:
-    #             existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
-    #             tonnage=tonnage).exclude(Q(id=self.instance.pk)).exists()
-    #         else:
-    #             existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
-    #             tonnage=tonnage).exists()
-    #         if existing_price:
-    #             self.add_error('destination', 'Une liste de prix avec cette configuration existe déjà.')
+        if destination and depart and fournisseur and tonnage and date_from:
+            if self.instance.pk:
+                existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
+                tonnage=tonnage, date_from__lte=date_from).filter(Q(date_to__gte=date_from) | Q(date_to__isnull=True)).exclude(Q(id=self.instance.pk)).exists()
+            else:
+                existing_price = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, 
+                tonnage=tonnage).exists()
+            if existing_price:
+                self.add_error('destination', 'Une liste de prix avec cette configuration existe déjà.')
+    def clean(self):
+        cleaned_data = super().clean()
+        destination = cleaned_data.get('destination')
+        depart = cleaned_data.get('depart')
+        fournisseur = cleaned_data.get('fournisseur')
+        tonnage = cleaned_data.get('tonnage')
+        date_from = cleaned_data.get('date_from')
+        date_to = cleaned_data.get('date_to')
 
+        if self.instance.id:
+            existing_prices = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, tonnage=tonnage).exclude(pk=self.instance.id)
+        else:
+            existing_prices = Price.objects.filter(destination=destination, depart=depart, fournisseur=fournisseur, tonnage=tonnage)
+
+        for price in existing_prices:
+            existing_date_to = price.date_to or timezone.datetime.max.date()
+            current_date_to = date_to or timezone.datetime.max.date()
+            if date_from <= existing_date_to and price.date_from <= current_date_to:
+                self.add_error('date_from', 'Un autre prix existe pour cette configuration avec des dates qui se chevauchent.')
+                self.add_error('date_to', 'Un autre prix existe pour cette configuration avec des dates qui se chevauchent.')
+
+        return cleaned_data
 
 class ReportForm(ModelForm):
 

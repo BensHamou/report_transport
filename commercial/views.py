@@ -283,7 +283,7 @@ class PlanningList(LoginRequiredMixin, CheckPlanningListViewerMixin, FilterView)
     template_name = "list_plannings.html"
     context_object_name = "plannings"
     filterset_class = PlanningFilter
-    ordering = ['-date_created', '-date_planning']
+    ordering = ['-date_modified', '-date_planning']
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -317,12 +317,7 @@ def completePlanning(request, id):
             planning.save()
             validation.save()
             url_path = reverse('view_planning', args=[planning.id])
-            page = request.GET.get('page', '1')
-            page_size = request.GET.get('page_size', '12')
-            search = request.GET.get('search', '')
-            cache_param = str(uuid.uuid4())
-            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
-            return redirect(redirect_url)
+            return redirect(getRedirectionURL(request, url_path))
     context = {'form': form, 'planning': planning}
 
     return render(request, 'planning_complete.html', context)
@@ -344,12 +339,7 @@ def finishPlanning(request, id):
             # sendValidationMail(planning, request.user.fullname)
             validation.save()
             url_path = reverse('view_planning', args=[planning.id])
-            page = request.GET.get('page', '1')
-            page_size = request.GET.get('page_size', '12')
-            search = request.GET.get('search', '')
-            cache_param = str(uuid.uuid4())
-            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
-            return redirect(redirect_url)
+            return redirect(getRedirectionURL(request, url_path))
     context = {'form': form, 'planning': planning}
 
     return render(request, 'planning_finish.html', context)
@@ -359,10 +349,8 @@ def finishPlanning(request, id):
 def deletePlanningView(request, id):
     planning = Planning.objects.get(id=id)
     planning.delete()
-    cache_param = str(uuid.uuid4())
     url_path = reverse('plannings')
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 
 @login_required(login_url='login')
@@ -370,19 +358,16 @@ def deletePlanningView(request, id):
 def delete_product(request, pk):
     try:
         pplanned = PPlanned.objects.get(id=pk)
+    
     except PPlanned.DoesNotExist:
         messages.success(request, 'Produit Planified Does not exit')
         url_path = reverse('edit_planning', args=[pplanned.planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
-
+        return redirect(getRedirectionURL(request, url_path))
+        
     pplanned.delete()
     messages.success(request, 'Produit Planifier deleted successfully')
     url_path = reverse('edit_planning', args=[pplanned.planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 
 @login_required(login_url='login')
@@ -393,11 +378,9 @@ def confirmPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
+    url_path = reverse('view_planning', args=[planning.id])
     if planning.state == 'Planning':
-        url_path = reverse('view_planning', args=[planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
+        return redirect(getRedirectionURL(request, url_path))
     
     old_state = planning.state
     miss_reason = '/'
@@ -411,9 +394,7 @@ def confirmPlanning(request, pk):
     
     messages.success(request, 'Planning plannifier avec succès')
     url_path = reverse('view_planning', args=[planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 @login_required(login_url='login')
 @check_creator
@@ -423,11 +404,9 @@ def cancelPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
+    url_path = reverse('view_planning', args=[planning.id])
     if planning.state == 'Annulé':
-        url_path = reverse('view_planning', args=[planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
+        return redirect(getRedirectionURL(request, url_path))
     
     old_state = planning.state
     
@@ -442,9 +421,7 @@ def cancelPlanning(request, pk):
 
     messages.success(request, 'Planning annulé avec succès')
     url_path = reverse('view_planning', args=[planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 
 @login_required(login_url='login')
@@ -455,11 +432,9 @@ def validatePlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
+    url_path = reverse('view_planning', args=[planning.id])
     if planning.state == 'Planning Confirmé':
-        url_path = reverse('view_planning', args=[planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
+        return redirect(getRedirectionURL(request, url_path))
     
     old_state = planning.state
     
@@ -474,9 +449,7 @@ def validatePlanning(request, pk):
 
     messages.success(request, 'Planning confirmé avec succès')
     url_path = reverse('view_planning', args=[planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 @login_required(login_url='login')
 @check_validator
@@ -486,11 +459,9 @@ def deliverPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
+    url_path = reverse('view_planning', args=[planning.id])
     if planning.state == 'Livraison Confirmé':
-        url_path = reverse('view_planning', args=[planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
+        return redirect(getRedirectionURL(request, url_path))
     
     n_bl = request.POST.get('n_bl')
     old_state = planning.state
@@ -504,9 +475,7 @@ def deliverPlanning(request, pk):
     # sendValidationMail(planning, request.user.fullname)
     messages.success(request, 'Livraison confirmé avec succès')
     url_path = reverse('view_planning', args=[planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 @login_required(login_url='login')
 @check_validator
@@ -516,11 +485,9 @@ def missPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
+    url_path = reverse('view_planning', args=[planning.id])
     if planning.state == 'Raté':
-        url_path = reverse('view_planning', args=[planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
+        return redirect(getRedirectionURL(request, url_path))
     
     old_state = planning.state
     
@@ -536,9 +503,7 @@ def missPlanning(request, pk):
 
     messages.success(request, 'Planning raté avec succès')
     url_path = reverse('view_planning', args=[planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 @login_required(login_url='login')
 @check_marker
@@ -548,20 +513,16 @@ def markPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
+    url_path = reverse('view_planning', args=[planning.id])
     if planning.is_marked:
-        url_path = reverse('view_planning', args=[planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
+        return redirect(getRedirectionURL(request, url_path))
     
     planning.is_marked = True
     planning.save()
 
     messages.success(request, 'Planning visé avec succès')
     url_path = reverse('view_planning', args=[planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 @login_required(login_url='login')
 @check_marker
@@ -571,36 +532,32 @@ def unmarkPlanning(request, pk):
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
+    url_path = reverse('view_planning', args=[planning.id])
     if not planning.is_marked:
-        url_path = reverse('view_planning', args=[planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
+        return redirect(getRedirectionURL(request, url_path))
     
     planning.is_marked = False
     planning.save()
 
     messages.success(request, 'Planning non visée avec succès')
-    url_path = reverse('view_planning', args=[planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 
 @login_required(login_url='login')
 @checkAdminOrLogisticien
-def makeDraftPlanning(request, pk):
+def reschedulePlanning(request, pk):
     try:
         planning = Planning.objects.get(id=pk)
     except Planning.DoesNotExist:
         messages.success(request, 'Planning Does not exit')
 
+    url_path = reverse('view_planning', args=[planning.id])
     if planning.state == 'Planning':
-        url_path = reverse('view_planning', args=[planning.id])
-        cache_param = str(uuid.uuid4())
-        redirect_url = f'{url_path}?cache={cache_param}'
-        return redirect(redirect_url)
+        return redirect(getRedirectionURL(request, url_path))
+    
+    reschedule_date = request.POST.get('reschedule_date')
     old_state = planning.state
+    planning.date_replanning = reschedule_date 
     planning.state = 'Planning'
     planning.date_honored = None
     planning.chauffeur = None
@@ -612,12 +569,8 @@ def makeDraftPlanning(request, pk):
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
     planning.save()
     validation.save()
-
     messages.success(request, 'Planning définir comme Planning avec succès')
-    url_path = reverse('view_planning', args=[planning.id])
-    cache_param = str(uuid.uuid4())
-    redirect_url = f'{url_path}?cache={cache_param}'
-    return redirect(redirect_url)
+    return redirect(getRedirectionURL(request, url_path))
 
 @login_required(login_url='login')
 def live_search(request):
@@ -645,7 +598,7 @@ def sendSelectedPlannings(request):
         return JsonResponse({'message': 'Vous devez vous assurer de ne pas avoir de planning en brouillon avant d\'envoyer l\'émail.', 'OK': False}, safe=False)
     if ids:
         selected_plannings = Planning.objects.filter(id__in=ids, state='Planning')
-        date_planning = selected_plannings[0].date_planning
+        date_planning_final = selected_plannings[0].date_planning_final
         plannings_by_site = defaultdict(list)
         for planning in selected_plannings:
             plannings_by_site[planning.site].append(planning)
@@ -656,7 +609,7 @@ def sendSelectedPlannings(request):
             message = f'''<p>Bonjour l'équipe,</p>'''
             title_missing = f'''
             <h3 style="color: red;">RAPPEL ROTATION RATÉ</h3>
-            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{date_planning.strftime('%d/%m/%Y')}</b></p>
+            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{date_planning_final}</b></p>
             <ul><li><p><b>Rotation Ratés {site.designation} : {len(missed_plannings)}</b></p></li></ul>
             '''
             title_planned = f'''
@@ -710,7 +663,7 @@ def sendPlanningSupplier(request):
     data = json.loads(request.body)
     ids = data.get('ids', [])
     selected_plannings = Planning.objects.filter(id__in=ids, state='Planning en Attente')
-    date_planning = selected_plannings[0].date_planning
+    date_honored = selected_plannings[0].date_honored
     
     plannings_by_fournisseur = defaultdict(lambda: defaultdict(list))
 
@@ -726,7 +679,7 @@ def sendPlanningSupplier(request):
         style_td_last = ' style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
         message += f'''
         <h3 style="color: red;">PLANNING DU JOUR</h3>
-        <p>Veuillez trouver ci-dessous notre besoin pour <b>{date_planning}</b></p>'''
+        <p>Veuillez trouver ci-dessous notre besoin pour <b>{date_honored}</b></p>'''
         for site, plannings in sites.items():
             message += f'''<b>DEPART {site.designation.upper()}</b>'''
             table_header = f'''
@@ -742,7 +695,7 @@ def sendPlanningSupplier(request):
                 <td{style_td}>{ planning.site.designation }</td>
                 <td{style_td}>{ planning.tonnage.designation }</td>
                 <td{style_td}>{ planning.destination.designation }</td>
-                <td{style_td}>{ planning.date_planning }</td>
+                <td{style_td}>{ planning.date_planning_final }</td>
                 <td{style_td}>{ planning.livraison.designation }</td>
                 <td{style_td_last}>{ obs }</td></tr>
                 '''
@@ -776,7 +729,7 @@ def getTable(msg, plannings, title, addDate, addSupp):
         tonnage = planning.tonnage.designation if planning.tonnage else '/'
         old_message += table_header
         rowspan = len(planning.pplanneds())
-        date_row = f'<td{style_td} rowspan="{rowspan}">{ planning.date_planning }</td>' if addDate else ''
+        date_row = f'<td{style_td} rowspan="{rowspan}">{ planning.date_planning_final }</td>' if addDate else ''
         supp_row = f'<td{style_td} rowspan="{rowspan}">{ planning.date_honored }</td>' if addSupp else ''
         has_printed = False
         for product in planning.pplanneds():
@@ -809,11 +762,11 @@ def sendValidationMail(request):
     plannings = Planning.objects.filter(creator=request.user, state = 'Planning Confirmé')
     if not plannings:
         return JsonResponse({'message': 'Assurez-vous d\'avoir au moins une planification confirmée.', 'OK': False}, safe=False)
-    date_planning = plannings[0].date_planning
+    date_planning_final = plannings[0].date_planning_final
     subject = f"Livraison de lannings ({timezone.localdate().strftime('%d/%m/%Y')})."
     message = f'''<p>Bonjour l'équipe,</p>'''
     message += f'''
-        <p>Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning}</b></p>'''
+        <p>Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning_final}</b></p>'''
     
     style_th = ' style="color: white; background-color: #002060; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
     style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
@@ -828,15 +781,15 @@ def sendValidationMail(request):
         recipient_list += site.address.split('&')
         message += f'''<b>SITE {site.designation.upper()}</b>'''
         for planning in plannings:
-            date_planning = planning.date_planning
+            date_planning_final = planning.date_planning_final
             price = Price.objects.filter(
                 depart=planning.site,
                 destination=planning.destination,
                 fournisseur=planning.fournisseur,
                 tonnage=planning.tonnage,
-                date_from__lte=planning.date_planning,
-            ).filter(Q(date_to__gte=planning.date_planning) | Q(date_to__isnull=True)).get()
-            prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exclude(pk=price.pk).order_by('price')
+                date_from__lte=date_planning_final,
+            ).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).get()
+            prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage, date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).exclude(pk=price.pk).order_by('price')
             min_prices = min(len(prices), 4)
             prices = prices[:min_prices]
             prices_header = ''
@@ -885,3 +838,18 @@ def sendValidationMail(request):
     formatHtml = format_html(message)
     send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
     return JsonResponse({'message': 'Les plannings confirmés ont été envoyés avec succès.', 'OK': True}, safe=False)
+
+def getRedirectionURL(request, url_path):
+    params = {
+        'page': request.GET.get('page', '1'),
+        'page_size': request.GET.get('page_size', '12'),
+        'search': request.GET.get('search', ''),
+        'state': request.GET.get('state', ''),
+        'start_date': request.GET.get('start_date', ''),
+        'end_date': request.GET.get('end_date', ''),
+        'site': request.GET.get('site', ''),
+        'distru': request.GET.get('distru', '')
+    }
+    cache_param = str(uuid.uuid4())
+    query_string = '&'.join([f'{key}={value}' for key, value in params.items() if value])
+    return f'{url_path}?cache={cache_param}&{query_string}'

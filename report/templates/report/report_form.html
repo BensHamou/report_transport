@@ -8,7 +8,7 @@ Rapport
 {% block activeCreateReport %} {% include 'active_bar.html' %} {% endblock %}
 {% block content %}
 <div class="d-flex justify-content-left mb-3">
-<a href="{% url 'reports' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: #133356; letter-spacing: 1.2px;">
+<a href="{% url 'reports' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: #133356; letter-spacing: 1.2px;">
     <i class="fas fa-caret-left me-2" style="color: #133356;"></i>
     <p class="lead m-0 p-0" style="color: #133356;">retour</p>
 </a>
@@ -341,11 +341,7 @@ Rapport
         return a.length !== noDups.size;
     }
     
-    $(document).ready(function() {
-        $('.form-select').select2({
-            theme: 'bootstrap-5', 
-            allowClear: true, 
-        });
+    $(document).ready(function() { 
         $('.add-ptransporteds').click(function(ev) {
             ev.preventDefault();
             var count = $('#item-ptransporteds').children().length;
@@ -419,6 +415,9 @@ Rapport
             checkFields()
         });
         $('#id_fournisseur').on('change', function() {
+            checkFields()
+        });
+        $('#id_date_dep').on('change', function() {
             checkFields()
         });
     });

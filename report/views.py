@@ -16,6 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
 from functools import wraps
 from django.template.defaulttags import register
+import datetime
 
 @register.filter
 def startwith(value, word):
@@ -310,7 +311,7 @@ def editProductView(request, id):
 @login_required(login_url='login')
 @admin_required
 def listPriceView(request):
-    prices = Price.objects.filter(depart__in=request.user.sites.all()).order_by('id')
+    prices = Price.objects.filter(depart__in=request.user.sites.all()).order_by('-date_modified')
     filteredData = PriceFilter(request.GET, queryset=prices)
     prices = filteredData.qs
     page_size_param = request.GET.get('page_size')
@@ -594,13 +595,14 @@ def cancelReport(request, pk):
 
 @login_required(login_url='login')
 def getPrice(request):
+    date_transport = request.GET.get('date')
     try:
         price = Price.objects.filter(destination=request.GET.get('destination'),
                                     depart=request.GET.get('site'),
                                     tonnage=request.GET.get('tonnage'),
                                     fournisseur=request.GET.get('fournisseur'),
-                                    date_from__lte=request.GET.get('date')
-                                ).filter(Q(date_to__gte=request.GET.get('date')) | Q(date_to__isnull=True)).order_by('id').last()
+                                    date_from__lte=date_transport
+                                ).filter(Q(date_to__gte=date_transport) | Q(date_to__isnull=True)).order_by('id').last()
         if price:
             return JsonResponse({'exist': True, 'price_id': price.id, 'price_prix': price.price })
         else:

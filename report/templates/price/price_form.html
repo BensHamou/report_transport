@@ -21,6 +21,34 @@ Liste de Prix
     <div class="row mb-4">
         <div class="col-lg-6 col-md-12 col-sm-12 mb-2">
           <div class="form-outline">
+              <label class="form-label labelCustom" for="date_from">Du</label>
+              {{ form.date_from }}
+              {% if form.date_from.errors %}
+                  <div style="color: red;">
+                  {% for error in form.date_from.errors %}
+                      *{{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-2">
+          <div class="form-outline">
+              <label class="form-label labelCustom" for="date_to">Au</label>
+              {{ form.date_to }}
+              {% if form.date_to.errors %}
+                  <div style="color: red;">
+                  {% for error in form.date_to.errors %}
+                      *{{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
+          </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-lg-6 col-md-12 col-sm-12 mb-2">
+          <div class="form-outline">
               <label class="form-label labelCustom" for="designation">Départ</label>
               {{ form.depart }}
               {% if form.depart.errors %}

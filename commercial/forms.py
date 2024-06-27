@@ -109,10 +109,10 @@ class PlanningLogiForm(ModelForm):
         cleaned_data = super().clean()
         fournisseur = cleaned_data.get('fournisseur')
         tonnage = cleaned_data.get('tonnage')
-        date_planning = self.instance.date_planning
+        date_planning_final = self.instance.date_planning_final
         if fournisseur and tonnage:
             if not Price.objects.filter(depart=self.instance.site, destination=self.instance.destination, tonnage=tonnage, 
-                                        fournisseur=fournisseur, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
+                                        fournisseur=fournisseur, date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).exists():
                 self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
                 self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
         return cleaned_data

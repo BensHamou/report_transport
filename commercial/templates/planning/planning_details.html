@@ -11,7 +11,7 @@ Planning - {{ planning }}
     <div class="col-md-8">
         <div class="d-flex mb-5">
             <div class="col-lg-2 col-md-3 col-sm-3">
-                <a href="{% url 'plannings' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: #133356; letter-spacing: 1.2px;">
+                <a href="{% url 'plannings' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: #133356; letter-spacing: 1.2px;">
                     <i class="fas fa-caret-left me-2" style="color: #133356;"></i>
                     <p class="lead m-0 p-0" style="color: #133356;">retour</p>
                 </a>
@@ -73,8 +73,8 @@ Planning - {{ planning }}
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Raté</p>
                         </a>
                     {% elif planning.state in 'Raté' and user.role in 'Admin,Logisticien' %}
-                        <a href="{% url 'make_draft_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
-                            <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Retour en Planning</p>
+                        <a id="reschedule-planning" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
+                            <p class="lead m-0 p-0" style="font-size: 18px; white-space: nowrap;">Retour en Planning</p>
                         </a>
                     {% elif planning.state in 'Planning en Attente' and user.role == 'Admin' %}
                         <a id="miss-planning" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
@@ -147,7 +147,7 @@ Planning - {{ planning }}
                     <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Date de planning</label>
                     <div class="col-sm-9">
                         <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                            {{ planning.date_planning }}
+                            {{ planning.date_planning_final }} {% if planning.date_replanning %}(reporté du {{ planning.date_planning }}){% endif %}
                         </div>
                     </div>
                 </div>
@@ -289,6 +289,32 @@ Planning - {{ planning }}
         cancelButtonText: "Non",   
         closeOnConfirm: true,   
         closeOnCancel: true }, 
+        function(isConfirm){
+            var url = "{% url 'cancel_planning' 123456789 %}".replace(/123456789/, planID);
+            var params = {
+                'page': getParameterByName('page'),
+                'page_size': getParameterByName('page_size'),
+                'search': getParameterByName('search'),
+                'state': getParameterByName('state'),
+                'start_date': getParameterByName('start_date'),
+                'end_date': getParameterByName('end_date'),
+                'site': getParameterByName('site'),
+                'distru': getParameterByName('distru'),
+            }
+            var queryString = Object.keys(params).map(function(key) {
+                if(params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                    return key + '=' + params[key];
+                }
+                return null;
+            }).filter(Boolean).join('&');
+
+            if (queryString) {
+                url += '?' + queryString;
+            }
+            if (isConfirm){
+                window.location.href = url;
+            }
+        });
         function(isConfirm){   
             if (isConfirm){
               window.location.href = "{% url 'cancel_planning' 123456789 %}".replace(/123456789/, planID);
@@ -299,4 +325,5 @@ Planning - {{ planning }}
 {% include 'validation_modal.html' %}
 {% include 'miss_planning_modal.html' %}
 {% include 'validate_planning_modal.html' %}
+{% include 'reschedule_planning_modal.html' %}
 {% endblock %}

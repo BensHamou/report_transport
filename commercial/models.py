@@ -37,6 +37,7 @@ class Planning(models.Model):
 
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     date_planning = models.DateField()
+    date_replanning = models.DateField(null=True)
 
     distributeur_id = models.IntegerField()
     distributeur = models.CharField(max_length=255)
@@ -59,12 +60,17 @@ class Planning(models.Model):
 
     def pplanneds(self):
         return self.pplanned_set.all()
+
+    def date_planning_final(self):
+        if self.date_replanning:
+            return max(self.date_planning, self.date_replanning)
+        return self.date_planning
     
     def validations(self):
         return self.validation_set.all()
 
     def __str__(self):
-        return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning.strftime('%y')}"
+        return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final().strftime('%y')}"
     
 class PPlanned(models.Model):
     planning = models.ForeignKey(Planning, on_delete=models.CASCADE)
