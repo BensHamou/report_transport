@@ -33,7 +33,7 @@
         {% if user.is_authenticated %}
           <div class="d-flex flex-column" style="height: 100vh; background: #133356; z-index:10; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); position: sticky; top: 0; left: 0;">
             <div class="pb-1 d-flex align-items-center flex-column" style="margin-top: 100%;">
-              {% if user.is_admin or user.role == 'Admin' %}
+              {% if user.is_admin or user.role in 'Logisticien,Observateur,Admin' %}
                 <div class="d-flex" style="width: 100%; margin: 0px 15px;">
                   {% block activeHome %}{% endblock %}
                   <h4 class="mx-auto" ><a href="{% url 'home' %}" class="text-reset"><i class="fas fa-home menu_item"></i></a></h4>

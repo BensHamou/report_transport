@@ -19,12 +19,8 @@ from django.core.paginator import Paginator
 def login_success(request):
     user = request.user
     if user.is_authenticated:
-        if user.is_admin or user.role == 'Admin':
+        if user.is_admin or user.role in ['Admin', 'Logisticien', 'Commercial']:
             return redirect("home")
-        elif user.role == 'Logisticien':
-            return redirect("reports")
-        elif user.role == 'Commercial':
-            return redirect("plannings")
     return redirect("reports")
 
 def admin_required(view_func):
@@ -35,15 +31,26 @@ def admin_required(view_func):
             return render(request, '403.html', status=403)
     return wrapper
 
+def homepage_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.role in ['Admin', 'Logisticien', 'Commercial']:
+            return view_func(request, *args, **kwargs)
+        else:
+            return render(request, '403.html', status=403)
+    return wrapper
+
 def page_not_found(request, exception):
     return render(request, '404.html', status=404)
 
 @login_required(login_url='login')
-@admin_required
+@homepage_required
 def homeView(request):
-    context = {
-        'content': 'content', 
-    }
+    if request.user.role == 'Admin':
+        link = 'http://mybi.groupe-hasnaoui.com/reports/powerbi/BI/puma/rapport_transport?rs:embed=true'
+    elif request.user.role in ['Logisticien', 'Commercial']:
+        link = 'https://mybi.groupe-hasnaoui.com/reports/powerbi/BI/puma/rapport_transport_log?rs:embed=true'
+        
+    context = { 'content': 'content',  'dashboard': link}
     return render(request, 'home.html', context)
 
 # USERS
