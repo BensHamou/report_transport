@@ -61,6 +61,7 @@ class Planning(models.Model):
     def pplanneds(self):
         return self.pplanned_set.all()
 
+    @property
     def date_planning_final(self):
         if self.date_replanning:
             return max(self.date_planning, self.date_replanning)
@@ -70,7 +71,7 @@ class Planning(models.Model):
         return self.validation_set.all()
 
     def __str__(self):
-        return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final().strftime('%y')}"
+        return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
     
 class PPlanned(models.Model):
     planning = models.ForeignKey(Planning, on_delete=models.CASCADE)
