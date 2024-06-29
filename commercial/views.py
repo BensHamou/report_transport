@@ -564,6 +564,7 @@ def reschedulePlanning(request, pk):
     planning.immatriculation = None
     planning.fournisseur = None
     planning.tonnage = None
+    planning.supplier_informed = False
     new_state = planning.state
     actor = request.user
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='/', planning=planning)
