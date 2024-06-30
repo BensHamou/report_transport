@@ -597,6 +597,7 @@ def sendSelectedPlannings(request):
     have_draft = Planning.objects.filter(creator=request.user, state='Brouillon').exists()
     if have_draft and ids:
         return JsonResponse({'message': 'Vous devez vous assurer de ne pas avoir de planning en brouillon avant d\'envoyer l\'émail.', 'OK': False}, safe=False)
+    
     if ids:
         selected_plannings = Planning.objects.filter(id__in=ids, state='Planning')
         date_planning_final = selected_plannings[0].date_planning_final
@@ -762,9 +763,10 @@ def getTable(msg, plannings, title, addDate, addSupp):
 @login_required(login_url='login')
 @checkAdminOrLogisticien
 def sendValidationMail(request):
-    plannings = Planning.objects.filter(creator=request.user, state = 'Planning Confirmé')
+    plannings = Planning.objects.filter(state = 'Planning Confirmé', site__in=request.user.sites.all())
     if not plannings:
         return JsonResponse({'message': 'Assurez-vous d\'avoir au moins une planification confirmée.', 'OK': False}, safe=False)
+    
     date_planning_final = plannings[0].date_planning_final
     subject = f"Livraison de lannings ({timezone.localdate().strftime('%d/%m/%Y')})."
     message = f'''<p>Bonjour l'équipe,</p>'''

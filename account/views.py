@@ -46,7 +46,7 @@ def page_not_found(request, exception):
 @homepage_required
 def homeView(request):
     if request.user.role == 'Admin':
-        link = 'http://mybi.groupe-hasnaoui.com/reports/powerbi/BI/puma/rapport_transport?rs:embed=true'
+        link = 'https://mybi.groupe-hasnaoui.com/reports/powerbi/BI/puma/rapport_transport?rs:embed=true'
     elif request.user.role in ['Logisticien', 'Commercial']:
         link = 'https://mybi.groupe-hasnaoui.com/reports/powerbi/BI/puma/rapport_transport_log?rs:embed=true'
         
