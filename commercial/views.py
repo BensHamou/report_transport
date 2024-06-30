@@ -793,7 +793,7 @@ def sendValidationMail(request):
                 fournisseur=planning.fournisseur,
                 tonnage=planning.tonnage,
                 date_from__lte=date_planning_final,
-            ).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).get()
+            ).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).last()
             prices = Price.objects.filter(depart=planning.site, destination=planning.destination, tonnage=planning.tonnage, date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).exclude(pk=price.pk).order_by('price')
             min_prices = min(len(prices), 4)
             prices = prices[:min_prices]
@@ -841,6 +841,7 @@ def sendValidationMail(request):
     if not recipient_list:
         recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
     formatHtml = format_html(message)
+    print(message)
     send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
     return JsonResponse({'message': 'Les plannings confirmés ont été envoyés avec succès.', 'OK': True}, safe=False)
 
