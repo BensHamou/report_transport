@@ -21,7 +21,7 @@ class PlanningCommForm(ModelForm):
     class Meta:
         model = Planning
         fields = ['site', 'date_planning', 'distributeur_id', 'distributeur','client_id', 'client', 'destination', 
-                  'livraison', 'observation_comm', 'fournisseur', 'chauffeur', 'immatriculation', 'date_honored', 'observation_logi']
+                  'livraison', 'observation_comm', 'fournisseur', 'chauffeur', 'immatriculation', 'date_honored', 'tonnage', 'observation_logi']
 
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
     date_planning = forms.DateField(initial=timezone.now().date() + timedelta(days=1), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
