@@ -768,11 +768,8 @@ def sendValidationMail(request):
     if not plannings:
         return JsonResponse({'message': 'Assurez-vous d\'avoir au moins une planification confirmée.', 'OK': False}, safe=False)
     
-    date_planning_final = plannings[0].date_planning_final
+    
     subject = f"Livraison de plannings ({timezone.localdate().strftime('%d/%m/%Y')})."
-    message = f'''<p>Bonjour l'équipe,</p>'''
-    message += f'''
-        <p>Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning_final}</b></p>'''
     
     style_th = ' style="color: white; background-color: #002060; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 10px;"'
     style_td = ' style="border-left: 1px solid gray; border-bottom: 1px solid gray; white-space: nowrap; text-align: center; padding: 0 10px;"'
@@ -783,10 +780,14 @@ def sendValidationMail(request):
         plannings_by_site[planning.site].append(planning)
     
     recipient_list = []
-    for site, plannings in plannings_by_site.items():
-        recipient_list += site.address.split('&')
+    for site, planningss in plannings_by_site.items():
+        date_planning_final = planningss[0].date_planning_final
+        message = f'''<p>Bonjour l'équipe,</p>'''
+        message += f'''
+            <p>Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning_final}</b></p>'''
+        recipient_list = site.address.split('&')
         message += f'''<b>SITE {site.designation.upper()}</b>'''
-        for planning in plannings:
+        for planning in planningss:
             date_planning_final = planning.date_planning_final
             price = Price.objects.filter(
                 depart=planning.site,
@@ -839,11 +840,10 @@ def sendValidationMail(request):
             message += '</tr>'
             message += '</tbody></table><br><br>'
 
-    if not recipient_list:
-        recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
-    formatHtml = format_html(message)
-    print(message)
-    send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
+        if not recipient_list:
+            recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
+        formatHtml = format_html(message)
+        send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
     return JsonResponse({'message': 'Les plannings confirmés ont été envoyés avec succès.', 'OK': True}, safe=False)
 
 def getRedirectionURL(request, url_path):
