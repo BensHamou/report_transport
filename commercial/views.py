@@ -616,7 +616,7 @@ def sendSelectedPlannings(request):
             '''
             title_planned = f'''
             <h3 style="color: red;">PLANNING DU JOUR</h3>
-            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous le planning des livraisons du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>
+            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous le planning des livraisons du <b>{date_planning_final}</b></p>
             
             <ul><li><p><b>Nombres de Commandes : {len(plannings)}</b></p></li></ul>
             '''
@@ -637,13 +637,14 @@ def sendSelectedPlannings(request):
         missed_plannings = Planning.objects.filter(state='Raté')
         plannings_by_site = defaultdict(list)
         all_sites = Site.objects.all()
+        date_planning_final = missed_plannings[0].date_planning_final
         for planning in missed_plannings:
             plannings_by_site[planning.site].append(planning)
         subject = f"Planning du {timezone.localdate().strftime('%d/%m/%Y')}."
         message = f'''<p>Bonjour l'équipe,</p>'''
         message += f'''
             <h3 style="color: red;">RAPPEL ROTATION RATÉ</h3>
-            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{timezone.localdate().strftime('%d/%m/%Y')}</b></p>
+            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{date_planning_final}</b></p>
             <ul><li><p><b>Rotation Ratés : {len(missed_plannings)}</b></p></li>'''
         recipient_list = []
         for site in all_sites:
@@ -768,7 +769,7 @@ def sendValidationMail(request):
         return JsonResponse({'message': 'Assurez-vous d\'avoir au moins une planification confirmée.', 'OK': False}, safe=False)
     
     date_planning_final = plannings[0].date_planning_final
-    subject = f"Livraison de lannings ({timezone.localdate().strftime('%d/%m/%Y')})."
+    subject = f"Livraison de plannings ({timezone.localdate().strftime('%d/%m/%Y')})."
     message = f'''<p>Bonjour l'équipe,</p>'''
     message += f'''
         <p>Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning_final}</b></p>'''
