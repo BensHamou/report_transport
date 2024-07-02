@@ -222,14 +222,9 @@ class PlanningInline():
                 formset_save_func(formset)
             else:
                 formset.save()
-
-        if not new:
-            cache_param = str(uuid.uuid4())
-            url_path = reverse('view_planning', args=[self.object.pk])
-            redirect_url = f'{url_path}?cache={cache_param}'
-            return redirect(redirect_url)
-        return redirect('plannings')
-
+        url_path = reverse('view_planning', args=[self.object.pk]) if not new else reverse('plannings')
+        return redirect(getRedirectionURL(self.request, url_path))
+        
     def formset_pplanneds_valid(self, formset):
         pplanneds = formset.save(commit=False)
         for obj in formset.deleted_objects:
@@ -247,13 +242,9 @@ class PlanningCreate(LoginRequiredMixin, PlanningInline, CreateView):
 
     def get_named_formsets(self):
         if self.request.method == "GET":
-            return {
-                'pplanneds': PPlannedsFormSet(prefix='pplanneds'),
-            }
+            return {'pplanneds': PPlannedsFormSet(prefix='pplanneds')}
         else:
-            return {
-                'pplanneds': PPlannedsFormSet(self.request.POST or None, prefix='pplanneds'),
-            }
+            return {'pplanneds': PPlannedsFormSet(self.request.POST or None, prefix='pplanneds')}
 
 class PlanningUpdate(LoginRequiredMixin, CheckEditorMixin, PlanningInline, UpdateView):
 
@@ -263,9 +254,7 @@ class PlanningUpdate(LoginRequiredMixin, CheckEditorMixin, PlanningInline, Updat
         return ctx
 
     def get_named_formsets(self):
-        return {
-            'pplanneds': PPlannedsFormSet(self.request.POST or None, instance=self.object, prefix='pplanneds'),
-        }
+        return {'pplanneds': PPlannedsFormSet(self.request.POST or None, instance=self.object, prefix='pplanneds')}
     
 class PlanningDetail(LoginRequiredMixin, CheckPlanningViewerMixin, DetailView):
     model = Planning

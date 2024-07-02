@@ -60,7 +60,7 @@
               {% if user.role in 'Logisticien,Observateur,Admin,Commercial' %}
                 <div class="d-flex" style="width: 100%; margin: 0px 15px;">
                   {% block activeListPlanning %}{% endblock %}
-                  <h4 class="mx-auto"><a href="{% url 'plannings' %}" class="text-reset"><i class="far fa-calendar-days menu_item"></i></a></h4>
+                  <h4 class="mx-auto"><a href="{% url 'plannings' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}" class="text-reset"><i class="far fa-calendar-days menu_item"></i></a></h4>
                 </div>
               {% endif %}
               <div class="d-flex" style="width: 100%; margin: 5px 15px;">
