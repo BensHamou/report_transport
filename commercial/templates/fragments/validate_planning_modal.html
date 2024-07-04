@@ -8,7 +8,16 @@
                 </div>
                 <div class="modal-body">
                     {% csrf_token %}
-                    <input type="text" class="form-control" placeholder="Veuillez indiquer le N° de BL." id="n_bl" name="n_bl" style="background-color: #cacfd7;" required/>
+                    <div class="form-group row">
+                        <div class="col-lg-8 col-md-8">
+                            <label class="form-label labelCustom" for="n_bl">N° BL</label>
+                            <input type="number" class="form-control" placeholder="Veuillez indiquer le N° de BL." id="n_bl" name="n_bl" style="background-color: #cacfd7;" required/>
+                        </div>
+                        <div class="col-lg-4 col-md-4">
+                            <label class="form-label labelCustom" for="create_rotation">Créer une rotation </label> </br>
+                            <input type="checkbox" id="create_rotation" name="create_rotation" data-toggle="switchbutton" data-onstyle="primary" data-onlabel="Oui" data-offlabel="Non">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer" style="border-color: transparent;">
                     <button type="submit" class="btn btn-block subButton">Soumettre</button>

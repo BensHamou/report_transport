@@ -20,7 +20,7 @@ from django.utils.html import format_html
 from collections import defaultdict
 from django.core.mail import EmailMessage
 from django.db.models import Q
-
+from report.models import Report, PTransported, Price
 
 def check_creator(view_func):
     @wraps(view_func)
@@ -452,6 +452,25 @@ def deliverPlanning(request, pk):
         return redirect(getRedirectionURL(request, url_path))
     
     n_bl = request.POST.get('n_bl')
+    create_rotation = request.POST.get('create_rotation')
+    if create_rotation:
+        # create report
+        prix = Price.objects.filter(
+            depart=planning.site,
+            destination=planning.destination,
+            fournisseur=planning.fournisseur,
+            tonnage=planning.tonnage,
+            date_from__lte=planning.date_planning_final,
+        ).filter(Q(date_to__gte=planning.date_planning_final) | Q(date_to__isnull=True)).last()
+
+        report = Report(creator=request.user, site=planning.site, state='Brouillon', prix=prix, date_dep=planning.date_honored, 
+                        chauffeur=planning.chauffeur, immatriculation=planning.immatriculation, n_bl=n_bl, observation=planning.observation_logi,
+                        n_btr=None, n_bl_2=None)
+        report.save()
+        for pplanned in planning.pplanned_set.all():
+            ptransported = PTransported(report=report, product=pplanned.product, qte_transported=0, observation=None)
+            ptransported.save()
+        planning.report = report
     old_state = planning.state
     planning.n_bl = n_bl
     planning.state = 'Livraison Confirmé'

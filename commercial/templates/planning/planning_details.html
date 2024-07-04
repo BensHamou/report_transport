@@ -114,7 +114,9 @@ Planning - {{ planning }}
                         <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">N° BL</label>
                         <div class="col-sm-9">
                             <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                                {{ planning.n_bl }}
+                                {{ planning.site.prefix_site }}{{ planning.n_bl|stringformat:"05d" }}/{{ planning.date_honored|date:"y" }} 
+                                {% if planning.report %}<a href="{% url 'view_report' planning.report.id %}" 
+                                class="link-info link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">(Rotation)</a>{% endif %}
                             </div>
                         </div>
                     </div>

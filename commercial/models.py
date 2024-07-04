@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from account.models import User, Site
-from report.models import Fournisseur, Product, Tonnage, Emplacement
+from report.models import Fournisseur, Product, Tonnage, Emplacement, Report
 
 class Setting(models.Model):
     name = models.CharField(max_length=50)
@@ -54,10 +54,12 @@ class Planning(models.Model):
     chauffeur = models.CharField(max_length=100, null=True, blank=True)
     immatriculation = models.CharField(max_length=100, null=True, blank=True)
     date_honored = models.DateField(null=True, blank=True)
-    n_bl = models.CharField(max_length=100, null=True, blank=True)
+    n_bl = models.IntegerField(validators=[MinValueValidator(0)], null=True, blank=True)
     is_marked = models.BooleanField(default=False)
     supplier_informed = models.BooleanField(default=False)
     observation_logi = models.TextField(null=True, blank=True)
+
+    report = models.ForeignKey(Report, on_delete=models.SET_NULL, null=True)
 
     def pplanneds(self):
         return self.pplanned_set.all()
