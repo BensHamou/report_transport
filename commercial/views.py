@@ -347,7 +347,6 @@ def deletePlanningView(request, id):
 def delete_product(request, pk):
     try:
         pplanned = PPlanned.objects.get(id=pk)
-    
     except PPlanned.DoesNotExist:
         messages.success(request, 'Produit Planified Does not exit')
         url_path = reverse('edit_planning', args=[pplanned.planning.id])

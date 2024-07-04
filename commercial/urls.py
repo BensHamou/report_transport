@@ -15,7 +15,7 @@ urlpatterns = [
     path("planning/<int:id>/finish", finishPlanning, name="finish_planning"),
     path("planning/<int:pk>/edit", PlanningUpdate.as_view(), name="edit_planning"),
     path("planning/create/", PlanningCreate.as_view(), name="create_planning"),
-    path('delete-product/<int:pk>/', delete_product, name='planning_delete_product'),
+    path('planning/delete-product/<int:pk>/', delete_product, name='planning_delete_product'),
 
     path('planning/<int:pk>/confirm/', confirmPlanning, name='confirm_planning'),
     path('planning/<int:pk>/cancel/', cancelPlanning, name='cancel_planning'),
