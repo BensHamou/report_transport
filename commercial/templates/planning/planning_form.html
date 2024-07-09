@@ -162,6 +162,21 @@ Rapport
                             {% endif %}
                         </div>
                 </div>
+                {% if planning.state == 'Livraison Confirmé' %}
+                    <div class="col-md-12 col-sm-12 mb-2">
+                        <div class="form-outline">
+                            <label class="form-label labelCustom" for="n_bl">N° BL</label><br>
+                            {{ form.n_bl }}
+                                {% if form.n_bl.errors %}
+                                    <div style="color: red;">
+                                    {% for error in form.n_bl.errors %}
+                                        *{{ error }}
+                                    {% endfor %}
+                                    </div>
+                                {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="col-md-6 col-sm-12 mb-2">
                     <div class="form-outline">
                         <label class="form-label labelCustom" for="chauffeur">Chauffeur</label><br>
