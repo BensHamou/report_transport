@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load humanize %}
 
 {% block title %}
 Liste de Prix
@@ -67,7 +68,7 @@ Liste de Prix
                     <td>{{ prix.destination }}</td>
                     <td>{{ prix.fournisseur }}</td>
                     <td>{{ prix.tonnage }}</td>
-                    <td>{{ prix.price }}</td>
+                    <td>{{ prix.price|intcomma }} DZD</td>
                     <td>{{ prix.date_from }}</td>
                     <td>{% if prix.date_to %}{{ prix.date_to }}{% else %}/{% endif %}</td>
                     <td style="width: 10vw; text-align: middle;">
