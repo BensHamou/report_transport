@@ -400,7 +400,6 @@ Rapport
     const setValue = (e, selectedId) => {
         var suggestions = e.parentNode;
         var fieldIdInput = suggestions.previousElementSibling;
-        console.log(fieldIdInput);
         var fieldInput = fieldIdInput.previousElementSibling;
         if (fieldIdInput && fieldInput && suggestions) {
           fieldIdInput.value = selectedId;

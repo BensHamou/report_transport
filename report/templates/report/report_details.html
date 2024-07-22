@@ -155,7 +155,7 @@ Rapport - {{ report.site.prefix_site }}{{ report.n_bl|stringformat:"05d" }}/{{ r
                     <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Observation</label>
                     <div class="col-sm-10">
                         <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                            {% if report.observation  %}{{ report.observation }}{% else %}/{% endif %}
+                            {% if report.observation  %}{{ report.observation|linebreaks }}{% else %}/{% endif %}
                         </div>
                     </div>
                 </div>
