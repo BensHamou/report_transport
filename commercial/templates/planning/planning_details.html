@@ -290,46 +290,54 @@ Planning - {{ planning }}
 <script>
     const confirmPlanCan = (planID) => {
         swal({ 
-        title: `Confirmation de l'annulation.`,   
-        text: `Voulez-vous vraiment annuler ce planning?`,   
-        type: "warning",
-        showCancelButton: true,   
-        confirmButtonColor: "#DD6B55",   
-        confirmButtonText: "Oui",   
-        cancelButtonText: "Non",   
-        closeOnConfirm: true,   
-        closeOnCancel: true }, 
+            title: `Confirmation de l'annulation.`,   
+            text: `Voulez-vous vraiment annuler ce planning?`,   
+            type: "warning",
+            showCancelButton: true,   
+            confirmButtonColor: "#DD6B55",   
+            confirmButtonText: "Oui",   
+            cancelButtonText: "Non",   
+            closeOnConfirm: true,   
+            closeOnCancel: true 
+        }, 
         function(isConfirm){
-            var url = "{% url 'cancel_planning' 123456789 %}".replace(/123456789/, planID);
-            var params = {
-                'page': getParameterByName('page'),
-                'page_size': getParameterByName('page_size'),
-                'search': getParameterByName('search'),
-                'state': getParameterByName('state'),
-                'start_date': getParameterByName('start_date'),
-                'end_date': getParameterByName('end_date'),
-                'site': getParameterByName('site'),
-                'distru': getParameterByName('distru'),
-            }
-            var queryString = Object.keys(params).map(function(key) {
-                if(params[key] !== null && params[key] !== undefined && params[key] !== '') {
-                    return key + '=' + params[key];
-                }
-                return null;
-            }).filter(Boolean).join('&');
-
-            if (queryString) {
-                url += '?' + queryString;
-            }
             if (isConfirm){
+                var url = "{% url 'cancel_planning' 123456789 %}".replace(/123456789/, planID);
+                var params = {
+                    'page': getParameterByName('page'),
+                    'page_size': getParameterByName('page_size'),
+                    'search': getParameterByName('search'),
+                    'state': getParameterByName('state'),
+                    'start_date': getParameterByName('start_date'),
+                    'end_date': getParameterByName('end_date'),
+                    'site': getParameterByName('site'),
+                    'distru': getParameterByName('distru'),
+                };
+                
+                var queryString = Object.keys(params).map(function(key) {
+                    if(params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                        return key + '=' + params[key];
+                    }
+                    return null;
+                }).filter(Boolean).join('&');
+
+                if (queryString) {
+                    url += '?' + queryString;
+                }
+
                 window.location.href = url;
             }
         });
-        function(isConfirm){   
-            if (isConfirm){
-              window.location.href = "{% url 'cancel_planning' 123456789 %}".replace(/123456789/, planID);
-            }});
-      }
+    }
+    function getParameterByName(name) {
+        var url = window.location.href;
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
 </script>
 {% include 'pplanned_modal.html' %}
 {% include 'validation_modal.html' %}
