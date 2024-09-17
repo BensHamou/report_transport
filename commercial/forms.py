@@ -16,6 +16,16 @@ class LivraisonForm(ModelForm):
 
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Designation')))
 
+
+class BlockedForm(ModelForm):
+    class Meta:
+        model = Blocked
+        fields = ['distributeur_id', 'distributeur']
+
+    distributeur_id = forms.IntegerField(widget=forms.HiddenInput(attrs=getAttrs('controlID','ID_dist_id')))
+    distributeur = forms.CharField(widget=forms.TextInput(attrs=getAttrs('controlSearch','Distributeur')))
+
+
 class PlanningCommForm(ModelForm):
 
     class Meta:

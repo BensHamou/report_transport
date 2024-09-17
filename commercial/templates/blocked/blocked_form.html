@@ -1,0 +1,141 @@
+{% extends "main.html" %}
+
+{% block title %}
+Bloqué
+{% endblock %}
+{% load static %} 
+{% block activeSettings %} {% include 'active_bar.html' %} {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-left mb-3">
+  <a href="{% url 'blockeds' %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: rgba(222, 226, 230, 0.8); letter-spacing: 1.2px;">
+    <i class="fas fa-caret-left me-2" style="color: #133356;"></i>
+    <p class="lead m-0 p-0" style="color: #133356;">retour</p>
+</a>
+</div>
+<h4 class="mb-4" style="color: #133356;">Distributeur à bloqué<h4>
+
+<form method="POST">
+  {% csrf_token %}
+  <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+    <div class="row mb-4">
+      <div class="col-lg-12 col-md-12 col-sm-12 mb-2">
+        <div class="form-outline">
+            <label class="form-label labelCustom" for="distributeur">Distributeur</label>
+            {{ form.distributeur }}
+            {{ form.distributeur_id }}
+            <div id="suggestions" class="sugdiv"></div>
+            {% if form.distributeur.errors %}
+                <div style="color: red;">
+                {% for error in form.distributeur.errors %}
+                    *{{ error }}
+                {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="float-end mt-4">
+    <input type='submit' class="btn btn-secondary customSaveButton" name='save' value="Sauvgardez"/>
+  </div>
+</form>
+
+<style>
+    #suggestions {
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      max-height: 200px;
+      overflow-y: scroll;
+      display: none;
+      border-radius: 0 0 10px 10px;
+    }
+    
+    .suggestion {
+      padding: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    
+    .suggestion:hover {
+      background-color: #eee;
+    }
+    
+    #suggestions.loading {
+      background-color: #f2f2f2;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    #suggestions.loading .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ccc;
+      border-top: 2px solid #333;
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+</style>
+
+<script>
+    const setValue = (e, selectedId) => {
+        var suggestions = e.parentNode;
+        var fieldIdInput = suggestions.previousElementSibling;
+        var fieldInput = fieldIdInput.previousElementSibling;
+        if (fieldIdInput && fieldInput && suggestions) {
+          fieldIdInput.value = selectedId;
+          fieldInput.value = e.innerHTML;
+          suggestions.innerHTML = '';
+          suggestions.style.display = 'none';
+        }
+    };
+    $(document).ready(function() {
+        $('.search-input').keyup(function() {
+            var suggestions = $(this).siblings('#suggestions');
+            var searchInput = $(this);
+            var searchInputID = $(this).siblings('.search-input-id');
+            searchInputID.val('');
+            if (searchInput.val()) {
+                suggestions.addClass('loading');
+                $.ajax({url: '{% url "live_search" %}', type: 'GET', data: { 'search_term': searchInput.val(), 'search_for': searchInput.attr('name') }, dataType: 'json',
+                    success: function(response) {
+                        var suggestionsHTML = '';
+                        if (response.length > 0) {
+                            for (var i = 0; i < response.length; i++) {
+                                var result = response[i];
+                                suggestionsHTML += `<div class="suggestion" onClick="setValue(this, ${result.id})">${result.name}</div>`;
+                            }
+                            suggestions.html(suggestionsHTML);
+                            suggestions.removeClass('loading');
+                            suggestions.show();
+                        } else {
+                            suggestionsHTML = '<p>Aucune suggestion trouvée</p>';
+                            suggestions.html(suggestionsHTML);
+                            suggestions.removeClass('loading');
+                            suggestions.show();
+                        }
+                    }
+            });
+            } else {
+                suggestions.empty();
+                suggestions.hide();
+            }
+        });
+    });
+</script>
+
+{% endblock %}

@@ -18,6 +18,18 @@ class Livraison(models.Model):
     def __str__(self):
         return self.designation
 
+class Blocked(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    distributeur_id = models.IntegerField()
+    distributeur = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f'{self.distributeur} - {self.id}' 
+    
+
 class Planning(models.Model):
  
     STATE_PLANNING = [
@@ -27,6 +39,7 @@ class Planning(models.Model):
         ('Planning Confirmé', 'Planning Confirmé'),
         ('Livraison Confirmé', 'Livraison Confirmé'),
         ('Raté', 'Raté'),
+        ('Planning Bloqué', 'Planning Bloqué'),
         ('Annulé', 'Annulé')
     ]
 

@@ -7,6 +7,11 @@ urlpatterns = [
     path("livraisons/delete-livraison/<int:id>", deleteLivraisonView, name="delete_livraison"),
     path("livraisons/edit-livraison/<int:id>", editLivraisonView, name="edit_livraison"),
     path("livraisons/create-livraison/", createLivraisonView, name="create_livraison"),
+    
+    path('black-list/', blockedList, name='blockeds'),
+    path("black-list/remove/<int:id>", removeBlockedView, name="remove_blocked"),
+    path("black-list/add/", addBlockedView, name="add_blocked"),
+    path("black-list/send/", sendBlockList, name="send_blocked"),
 
     path('plannings/', PlanningList.as_view(), name='plannings'),
     path("planning/<int:pk>", PlanningDetail.as_view(), name="view_planning"),

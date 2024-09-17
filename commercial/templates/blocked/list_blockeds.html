@@ -1,0 +1,102 @@
+{% extends "main.html" %}
+
+{% block title %}
+Bloqués
+{% endblock %}
+{% load static %} 
+{% block activeSettings %} {% include 'active_bar.html' %} {% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <form method="GET" style="{% if page %}margin: 20px 0px 0px 0px;{% else %}margin-top: 13%;{% endif %}">
+        {% csrf_token %}
+        <div class="row height d-flex justify-content-center align-items-center">
+            <div class="col-md-5 mb-2">
+                <div class="form" style="position: relative;">
+                    <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #2a4767;"></i>
+                    {{ filtredData.form.distru }}
+                </div>
+            </div>
+            <div class="col-md-1 col-sm-6 mb-2">
+                <input type="number" class="form-control" value="{% if request.GET.page_size %}{{ request.GET.page_size }}{% else %}12{% endif %}" style="background-color: #ebecee; 
+                border-color: transparent; color: #133356; height: 40px; border-radius: 5px;" name="page_size">
+            </div>
+            <div class="col-md-1 col-sm-6 mb-2">
+                <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">Appliquer</button>
+            </div>
+            <div class="col-md-1 mb-2">
+                <a href="{% url 'add_blocked' %}" class="btn btn-secondary" style="background-color: #2a4767; border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); height: 40px;">Ajouter</a>
+            </div>
+        </div>
+    </form>  
+    {% if page %}
+    <div class="mb-3">
+        <button class="btn btn-danger" onclick="sendList()">Envoyer la liste</button>
+    </div>
+    <section class="sectionList"> 
+        <table class="table table-borderless">
+            <thead style="border-bottom: 2px solid white;">
+                <tr class="text-white">
+                <th>#</th>
+                <th>Distributeur</th>
+                <th>ID Odoo</th>
+                <th style="width: 40vh; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blocked in page %}
+                <tr style="color: #dde3f0;">
+                    <td>{{ blocked.id }}</td>
+                    <td>{{ blocked.distributeur }}</td>
+                    <td>{{ blocked.distributeur_id }}</td>
+                    <td style="vertical-align: middle; text-align: center;">
+                        <button type="button" onclick="confirmRemoveBlock('{{blocked.id|escapejs}}', '{{blocked.distributeur|escapejs}}')" class="btn" style="color: white; padding: 2px;"><i class="fas fa-xmark"></i></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if page.has_other_pages %}
+            {% include 'pagination.html' %}
+        {% endif %}    
+    </section>
+    {% else %}
+        {% include 'empty_list.html' %}
+    {% endif %}
+</div>
+<script>
+    
+    function sendList() {
+        const url = "{% url 'send_blocked' %}";
+        const csrfToken = "{{ csrf_token }}";
+        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,},})
+        .then(response => {
+            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
+            return response.json();
+        }).then(data => {
+            if(!data.OK){swal("Attention", data.message, "warning");}
+            else{
+                swal("Succès", data.message, "success");
+                setTimeout(function() {window.location.reload();}, 3000);
+            }
+        });
+    }
+
+    const confirmRemoveBlock = (blockedId, blockedDes) => {
+        swal({ 
+        title: `Confirmation de la suppression.`,   
+        text: `Etes-vous sûr que vous voulez supprimer ${blockedDes} du liste bloqué?`,   
+        type: "warning",
+        showCancelButton: true,   
+        confirmButtonColor: "#DD6B55",   
+        confirmButtonText: "Oui",   
+        cancelButtonText: "Non",   
+        closeOnConfirm: true,   
+        closeOnCancel: true }, 
+        function(isConfirm){   
+            if (isConfirm){
+              window.location.href = "{% url 'remove_blocked' 123456789 %}".replace(/123456789/, blockedId);
+            }});
+    }
+</script>
+{% endblock %}

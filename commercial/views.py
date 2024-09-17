@@ -143,6 +143,105 @@ def editLivraisonView(request, id):
 
     return render(request, 'livraison_form.html', context)
 
+# BLOCKED
+@login_required(login_url='login')
+@admin_required 
+def blockedList(request):
+    blockeds = Blocked.objects.all().order_by('-date_modified')
+    filteredData = BlockedFilter(request.GET, queryset=blockeds)
+    blockeds = filteredData.qs
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12   
+    paginator = Paginator(blockeds, page_size)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {'page': page, 'filtredData': filteredData, }
+    return render(request, 'list_blockeds.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def removeBlockedView(request, id):
+    blocked = Blocked.objects.get(id=id)
+    blocked.delete()
+    plannings = Planning.objects.filter(Q(state='Planning Bloqué') & Q(distributeur_id=blocked.distributeur_id))
+    for planning in plannings:
+        old_state = planning.state
+        planning.state = 'Planning'
+        planning.date_modified = timezone.now()
+        new_state = planning.state
+        actor = request.user
+        validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='Distributeur Débloqué', planning=planning)
+        planning.save()
+        validation.save()
+
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('blockeds')
+
+    redirect_url = f'{url_path}?cache={cache_param}'
+
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@admin_required
+def addBlockedView(request):
+    form = BlockedForm()
+    if request.method == 'POST':
+        form = BlockedForm(request.POST)
+        if form.is_valid():
+            blocked = form.save(commit=False)
+            blocked.creator = request.user
+            blocked.save()
+            for planning in Planning.objects.filter((Q(state='Planning') | Q(state='Raté')) & Q(distributeur_id=blocked.distributeur_id)):
+                old_state = planning.state
+                planning.state = 'Planning Bloqué'
+                planning.date_modified = timezone.now()
+                new_state = planning.state
+                actor = request.user
+                validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason='Distributeur Bloqué', planning=planning)
+                planning.save()
+                validation.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('blockeds')
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
+            return redirect(redirect_url)
+    context = {'form': form }
+    return render(request, 'blocked_form.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def sendBlockList(reqest):
+    blockeds = Blocked.objects.all()
+    if not blockeds:
+        return JsonResponse({'message': 'Assurez-vous d\'avoir au moins une planification bloqué.', 'OK': False}, safe=False)
+    
+    style_th = ' style="color: white; background-color: #002060; border: 1px solid black; white-space: nowrap; text-align: center; padding: 0 20px;"'
+    style_td = ' style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; white-space: nowrap; text-align: center; padding: 0 20px;"'
+    
+    subject = f"Liste bloquer du ({timezone.localdate().strftime('%d/%m/%Y')})."
+    message = f'''<p>Bonjour l'équipe,</p>
+    <h4 style="color: red;">LISTE BLOQUER</h4>
+    La liste bloquer a été à jour par <b style="color: #002060;">{reqest.user.fullname}</b> le <b style="color: #002060;">{timezone.localdate().strftime('%d/%m/%Y')}</b> :
+    <ul><li><b>Total des clients bloquer : {len(blockeds)}</b></li></ul>
+     <table><thead><th{style_th}>Distributeur bloquer</th></thead><tbody>'''
+    
+    for blocked in blockeds:
+        message += f'''<tr style='border-left: 1px solid gray; white-space: nowrap;'>
+                        <td{style_td}>{ blocked.distributeur }</td></td>'''
+    message += '</tbody></table><br><br>Coridalement;'
+    recipient_list = []
+    for site in Site.objects.all():
+        recipient_list.append(site.address)
+    if not recipient_list:
+        recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
+    
+    recipient_list = ['mohammed.benslimane@groupe-hasnaoui.com']
+    formatHtml = format_html(message)
+    send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
+    return JsonResponse({'message': 'Les distibuteurs bloqués ont été envoyés avec succès.', 'OK': True}, safe=False)
+
 # PLANNINGS
 
 class CheckEditorMixin:
@@ -367,13 +466,15 @@ def confirmPlanning(request, pk):
         messages.success(request, 'Planning Does not exit')
 
     url_path = reverse('view_planning', args=[planning.id])
-    if planning.state == 'Planning':
+    if planning.state in ['Planning', 'Planning Bloqué']:
         return redirect(getRedirectionURL(request, url_path))
-    
+        
     old_state = planning.state
     miss_reason = '/'
-
-    planning.state = 'Planning'
+    if Blocked.objects.filter(Q(distributeur_id=planning.distributeur_id)).exists():
+        planning.state = 'Planning Bloqué'
+    else:
+        planning.state = 'Planning'
     new_state = planning.state
     actor = request.user
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason=miss_reason, planning=planning)

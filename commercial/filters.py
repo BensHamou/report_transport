@@ -16,6 +16,17 @@ class LivraisonFilter(FilterSet):
         model = Livraison
         fields = ['search']
         
+class BlockedFilter(FilterSet):
+
+    distru = CharFilter(method='distru_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Distributeur..')))
+
+    def distru_search(self, queryset, name, value):
+        return queryset.filter(Q(distributeur__icontains=value)).distinct()
+
+    class Meta:
+        model = Blocked
+        fields = ['distru']
+
 class PlanningFilter(FilterSet):
 
     other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
