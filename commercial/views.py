@@ -236,8 +236,6 @@ def sendBlockList(reqest):
         recipient_list.append(site.address)
     if not recipient_list:
         recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
-    
-    recipient_list = ['mohammed.benslimane@groupe-hasnaoui.com']
     formatHtml = format_html(message)
     send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
     return JsonResponse({'message': 'Les distibuteurs bloqués ont été envoyés avec succès.', 'OK': True}, safe=False)
