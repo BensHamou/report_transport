@@ -58,7 +58,7 @@ Planning - {{ planning }}
                             class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Annuler</p>
                         </a>
-                    {% elif planning.state == 'Planning' and user.role in 'Admin,Logisticien' %}
+                    {% elif planning.state == 'Planning' and user.role in 'Admin,Logisticien,Commercial' %}
                         {% comment %} <a href="{% url 'validate_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Confirmer</p>
                         </a> {% endcomment %}
@@ -69,7 +69,7 @@ Planning - {{ planning }}
                             class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Annuler</p>
                         </a>
-                    {% elif planning.state == 'Planning Confirmé' and user.role in 'Admin,Logisticien' %}
+                    {% elif planning.state == 'Planning Confirmé' and user.role in 'Admin,Logisticien,Commercial' %}
                         <a id="validate-planning" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Livraison Validée</p>
                         </a>

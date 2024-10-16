@@ -46,7 +46,7 @@ def check_marker(view_func):
 def check_validator(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if request.user.role not in ['Admin', 'Logisticien']:
+        if request.user.role not in ['Admin', 'Logisticien', 'Commercial']:
             return render(request, '403.html', status=403)
         return view_func(request, *args, **kwargs)
     return wrapper
