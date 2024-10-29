@@ -890,7 +890,7 @@ def sendValidationMail(request):
         date_planning_final = planningss[0].date_planning_final
         message = f'''<p>Bonjour l'équipe,</p>'''
         message += f'''
-            <p>Veuillez trouver ci-dessous les livraisons <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning_final}</b></p>'''
+            <p>Veuillez trouver ci-dessous les plannings <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning_final}</b></p>'''
         recipient_list = site.address.split('&')
         message += f'''<b>SITE {site.designation.upper()}</b>'''
         for planning in planningss:
