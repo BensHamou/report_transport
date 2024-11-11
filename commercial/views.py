@@ -790,7 +790,7 @@ def sendPlanningSupplier(request):
         <h3 style="color: red;">PLANNING DU JOUR</h3>
         <p>Veuillez trouver ci-dessous notre besoin pour <b>{date_honored}</b></p>'''
         for site, plannings in sites.items():
-            message += f'''<b>DEPART {site.designation.upper()}</b>'''
+            message += f'''<b>DEPART {site.designation.upper()} : {len(plannings)}</b>'''
             table_header = f'''
             <table><thead><th{style_th_header}>grupopuma</th></thead>
             <thead>
@@ -814,6 +814,7 @@ def sendPlanningSupplier(request):
             recipient_list = fournisseur.address.split('&')
         else:
             recipient_list = ['mohammed.senoussaoui@grupopuma-dz.com']
+
         cc_settings = Setting.objects.filter(name='in_cc').values_list('value', flat=True)
         cc_list = list(cc_settings)
         email = EmailMessage( subject, message, 'Puma Trans', recipient_list, cc=cc_list)
@@ -892,7 +893,7 @@ def sendValidationMail(request):
         message += f'''
             <p>Veuillez trouver ci-dessous les plannings <b>Confirmer</b> par <b style="color: #002060">{request.user.fullname}</b> du <b>{date_planning_final}</b></p>'''
         recipient_list = site.address.split('&')
-        message += f'''<b>SITE {site.designation.upper()}</b>'''
+        message += f'''<b>SITE {site.designation.upper()} : {len(planningss)}</b>'''
         for planning in planningss:
             date_planning_final = planning.date_planning_final
             price = Price.objects.filter(
