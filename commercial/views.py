@@ -713,11 +713,12 @@ def sendSelectedPlannings(request):
 
         for site, plannings in plannings_by_site.items():
             missed_plannings = Planning.objects.filter(state='Raté', site=site)
-            subject = f"Planning {site.designation} du {timezone.localdate().strftime('%d/%m/%Y')}."
+            today_date = timezone.localdate().strftime('%d/%m/%Y')
+            subject = f"Planning {site.designation} du {today_date}."
             message = f'''<p>Bonjour l'équipe,</p>'''
             title_missing = f'''
             <h3 style="color: red;">RAPPEL ROTATION RATÉ</h3>
-            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{date_planning_final}</b></p>
+            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{today_date}</b></p>
             <ul><li><p><b>Rotation Ratés {site.designation} : {len(missed_plannings)}</b></p></li></ul>
             '''
             title_planned = f'''
@@ -741,6 +742,7 @@ def sendSelectedPlannings(request):
         return JsonResponse({'message': 'Les plannings ont été envoyés avec succès.', 'OK': True}, safe=False)
     else:
         missed_plannings = Planning.objects.filter(state='Raté')
+        today_date = timezone.localdate().strftime('%d/%m/%Y')
         plannings_by_site = defaultdict(list)
         all_sites = Site.objects.all()
         date_planning_final = missed_plannings[0].date_planning_final
@@ -750,7 +752,7 @@ def sendSelectedPlannings(request):
         message = f'''<p>Bonjour l'équipe,</p>'''
         message += f'''
             <h3 style="color: red;">RAPPEL ROTATION RATÉ</h3>
-            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{date_planning_final}</b></p>
+            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{today_date}</b></p>
             <ul><li><p><b>Rotation Ratés : {len(missed_plannings)}</b></p></li>'''
         recipient_list = []
         for site in all_sites:
