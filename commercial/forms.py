@@ -100,9 +100,11 @@ class PlanningCommForm(ModelForm):
             self.fields['site'].widget.attrs['disabled'] = True
         else:
             self.fields['site'].queryset = sites
-        if instance.fournisseur.is_tracked:
-            self.fields['driver'].queryset = Driver.objects.filter(fournisseur=instance.fournisseur)
-            self.fields['vehicle'].queryset = Vehicle.objects.filter(fournisseur=instance.fournisseur)
+
+        if instance:
+            if instance.fournisseur.is_tracked:
+                self.fields['driver'].queryset = Driver.objects.filter(fournisseur=instance.fournisseur)
+                self.fields['vehicle'].queryset = Vehicle.objects.filter(fournisseur=instance.fournisseur)
 
 
 class PPlannedForm(ModelForm):
