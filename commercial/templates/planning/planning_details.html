@@ -248,7 +248,7 @@ Planning - {{ planning }}
                         <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Chauffeur</label>
                         <div class="col-sm-9">
                             <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                                {% if planning.chauffeur  %}{{ planning.chauffeur }}{% else %}/{% endif %}
+                                {% if planning.str_chauffeur  %}{{ planning.str_chauffeur }}{% else %}/{% endif %}
                             </div>
                         </div>
                     </div>
@@ -256,7 +256,7 @@ Planning - {{ planning }}
                         <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Immatriculation</label>
                         <div class="col-sm-9">
                             <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
-                            {% if planning.immatriculation  %}{{ planning.immatriculation }}{% else %}/{% endif %}
+                            {% if planning.str_immatriculation  %}{{ planning.str_immatriculation }}{% else %}/{% endif %}
                             </div>
                         </div>
                     </div>

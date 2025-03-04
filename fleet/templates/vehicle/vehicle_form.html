@@ -1,0 +1,82 @@
+{% extends "main.html" %}
+
+{% block title %}
+Vehicle
+{% endblock %}
+{% load static %} 
+{% block activeSettings %} {% include 'active_bar.html' %} {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-left mb-3">
+  <a href="{% url 'vehicles' %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: rgba(222, 226, 230, 0.8); letter-spacing: 1.2px;">
+      <i class="fas fa-caret-left me-2" style="color: #133356;"></i>
+    <p class="lead m-0 p-0" style="color: #133356;">retour</p>
+</a>
+</div>
+<h4 class="mb-4" style="color: #133356;">{% if vehicle %}Modification du {{ vehicle }}{% else %}Création d'une vehicle{% endif %}</h4>
+
+<form method="POST">
+  {% csrf_token %}
+  <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+    <div class="row mb-4">
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="model">Modèle</label>
+          {{ form.model }}
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="mark">Marque</label>
+            {{ form.mark }}
+        </div>
+      </div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="immatriculation">Immatriculation</label>
+          {{ form.immatriculation }}
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="year">Année</label>
+            {{ form.year }}
+        </div>
+      </div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
+          {{ form.fournisseur }}
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="objectif">Objectif</label>
+            {{ form.objectif }}
+        </div>
+      </div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="consommation_with">Consommation avec marchandise</label>
+          {{ form.consommation_with }}
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="consommation_without">Consommation sans marchandise</label>
+            {{ form.consommation_without }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="float-end mt-4">
+    <input type='submit' class="btn btn-secondary customSaveButton" name='save' value="Sauvgardez"/>
+  </div>
+</form>
+{% endblock %}

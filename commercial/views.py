@@ -562,8 +562,9 @@ def deliverPlanning(request, pk):
             date_from__lte=planning.date_planning_final,
         ).filter(Q(date_to__gte=planning.date_planning_final) | Q(date_to__isnull=True)).last()
 
+
         report = Report(creator=request.user, site=planning.site, state='Brouillon', prix=prix, date_dep=planning.date_honored, 
-                        chauffeur=planning.chauffeur, immatriculation=planning.immatriculation, n_bl=n_bl, observation=planning.observation_logi,
+                        chauffeur=planning.str_chauffeur, immatriculation=planning.str_immatriculation, n_bl=n_bl, observation=planning.observation_logi,
                         n_btr=None, n_bl_2=None)
         report.save()
         for pplanned in planning.pplanned_set.all():
@@ -668,6 +669,8 @@ def reschedulePlanning(request, pk):
     planning.date_honored = None
     planning.chauffeur = None
     planning.immatriculation = None
+    planning.driver = None
+    planning.vehicle = None
     planning.fournisseur = None
     planning.tonnage = None
     planning.supplier_informed = False
@@ -935,8 +938,8 @@ def sendValidationMail(request):
                     <td{style_td} rowspan="{rowspan}">{ planning.livraison.designation }</td>
                     <td{style_td} rowspan="{rowspan}">{ obs }</td>
                     <td{style_td} rowspan="{rowspan}">{ planning.fournisseur }</td>
-                    <td{style_td} rowspan="{rowspan}">{ planning.chauffeur }</td>
-                    <td{style_td} rowspan="{rowspan}">{ planning.immatriculation }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.str_chauffeur }</td>
+                    <td{style_td} rowspan="{rowspan}">{ planning.str_immatriculation }</td>
                     <td{style_td} rowspan="{rowspan}">{ planning.n_bl }</td>
                     '''
                     for p in prices:

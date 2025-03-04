@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from account.models import User, Site
 from report.models import Fournisseur, Product, Tonnage, Emplacement, Report
+from fleet.models import Driver, Vehicle
 
 class Setting(models.Model):
     name = models.CharField(max_length=50)
@@ -64,8 +65,13 @@ class Planning(models.Model):
     observation_comm = models.TextField(null=True, blank=True)
 
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.CASCADE, null=True)
+
     chauffeur = models.CharField(max_length=100, null=True, blank=True)
     immatriculation = models.CharField(max_length=100, null=True, blank=True)
+    
+    driver = models.ForeignKey(Driver, null=True, on_delete=models.SET_NULL, blank=True)
+    vehicle = models.ForeignKey(Vehicle, null=True, on_delete=models.SET_NULL, blank=True)
+    
     date_honored = models.DateField(null=True, blank=True)
     n_bl = models.IntegerField(validators=[MinValueValidator(0)], null=True, blank=True)
     is_marked = models.BooleanField(default=False)
@@ -82,6 +88,18 @@ class Planning(models.Model):
         if self.date_replanning:
             return max(self.date_planning, self.date_replanning)
         return self.date_planning
+
+    @property
+    def str_chauffeur(self):
+        if self.driver:
+            return self.driver.__str__()
+        return self.chauffeur
+
+    @property
+    def str_immatriculation(self):
+        if self.vehicle:
+            return self.vehicle.__str__()
+        return self.immatriculation
     
     def validations(self):
         return self.validation_set.all()

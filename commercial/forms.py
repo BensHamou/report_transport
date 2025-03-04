@@ -47,6 +47,9 @@ class PlanningCommForm(ModelForm):
     observation_comm = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur", required=False)
+    driver = forms.ModelChoiceField(queryset=Driver.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Chauffeur", required=False)
+    vehicle = forms.ModelChoiceField(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Immatriculation", required=False)
+
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')), required=False)
     immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')), required=False)
     date_honored = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'), required=False)
@@ -89,6 +92,7 @@ class PlanningCommForm(ModelForm):
 
 
     def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
         sites = kwargs.pop('sites', None)
         super(PlanningCommForm, self).__init__(*args, **kwargs)
         self.fields['site'].initial = sites.first()
@@ -96,6 +100,10 @@ class PlanningCommForm(ModelForm):
             self.fields['site'].widget.attrs['disabled'] = True
         else:
             self.fields['site'].queryset = sites
+        if instance.fournisseur.is_tracked:
+            self.fields['driver'].queryset = Driver.objects.filter(fournisseur=instance.fournisseur)
+            self.fields['vehicle'].queryset = Vehicle.objects.filter(fournisseur=instance.fournisseur)
+
 
 class PPlannedForm(ModelForm):
     class Meta:
@@ -132,8 +140,20 @@ class PlanningConfirmForm(ModelForm):
 
     class Meta:
         model = Planning
-        fields = ['chauffeur', 'immatriculation', 'observation_logi']
+        fields = ['chauffeur', 'immatriculation', 'driver', 'vehicle', 'observation_logi']
 
-    chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')))
+    chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')), required=False)
     immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')), required=False)
+    driver = forms.ModelChoiceField(queryset=Driver.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Chauffeur", required=False)
+    vehicle = forms.ModelChoiceField(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Immatriculation", required=False)
     observation_logi = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        super(PlanningConfirmForm, self).__init__(*args, **kwargs)
+        if instance.fournisseur.is_tracked:
+            self.fields['driver'].queryset = Driver.objects.filter(fournisseur=instance.fournisseur)
+            self.fields['vehicle'].queryset = Vehicle.objects.filter(fournisseur=instance.fournisseur)
+            self.fields['driver'].required = True
+        else:
+            self.fields['chauffeur'].required = True

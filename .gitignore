@@ -1,6 +1,8 @@
 account/__pycache__/
+commercial/__pycache__/
 transV
 report/__pycache__/
+fleet/__pycache__/
 report_transport/__pycache__/
 
 *.pyc
@@ -11,3 +13,5 @@ report/migrations/*
 !report/migrations/__init__.py
 commercial/migrations/*
 !commercial/migrations/__init__.py
+fleet/migrations/*
+!fleet/migrations/__init__.py

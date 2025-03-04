@@ -35,6 +35,7 @@ class Fournisseur(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     designation = models.CharField(max_length=100)
     address = models.CharField(max_length=1000, null=True)
+    is_tracked = models.BooleanField(default=False)
 
     def prices(self):
         return self.price_set.all()

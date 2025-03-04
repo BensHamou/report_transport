@@ -6,6 +6,7 @@ urlpatterns = [
     path("", include('account.urls')),
     path("", include('report.urls')),
     path("", include('commercial.urls')),
+    path("", include('fleet.urls')),
 ]
 
 handler404 = 'account.views.page_not_found'

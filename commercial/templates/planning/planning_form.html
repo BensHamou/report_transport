@@ -203,6 +203,32 @@ Rapport
                             {% endif %}
                     </div>
                 </div>
+                <div class="col-md-6 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="driver">Chauffeur locale</label><br>
+                        {{ form.driver }}
+                            {% if form.driver.errors %}
+                                <div style="color: red;">
+                                {% for error in form.driver.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="vehicle">Immatriculation locale</label><br>
+                        {{ form.vehicle }}
+                            {% if form.vehicle.errors %}
+                                <div style="color: red;">
+                                {% for error in form.vehicle.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
+                </div>
             </div>
             <div class="row mb-4">
                 <div class="col-lg-12 col-md-12 col-sm-12">

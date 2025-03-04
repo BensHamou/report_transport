@@ -108,32 +108,61 @@ Planning - {{ planning }}
     {% csrf_token %}
     <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
         <div class="row mb-4">
-            <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
-                <div class="form-outline">
-                    <label class="form-label labelCustom" for="chauffeur">Chauffeur</label><br>
-                    {{ form.chauffeur }}
-                        {% if form.chauffeur.errors %}
-                            <div style="color: red;">
-                            {% for error in form.chauffeur.errors %}
-                                *{{ error }}
-                            {% endfor %}
-                            </div>
-                        {% endif %}
+            {% if planning.fournisseur.is_tracked %}
+                <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="driver">Chauffeur</label><br>
+                        {{ form.driver }}
+                            {% if form.driver.errors %}
+                                <div style="color: red;">
+                                {% for error in form.driver.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
-                <div class="form-outline">
-                    <label class="form-label labelCustom" for="immatriculation">Immatriculation</label><br>
-                    {{ form.immatriculation }}
-                        {% if form.immatriculation.errors %}
-                            <div style="color: red;">
-                            {% for error in form.immatriculation.errors %}
-                                *{{ error }}
-                            {% endfor %}
-                            </div>
-                        {% endif %}
+                <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="vehicle">Immatriculation</label><br>
+                        {{ form.vehicle }}
+                            {% if form.vehicle.errors %}
+                                <div style="color: red;">
+                                {% for error in form.vehicle.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="chauffeur">Chauffeur</label><br>
+                        {{ form.chauffeur }}
+                            {% if form.chauffeur.errors %}
+                                <div style="color: red;">
+                                {% for error in form.chauffeur.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
+                    <div class="form-outline">
+                        <label class="form-label labelCustom" for="immatriculation">Immatriculation</label><br>
+                        {{ form.immatriculation }}
+                            {% if form.immatriculation.errors %}
+                                <div style="color: red;">
+                                {% for error in form.immatriculation.errors %}
+                                    *{{ error }}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                    </div>
+                </div>
+            {% endif %}
         </div>
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12">
