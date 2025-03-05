@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 
 {% block title %}
-Vehicle
+Camion
 {% endblock %}
 {% load static %} 
 {% block activeSettings %} {% include 'active_bar.html' %} {% endblock %}
@@ -13,7 +13,7 @@ Vehicle
     <p class="lead m-0 p-0" style="color: #133356;">retour</p>
 </a>
 </div>
-<h4 class="mb-4" style="color: #133356;">{% if vehicle %}Modification du {{ vehicle }}{% else %}Création d'une vehicle{% endif %}</h4>
+<h4 class="mb-4" style="color: #133356;">{% if vehicle %}Modification du {{ vehicle }}{% else %}Création d'un camion{% endif %}</h4>
 
 <form method="POST">
   {% csrf_token %}

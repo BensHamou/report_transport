@@ -1,0 +1,62 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calcule Rotations</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <h3>Calcule Rotations - {{ supplier }}</h3>
+    <table>
+        <thead style="background-color: #2a4767; color: white;">
+            <tr style="background-color: #2a4767; color: white;">
+                <th style="background-color: #2a4767; color: white;">Immatriculation</th>
+                <th style="background-color: #2a4767; color: white;">Km avec marchandise</th>
+                <th style="background-color: #2a4767; color: white;">Km sans marchandise</th>
+                <th style="background-color: #2a4767; color: white;">Chiffre d'affaires</th>
+                <th style="background-color: #2a4767; color: white;">Objectif</th>
+                <th style="background-color: #2a4767; color: white;">Consommation gasoil avec marchandise</th>
+                <th style="background-color: #2a4767; color: white;">Consommation gasoil sans marchandise</th>
+                <th style="background-color: #2a4767; color: white;">Total Consommation</th>
+                <th style="background-color: #2a4767; color: white;">Frais de Mission</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.immatriculation }}</td>
+                <td>{{ result.km_with_marchandise }} km</td>
+                <td>{{ result.km_without_marchandise }} km</td>
+                <td>{{ result.price|intcomma }} DZD</td>
+                <td style="color: {% if result.objectif > result.price %}red{% else %}green{% endif %}">{{ result.objectif|intcomma }} KDA</td>
+                <td>{{ result.consommation_with }} L</td>
+                <td>{{ result.consommation_without }} L</td>
+                <td>{{ result.total_consumption }} L</td>
+                <td>{{ result.frais_mission }} DZD</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

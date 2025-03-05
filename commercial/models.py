@@ -103,7 +103,13 @@ class Planning(models.Model):
     
     def validations(self):
         return self.validation_set.all()
-
+    
+    @property
+    def delivery_date(self):
+        if self.state == 'Livraison Confirmé':
+            return self.validation_set.filter(new_state='Livraison Confirmé').order_by('date').last().date
+        return None
+    
     def __str__(self):
         return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
     

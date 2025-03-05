@@ -17,6 +17,11 @@ from django.views.generic.detail import DetailView
 from functools import wraps
 from django.template.defaulttags import register
 import datetime
+from fleet.models import *
+from commercial.models import *
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from datetime import datetime, timedelta
 
 @register.filter
 def startwith(value, word):
@@ -177,9 +182,107 @@ def editFournisseurView(request, id):
             search = request.GET.get('search', '')
             redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
             return redirect(redirect_url)
-    context = {'form': form, 'fournisseur': fournisseur}
+    context = {'form': form, 'fournisseur': fournisseur}    
 
     return render(request, 'fournisseur_form.html', context)
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_protect
+import json
+from datetime import datetime
+
+@login_required(login_url='login')
+@admin_required
+@csrf_protect
+@require_http_methods(["POST"])
+def sendSupplierEmail(request, id):
+    try:
+        body = json.loads(request.body)
+        from_date = body.get('from_date')
+        to_date = body.get('to_date')
+        from_date = datetime.strptime(from_date, '%Y-%m-%d') if from_date else None
+        to_date = datetime.strptime(to_date, '%Y-%m-%d') if to_date else None
+
+        fournisseur = Fournisseur.objects.get(id=id)
+        sendEmail(fournisseur, from_date, to_date)
+        return JsonResponse({'success': True, 'message': 'E-mail envoyé avec succès'})
+
+    except Fournisseur.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Fournisseur non trouvé'}, status=200)
+    
+    except ValueError as ve:
+        return JsonResponse({'success': False, 'message': f'Format de date invalide: {str(ve)}'}, status=200)
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=200)
+
+def sendEmail(supplier, from_date, to_date):
+
+    vehicles = Vehicle.objects.filter(fournisseur=supplier)
+
+    results = []
+
+    for vehicle in vehicles:
+        plannings = Planning.objects.filter(vehicle=vehicle, date_honored__range=[from_date, to_date], state='Livraison Confirmé')
+        sorted_plannings = sorted(plannings, key=lambda p: p.delivery_date if p.delivery_date else datetime.min)
+
+        total_distance_with = 0
+        total_distance_without = 0
+        total_price = 0
+
+        previous_destination = None
+
+        for planning in sorted_plannings:
+            if previous_destination:
+                distance_without = Distance.objects.filter(site=planning.site, emplacement=previous_destination).first()
+                if distance_without:
+                    total_distance_without += distance_without.distance
+
+            distance_with = Distance.objects.filter(site=planning.site, emplacement=planning.destination).first()
+            if distance_with:
+                total_distance_with += distance_with.distance
+
+            previous_destination = planning.destination
+
+            date_planning_final = planning.date_planning_final
+            
+            planning_price = Price.objects.filter(depart=planning.site, destination=planning.destination,
+                                         fournisseur=planning.fournisseur, tonnage=planning.tonnage,
+                                         date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).last().price
+
+            total_price += planning_price
+
+        total_consumption_with = total_distance_with * vehicle.consommation_with
+        total_consumption_without = total_distance_without * vehicle.consommation_without
+        total_consumption = total_consumption_with + total_consumption_without
+        frais_mission = '/'
+
+        days_in_period = (to_date - from_date).days
+        relative_objectif = round(vehicle.objectif * days_in_period / 30, 2)
+
+
+        if total_distance_with > 0:
+            results.append({
+                'immatriculation': vehicle.immatriculation, 
+                'km_with_marchandise': total_distance_with, 
+                'km_without_marchandise': total_distance_without,
+                'price': total_price, 
+                'objectif': relative_objectif, 
+                'consommation_with': total_consumption_with, 
+                'consommation_without': total_consumption_without,
+                'total_consumption': total_consumption,
+                'frais_mission': frais_mission,
+                })
+        
+    subject = f'Calcule Rotations {supplier.designation}'
+    addresses = ['mohammed.senoussaoui@grupopuma-dz.com', 'mohammed.benslimane@groupe-hasnaoui.com']
+
+    html_message = render_to_string('email_template.html', {'results': results, 'supplier': supplier.designation})
+    email = EmailMultiAlternatives(subject, None, 'Puma Trans', addresses)
+    email.attach_alternative(html_message, "text/html") 
+    email.send()    
+
 
 # Tonnages
 @login_required(login_url='login')

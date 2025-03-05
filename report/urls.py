@@ -12,6 +12,7 @@ urlpatterns = [
     path("fournisseurs/delete-fournisseur/<int:id>", views.deleteFournisseurView, name="delete_fournisseur"),
     path("fournisseurs/edit-fournisseur/<int:id>", views.editFournisseurView, name="edit_fournisseur"),
     path("fournisseurs/create-fournisseur/", views.createFournisseurView, name="create_fournisseur"),
+    path("fournisseurs/send-email/<int:id>", views.sendSupplierEmail, name="send_email"),
 
     path('tonnages/', views.listTonnageView, name='tonnages'),
     path("tonnages/delete-tonnage/<int:id>", views.deleteTonnageView, name="delete_tonnage"),

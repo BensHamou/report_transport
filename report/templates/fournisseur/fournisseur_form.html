@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load humanize %}
 
 {% block title %}
 Fournisseur
@@ -41,6 +42,7 @@ Fournisseur
       </div>
   </div>
   <div class="float-end mt-4">
+    <button type="button" class="btn btn-secondary customSaveButton" id="sendEmailButton">Envoyer Email</button>
     <input type='submit' class="btn btn-secondary customSaveButton" name='save' value="Sauvgardez"/>
   </div>
 </form>
@@ -68,7 +70,7 @@ Fournisseur
                 <td>{{ prix.depart }}</td>
                 <td>{{ prix.destination }}</td>
                 <td>{{ prix.tonnage }}</td>
-                <td>{{ prix.price }}</td>
+                <td>{{ prix.price|intcomma }} DZD</td>
             </tr>
           {% empty %}
             <tr style="color: #dde3f0;">
@@ -83,4 +85,78 @@ Fournisseur
     </table>
   </section>
 {% endif %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById('sendEmailButton').addEventListener('click', function() {
+      Swal.fire({
+          title: 'Sélectionner la plage de dates',
+          html: `
+          <div style="width: 95%;">
+              <div class="form-group">
+                  <label for="from_date">Du:</label>
+                  <input type="date" id="from_date" class="form-control swal2-input">
+              </div>
+              <div class="form-group mt-2">
+                  <label for="to_date">Au:</label>
+                  <input type="date" id="to_date" class="form-control swal2-input">
+              </div>
+            </div>
+          `,
+          focusConfirm: false,
+          preConfirm: () => {
+              const fromDate = document.getElementById('from_date').value;
+              const toDate = document.getElementById('to_date').value;
+              
+              if (!fromDate || !toDate) {
+                  Swal.showValidationMessage('Veuillez sélectionner les dates de début et de fin.');
+                  return false;
+              }
+              
+              return { fromDate, toDate };
+          },
+          showCancelButton: true,
+          confirmButtonText: 'Envoyer un e-mail',
+          cancelButtonText: 'Annuler'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              const { fromDate, toDate } = result.value;
+              fetch("{% url 'send_email' fournisseur.id %}", {
+                  method: 'POST',
+                  headers: {
+                      'X-CSRFToken': '{{ csrf_token }}',
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                      from_date: fromDate,
+                      to_date: toDate
+                  })
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      Swal.fire({
+                          icon: 'success',
+                          title: 'Success',
+                          text: data.message
+                      });
+                  } else {
+                      Swal.fire({
+                          icon: 'error',
+                          title: 'Error',
+                          text: data.message
+                      });
+                  }
+              })
+              .catch(error => {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: 'An unexpected error occurred'
+                  });
+                  console.error('Error:', error);
+              });
+          }
+      });
+  });
+</script>
 {% endblock %}

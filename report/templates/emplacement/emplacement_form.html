@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load humanize %}
 
 {% block title %}
 Emplacement
@@ -65,7 +66,7 @@ Emplacement
                 <td>{{ prix.depart }}</td>
                 <td>{{ prix.fournisseur }}</td>
                 <td>{{ prix.tonnage }}</td>
-                <td>{{ prix.price }}</td>
+                <td>{{ prix.price|intcomma }} DZD</td>
             </tr>
           {% empty %}
             <tr style="color: #dde3f0;">
