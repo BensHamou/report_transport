@@ -101,7 +101,7 @@ class PlanningCommForm(ModelForm):
         else:
             self.fields['site'].queryset = sites
 
-        if instance:
+        if instance and instance.fournisseur:
             if instance.fournisseur.is_tracked:
                 self.fields['driver'].queryset = Driver.objects.filter(fournisseur=instance.fournisseur)
                 self.fields['vehicle'].queryset = Vehicle.objects.filter(fournisseur=instance.fournisseur)
@@ -153,9 +153,10 @@ class PlanningConfirmForm(ModelForm):
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
         super(PlanningConfirmForm, self).__init__(*args, **kwargs)
-        if instance.fournisseur.is_tracked:
-            self.fields['driver'].queryset = Driver.objects.filter(fournisseur=instance.fournisseur)
-            self.fields['vehicle'].queryset = Vehicle.objects.filter(fournisseur=instance.fournisseur)
-            self.fields['driver'].required = True
-        else:
-            self.fields['chauffeur'].required = True
+        if instance and instance.fournisseur:
+            if instance.fournisseur.is_tracked:
+                self.fields['driver'].queryset = Driver.objects.filter(fournisseur=instance.fournisseur)
+                self.fields['vehicle'].queryset = Vehicle.objects.filter(fournisseur=instance.fournisseur)
+                self.fields['driver'].required = True
+            else:
+                self.fields['chauffeur'].required = True
