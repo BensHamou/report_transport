@@ -46,14 +46,14 @@
             {% for result in results %}
             <tr>
                 <td>{{ result.immatriculation }}</td>
-                <td>{{ result.km_with_marchandise }} km</td>
-                <td>{{ result.km_without_marchandise }} km</td>
+                <td>{{ result.km_with_marchandise|intcomma }} km</td>
+                <td>{{ result.km_without_marchandise|intcomma }} km</td>
                 <td>{{ result.price|intcomma }} DZD</td>
                 <td style="color: {% if result.objectif > result.price %}red{% else %}green{% endif %}">{{ result.objectif|intcomma }} KDA</td>
-                <td>{{ result.consommation_with }} L</td>
-                <td>{{ result.consommation_without }} L</td>
-                <td>{{ result.total_consumption }} L</td>
-                <td>{{ result.frais_mission }} DZD</td>
+                <td>{{ result.consommation_with|intcomma }} L</td>
+                <td>{{ result.consommation_without|intcomma }} L</td>
+                <td>{{ result.total_consumption|intcomma }} L</td>
+                <td>{{ result.frais_mission|intcomma }}</td>
             </tr>
             {% endfor %}
         </tbody>

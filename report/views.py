@@ -224,7 +224,7 @@ def sendEmail(supplier, from_date, to_date):
     results = []
 
     for vehicle in vehicles:
-        plannings = Planning.objects.filter(vehicle=vehicle, date_honored__range=[from_date, to_date], state='Livraison Confirmé')
+        plannings = Planning.objects.filter(fournisseur=supplier,vehicle=vehicle, date_honored__range=[from_date, to_date], state='Livraison Confirmé')
         sorted_plannings = sorted(plannings, key=lambda p: p.delivery_date if p.delivery_date else datetime.min)
 
         total_distance_with = 0
@@ -256,7 +256,11 @@ def sendEmail(supplier, from_date, to_date):
         total_consumption_with = total_distance_with * vehicle.consommation_with
         total_consumption_without = total_distance_without * vehicle.consommation_without
         total_consumption = total_consumption_with + total_consumption_without
-        frais_mission = '/'
+        cost = Cost.objects.filter(fournisseur=supplier, min_km__lte=total_distance_with, max_km__gte=total_distance_with).order_by('id').last()
+        if cost:
+            frais_mission = f'{cost.tarif} DZD'
+        else:
+            frais_mission = '/'
 
         days_in_period = (to_date - from_date).days
         relative_objectif = round(vehicle.objectif * days_in_period / 30, 2)

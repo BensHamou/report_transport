@@ -43,3 +43,15 @@ class Distance(models.Model):
     def __str__(self):
         return f'{self.site.designation} to {self.emplacement.designation} - {self.distance}KM'
     
+class Cost(models.Model):
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    fournisseur = models.ForeignKey('report.Fournisseur', on_delete=models.CASCADE, limit_choices_to={'is_tracked': True}, related_name='costs')
+    min_km = models.FloatField(validators=[MinValueValidator(0)])
+    max_km = models.FloatField(validators=[MinValueValidator(0)])
+    tarif = models.FloatField(validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return f'{self.min_km} to {self.max_km} - {self.tarif} DZD'
+    
