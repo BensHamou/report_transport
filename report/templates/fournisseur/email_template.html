@@ -36,6 +36,7 @@
                 <th style="background-color: #2a4767; color: white;">Km sans marchandise</th>
                 <th style="background-color: #2a4767; color: white;">Chiffre d'affaires</th>
                 <th style="background-color: #2a4767; color: white;">Objectif</th>
+                <th style="background-color: #2a4767; color: white;">Taux</th>
                 <th style="background-color: #2a4767; color: white;">Consommation gasoil avec marchandise</th>
                 <th style="background-color: #2a4767; color: white;">Consommation gasoil sans marchandise</th>
                 <th style="background-color: #2a4767; color: white;">Total Consommation</th>
@@ -49,7 +50,8 @@
                 <td>{{ result.km_with_marchandise|intcomma }} km</td>
                 <td>{{ result.km_without_marchandise|intcomma }} km</td>
                 <td>{{ result.price|intcomma }} DZD</td>
-                <td style="color: {% if result.objectif > result.price %}red{% else %}green{% endif %}">{{ result.objectif|intcomma }} KDA</td>
+                <td style="color: {% if result.objectif > result.price %}red{% else %}green{% endif %}">{{ result.objectif|intcomma }} DZD</td>
+                <td>{{ result.taux }} %</td>
                 <td>{{ result.consommation_with|intcomma }} L</td>
                 <td>{{ result.consommation_without|intcomma }} L</td>
                 <td>{{ result.total_consumption|intcomma }} L</td>

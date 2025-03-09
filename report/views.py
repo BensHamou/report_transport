@@ -264,6 +264,7 @@ def sendEmail(supplier, from_date, to_date):
 
         days_in_period = (to_date - from_date).days
         relative_objectif = round(vehicle.objectif * days_in_period / 30, 2)
+        taux = round(total_price * 100 / relative_objectif, 2)
 
 
         if total_distance_with > 0:
@@ -273,6 +274,7 @@ def sendEmail(supplier, from_date, to_date):
                 'km_without_marchandise': total_distance_without,
                 'price': total_price, 
                 'objectif': relative_objectif, 
+                'taux': taux, 
                 'consommation_with': total_consumption_with, 
                 'consommation_without': total_consumption_without,
                 'total_consumption': total_consumption,
