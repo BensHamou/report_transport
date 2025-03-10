@@ -37,6 +37,28 @@ services:
       - DB_USER=trans_report
       - DB_PASS=trans_report
       - DB_PORT=5432
+  cron:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    image: trans_cron:dev
+    container_name: CRON_TRANS
+    depends_on:
+      - db
+    volumes:
+      - ./report_transport:/report_transport
+
+    environment:
+      - DB_HOST=db
+      - DB_NAME=TransDB
+      - DB_USER=trans_report
+      - DB_PASS=trans_report
+      - DB_PORT=5432
+    command: >
+      sh -c "python manage.py crontab remove &&
+            python manage.py crontab add &&
+            crond -f"
 volumes:
   db_data:
 networks:

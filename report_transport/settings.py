@@ -80,6 +80,12 @@ TEMPLATES = [
 WSGI_APPLICATION = "report_transport.wsgi.application"
 
 
+CRONJOBS = [
+    ('0 7 * * 5', 'report.cron.send_weekly_email'),
+    ('0 7 * * *', 'report.cron.send_monthly_email'),
+]
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
