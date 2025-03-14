@@ -257,8 +257,10 @@ def sendEmail(supplier, from_date, to_date):
         total_consumption_without = total_distance_without * vehicle.consommation_without
         total_consumption = total_consumption_with + total_consumption_without
         cost = Cost.objects.filter(fournisseur=supplier, min_km__lte=total_distance_with, max_km__gte=total_distance_with).order_by('id').last()
+        
         if cost:
-            frais_mission = f'{cost.tarif} DZD'
+            final_tarif = round(cost.tarif * total_distance_with, 2)
+            frais_mission = f'{final_tarif} DZD'
         else:
             frais_mission = '/'
 
