@@ -552,7 +552,7 @@ def deliverPlanning(request, pk):
     
     n_bl = request.POST.get('n_bl')
 
-    if n_bl:
+    if n_bl and planning.fournisseur.is_tracked:
         try:
             n_bl_numeric = int(n_bl)
             current_year = planning.date_honored.year
