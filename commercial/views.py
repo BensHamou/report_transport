@@ -552,19 +552,19 @@ def deliverPlanning(request, pk):
     
     n_bl = request.POST.get('n_bl')
 
-    if n_bl and planning.fournisseur.is_tracked:
-        try:
-            n_bl_numeric = int(n_bl)
-            current_year = planning.date_honored.year
+    # if n_bl and planning.fournisseur.is_tracked:
+    #     try:
+    #         n_bl_numeric = int(n_bl)
+    #         current_year = planning.date_honored.year
             
-            higher_bl_exists = Planning.objects.filter(fournisseur=planning.fournisseur, site=planning.site, state='Livraison Confirmé', date_honored__year=current_year, n_bl__gte=n_bl_numeric).exists()
+    #         higher_bl_exists = Planning.objects.filter(fournisseur=planning.fournisseur, site=planning.site, state='Livraison Confirmé', date_honored__year=current_year, n_bl__gte=n_bl_numeric).exists()
             
-            if higher_bl_exists:
-                return JsonResponse({'status': False, 
-                    'message': f'Il existe déjà des BL avec numéro égal ou supérieur à {n_bl} pour cette année. Veuillez utiliser un numéro séquentiel.'
-                }, status=200)
-        except ValueError:
-            return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
+    #         if higher_bl_exists:
+    #             return JsonResponse({'status': False, 
+    #                 'message': f'Il existe déjà des BL avec numéro égal ou supérieur à {n_bl} pour cette année. Veuillez utiliser un numéro séquentiel.'
+    #             }, status=200)
+    #     except ValueError:
+    #         return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
         
     create_rotation = request.POST.get('create_rotation')
     if create_rotation:
