@@ -252,9 +252,9 @@ def sendEmail(supplier, from_date, to_date):
 
             total_price += planning_price
 
-        total_consumption_with = total_distance_with * vehicle.consommation_with
-        total_consumption_without = total_distance_without * vehicle.consommation_without
-        total_consumption = total_consumption_with + total_consumption_without
+        total_consumption_with = round(total_distance_with * vehicle.consommation_with, 2)
+        total_consumption_without = round(total_distance_without * vehicle.consommation_without, 2)
+        total_consumption = round(total_consumption_with + total_consumption_without, 2)
         cost = Cost.objects.filter(fournisseur=supplier, min_km__lte=total_distance_with, max_km__gte=total_distance_with).order_by('id').last()
         
         if cost:
@@ -263,9 +263,9 @@ def sendEmail(supplier, from_date, to_date):
         else:
             frais_mission = '/'
 
-        days_in_period = (to_date - from_date).days
-        relative_objectif = round(vehicle.objectif * days_in_period / 30, 2)
-        taux = round(total_price * 100 / relative_objectif, 2)
+        # days_in_period = (to_date - from_date).days
+        # relative_objectif = round(vehicle.objectif * days_in_period / 30, 2)
+        taux = round(total_price * 100 / vehicle.objectif, 2)
 
 
         if total_distance_with > 0:
@@ -274,7 +274,7 @@ def sendEmail(supplier, from_date, to_date):
                 'km_with_marchandise': total_distance_with, 
                 'km_without_marchandise': total_distance_without,
                 'price': total_price, 
-                'objectif': relative_objectif, 
+                'objectif': vehicle.objectif, 
                 'taux': taux, 
                 'consommation_with': total_consumption_with, 
                 'consommation_without': total_consumption_without,
@@ -286,7 +286,7 @@ def sendEmail(supplier, from_date, to_date):
     # addresses = ['mohammed.senoussaoui@grupopuma-dz.com', 'mohammed.benslimane@groupe-hasnaoui.com', 'lotfi.sellaf@grupopuma-dz.com']
     addresses = ['gestion.flotte@grupopuma-dz.com']
 
-    html_message = render_to_string('email_template.html', {'results': results, 'supplier': supplier.designation})
+    html_message = render_to_string('email_template.html', {'results': results, 'supplier': supplier.designation, 'from_date': from_date, 'to_date': to_date})
     email = EmailMultiAlternatives(subject, None, 'Puma Trans', addresses)
     email.attach_alternative(html_message, "text/html") 
     email.send()    
