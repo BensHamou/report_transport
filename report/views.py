@@ -224,8 +224,7 @@ def sendEmail(supplier, from_date, to_date):
     results = []
 
     for vehicle in vehicles:
-        plannings = Planning.objects.filter(fournisseur=supplier,vehicle=vehicle, date_honored__range=[from_date, to_date], state='Livraison Confirmé')
-        sorted_plannings = sorted(plannings, key=lambda p: p.delivery_date if p.delivery_date else datetime.min)
+        plannings = Planning.objects.filter(fournisseur=supplier,vehicle=vehicle, date_honored__range=[from_date, to_date], state='Livraison Confirmé').order_by('date_honored__year', 'n_bl')
 
         total_distance_with = 0
         total_distance_without = 0
@@ -233,7 +232,7 @@ def sendEmail(supplier, from_date, to_date):
 
         previous_destination = None
 
-        for planning in sorted_plannings:
+        for planning in plannings:
             if previous_destination:
                 distance_without = Distance.objects.filter(site=planning.site, emplacement=previous_destination).first()
                 if distance_without:

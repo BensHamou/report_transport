@@ -548,9 +548,24 @@ def deliverPlanning(request, pk):
 
     url_path = reverse('view_planning', args=[planning.id])
     if planning.state == 'Livraison Confirmé':
-        return redirect(getRedirectionURL(request, url_path))
+        return JsonResponse({'status': True, 'message': 'Livraison confirmé avec succès', 'redirect': getRedirectionURL(request, url_path)})
     
     n_bl = request.POST.get('n_bl')
+
+    if n_bl:
+        try:
+            n_bl_numeric = int(n_bl)
+            current_year = planning.date_honored.year
+            
+            higher_bl_exists = Planning.objects.filter(fournisseur=planning.fournisseur, site=planning.site, state='Livraison Confirmé', date_honored__year=current_year, n_bl__gte=n_bl_numeric).exists()
+            
+            if higher_bl_exists:
+                return JsonResponse({'status': False, 
+                    'message': f'Il existe déjà des BL avec numéro égal ou supérieur à {n_bl} pour cette année. Veuillez utiliser un numéro séquentiel.'
+                }, status=200)
+        except ValueError:
+            return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
+        
     create_rotation = request.POST.get('create_rotation')
     if create_rotation:
         # create report
@@ -561,8 +576,6 @@ def deliverPlanning(request, pk):
             tonnage=planning.tonnage,
             date_from__lte=planning.date_planning_final,
         ).filter(Q(date_to__gte=planning.date_planning_final) | Q(date_to__isnull=True)).last()
-
-
         report = Report(creator=request.user, site=planning.site, state='Brouillon', prix=prix, date_dep=planning.date_honored, 
                         chauffeur=planning.str_chauffeur, immatriculation=planning.str_immatriculation, n_bl=n_bl, observation=planning.observation_logi,
                         n_btr=None, n_bl_2=None)
@@ -571,6 +584,7 @@ def deliverPlanning(request, pk):
             ptransported = PTransported(report=report, product=pplanned.product, qte_transported=0, observation=None)
             ptransported.save()
         planning.report = report
+
     old_state = planning.state
     planning.n_bl = n_bl
     planning.state = 'Livraison Confirmé'
@@ -582,7 +596,7 @@ def deliverPlanning(request, pk):
     # sendValidationMail(planning, request.user.fullname)
     messages.success(request, 'Livraison confirmé avec succès')
     url_path = reverse('view_planning', args=[planning.id])
-    return redirect(getRedirectionURL(request, url_path))
+    return JsonResponse({'status': True, 'message': 'Livraison confirmé avec succès', 'redirect': getRedirectionURL(request, url_path)})
 
 @login_required(login_url='login')
 @check_validator
