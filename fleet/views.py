@@ -8,15 +8,6 @@ from .forms import *
 from .filters import *
 from django.core.paginator import Paginator
 from django.urls import reverse
-from django.http import JsonResponse
-from django.views.generic.edit import CreateView, UpdateView
-from django_filters.views import FilterView
-from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic.detail import DetailView
-from functools import wraps
-from django.template.defaulttags import register
-import datetime
 
 
 # Drivers

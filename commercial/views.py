@@ -552,23 +552,43 @@ def deliverPlanning(request, pk):
     
     n_bl = request.POST.get('n_bl')
 
+    # if n_bl and planning.fournisseur.is_tracked:
+    #     try:
+    #         n_bl_numeric = int(n_bl)
+    #         current_year = planning.date_honored.year
+            
+    #         higher_bl_exists = Planning.objects.filter(fournisseur=planning.fournisseur, site=planning.site, state='Livraison Confirmé', date_honored__year=current_year, n_bl__gte=n_bl_numeric).exists()
+            
+    #         if higher_bl_exists:
+    #             return JsonResponse({'status': False, 
+    #                 'message': f'Il existe déjà des BL avec numéro égal ou supérieur à {n_bl} pour cette année. Veuillez utiliser un numéro séquentiel.'
+    #             }, status=200)
+    #     except ValueError:
+    #         return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
+        
     if n_bl and planning.fournisseur.is_tracked:
         try:
             n_bl_numeric = int(n_bl)
             current_year = planning.date_honored.year
             
-            higher_bl_exists = Planning.objects.filter(fournisseur=planning.fournisseur, site=planning.site, state='Livraison Confirmé', date_honored__year=current_year, n_bl__gte=n_bl_numeric).exists()
+            previous_report = Report.objects.filter(prix__fournisseur=planning.fournisseur, prix__depart=planning.site, 
+                                                    n_bl__lt=n_bl_numeric, date_dep__year=current_year, state='Confirmé').order_by('-n_bl').first()
             
-            if higher_bl_exists:
-                return JsonResponse({'status': False, 
-                    'message': f'Il existe déjà des BL avec numéro égal ou supérieur à {n_bl} pour cette année. Veuillez utiliser un numéro séquentiel.'
-                }, status=200)
+            
+            if previous_report:
+                previous_planning_exists = Planning.objects.filter(fournisseur=planning.fournisseur, site=planning.site, 
+                                                                   state='Livraison Confirmé', n_bl=previous_report.n_bl).exists()
+                
+                if not previous_planning_exists:
+                    return JsonResponse({'status': False, 'message': 
+                                         f'Le BL précédent {previous_report.n_bl} n\'a pas de planning associé. Veuillez vérifier.'}, status=200)
+            
         except ValueError:
             return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
+    
         
     create_rotation = request.POST.get('create_rotation')
     if create_rotation:
-        # create report
         prix = Price.objects.filter(
             depart=planning.site,
             destination=planning.destination,

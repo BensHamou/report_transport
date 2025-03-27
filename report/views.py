@@ -22,6 +22,7 @@ from commercial.models import *
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from datetime import datetime, timedelta
+import json
 
 @register.filter
 def startwith(value, word):
@@ -186,16 +187,9 @@ def editFournisseurView(request, id):
 
     return render(request, 'fournisseur_form.html', context)
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_protect
-import json
-from datetime import datetime
 
 @login_required(login_url='login')
 @admin_required
-@csrf_protect
-@require_http_methods(["POST"])
 def sendSupplierEmail(request, id):
     try:
         body = json.loads(request.body)

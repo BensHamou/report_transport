@@ -51,7 +51,7 @@ class Planning(models.Model):
 
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     date_planning = models.DateField()
-    date_replanning = models.DateField(null=True)
+    date_replanning = models.DateField(null=True, blank=True)
 
     distributeur_id = models.IntegerField()
     distributeur = models.CharField(max_length=255)
@@ -78,7 +78,7 @@ class Planning(models.Model):
     supplier_informed = models.BooleanField(default=False)
     observation_logi = models.TextField(null=True, blank=True)
 
-    report = models.ForeignKey(Report, on_delete=models.SET_NULL, null=True)
+    report = models.ForeignKey(Report, on_delete=models.SET_NULL, null=True, blank=True)
 
     def pplanneds(self):
         return self.pplanned_set.all()
