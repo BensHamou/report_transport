@@ -278,7 +278,10 @@ def sendEmail(supplier, from_date, to_date):
         
     subject = f'Calcule Rotations {supplier.designation}'
     # addresses = ['mohammed.senoussaoui@grupopuma-dz.com', 'mohammed.benslimane@groupe-hasnaoui.com', 'lotfi.sellaf@grupopuma-dz.com']
-    addresses = ['gestion.flotte@grupopuma-dz.com']
+    # addresses = ['gestion.flotte@grupopuma-dz.com']
+    addresses = ['mohammed.benslimane@groupe-hasnaoui.com']
+
+    print('Email sent', addresses, results)
 
     html_message = render_to_string('email_template.html', {'results': results, 'supplier': supplier.designation, 'from_date': from_date, 'to_date': to_date})
     email = EmailMultiAlternatives(subject, None, 'Puma Trans', addresses)
