@@ -7,7 +7,7 @@ from datetime import timedelta
 def send_weekly_email():
     today = timezone.now().date()
     last_week = today - timedelta(days=7)
-    for supplier in Fournisseur.objects.filter(is_tracked=True):
+    for supplier in Fournisseur.objects.filter(is_tracked=True, send_email=True):
         sendEmail(supplier, today, last_week)
         print('Weekely Email sent', today)
 
@@ -20,6 +20,6 @@ def send_monthly_email():
     start_date = today.replace(day=1)
     end_date = today
 
-    for supplier in Fournisseur.objects.filter(is_tracked=True):
+    for supplier in Fournisseur.objects.filter(is_tracked=True, send_email=True):
         sendEmail(supplier, start_date, end_date)
         print('Monthly Email sent', today)

@@ -95,14 +95,14 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT'),
     } 
-    #'default': {
+    # 'default': {
     #    'ENGINE': 'django.db.backends.postgresql',
     #    'NAME': 'TransDB',
     #    'USER': 'trans_report',
     #    'PASSWORD': 'trans_report',
     #    'HOST': '10.10.10.20',
     #    'PORT': '5166',
-    #}
+    # }
     # 'default': {
     #    'ENGINE': 'django.db.backends.postgresql',
     #    'NAME': 'TransDB',

@@ -552,7 +552,7 @@ def deliverPlanning(request, pk):
     
     n_bl = request.POST.get('n_bl')
 
-    # if n_bl and planning.fournisseur.is_tracked:
+    # if n_bl and planning.fournisseur.send_email:
     #     try:
     #         n_bl_numeric = int(n_bl)
     #         current_year = planning.date_honored.year
@@ -566,7 +566,7 @@ def deliverPlanning(request, pk):
     #     except ValueError:
     #         return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
         
-    if n_bl and planning.fournisseur.is_tracked:
+    if n_bl and planning.fournisseur.send_email:
         try:
             n_bl_numeric = int(n_bl)
             current_year = planning.date_honored.year

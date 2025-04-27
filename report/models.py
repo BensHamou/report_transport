@@ -36,6 +36,7 @@ class Fournisseur(models.Model):
     designation = models.CharField(max_length=100)
     address = models.CharField(max_length=1000, null=True)
     is_tracked = models.BooleanField(default=False)
+    send_email = models.BooleanField(default=False)
 
     def prices(self):
         return self.price_set.all()

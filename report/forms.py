@@ -55,12 +55,14 @@ class TonnageForm(ModelForm):
 class FournisseurForm(ModelForm):
     class Meta:
         model = Fournisseur
-        fields = ['designation', 'address', 'is_tracked']
+        fields = ['designation', 'address', 'send_email']
 
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Désignation')))
     address = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Address')), required=False)
-    is_tracked = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'primary', 
+    send_email = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'primary', 
                                                                                     'data-toggle':'switchbutton',  'data-onlabel': "Suivi", 'data-offlabel': "Non"}))
+    
+    
 
 class PriceForm(ModelForm):
     

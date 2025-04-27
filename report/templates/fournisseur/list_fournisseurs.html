@@ -37,7 +37,7 @@ Fournisseurs
                 <th>#</th>
                 <th>Désignation</th>
                 <th>Address</th>
-                <th style="text-align: center;">Suivi</th>
+                <th style="text-align: center;">Envoi Email</th>
                 <th style="width: 15vw; text-align: center;">Actions</th>
                 </tr>
             </thead>
@@ -47,7 +47,7 @@ Fournisseurs
                     <td>{{ fournisseur.id }}</td>
                     <td>{{ fournisseur.designation }}</td>
                     <td>{% if fournisseur.address %}{{ fournisseur.address }}{% else %}/{% endif %}</td>
-                    <td style="text-align: center;">{% if fournisseur.is_tracked %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-x"></i>{% endif %}</td>
+                    <td style="text-align: center;">{% if fournisseur.send_email %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-x"></i>{% endif %}</td>
                     <td style="vertical-align: middle; text-align: center;">
                         <button type="button" onclick="window.location='{% url 'edit_fournisseur' fournisseur.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmFournisseurDel('{{fournisseur.id|escapejs}}', '{{fournisseur.designation|escapejs}}')" class="btn" style="color: white;"><i class="far fa-trash-alt"></i></button>
