@@ -24,6 +24,7 @@ class VehicleForm(ModelForm):
         model = Vehicle
         fields = '__all__'
 
+    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Désignation camion')), required=False)
     model = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Modèle')), required=False)
     mark = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Marque')), required=False)
     immatriculation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Immatriculation')))
@@ -32,6 +33,8 @@ class VehicleForm(ModelForm):
     objectif = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Objectif')), validators=[MinValueValidator(0)])
     consommation_with = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Consommation avec marchandise')), validators=[MinValueValidator(0)])
     consommation_without = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Consommation sans marchandise')), validators=[MinValueValidator(0)])
+    mass_salarial = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Masse Salariale')), validators=[MinValueValidator(0)])
+    dotation = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Dotation')), validators=[MinValueValidator(0)])
 
 
 class ReparationTypeForm(ModelForm):

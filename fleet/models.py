@@ -19,6 +19,7 @@ class Vehicle(models.Model):
     
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    designation = models.CharField(max_length=100, null=True, blank=True)
     model = models.CharField(max_length=100, null=True, blank=True)
     mark = models.CharField(max_length=100, null=True, blank=True)
     immatriculation = models.CharField(max_length=100)
@@ -27,6 +28,8 @@ class Vehicle(models.Model):
     objectif = models.FloatField(validators=[MinValueValidator(0)])
     consommation_with = models.FloatField(validators=[MinValueValidator(0)])
     consommation_without = models.FloatField(validators=[MinValueValidator(0)])
+    mass_salarial = models.FloatField(validators=[MinValueValidator(0)], default=0, blank=True, null=True)
+    dotation = models.FloatField(validators=[MinValueValidator(0)], default=0, blank=True, null=True)
 
 
     def __str__(self):

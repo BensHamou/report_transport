@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load humanize %}
 
 {% block title %}
 Camions
@@ -37,8 +38,8 @@ Camions
                 <th>#</th>
                 <th>Modèle</th>
                 <th>Marque</th>
+                <th>Désignation </th>
                 <th>Immatriculation</th>
-                <th>Année</th>
                 <th>Objectif</th>
                 <th>Cons Avec</th>
                 <th>Cons Sans</th>
@@ -51,11 +52,11 @@ Camions
                     <td>{{ vehicle.id }}</td>
                     <td>{{ vehicle.model }}</td>
                     <td>{{ vehicle.mark }}</td>
+                    <td>{{ vehicle.designation|default:"/" }}</td>
                     <td>{{ vehicle.immatriculation }}</td>
-                    <td>{{ vehicle.year }}</td>
-                    <td>{{ vehicle.objectif }}</td>
-                    <td>{{ vehicle.consommation_with }}</td>
-                    <td>{{ vehicle.consommation_without }}</td>
+                    <td>{{ vehicle.objectif|intcomma }} DZD</td>
+                    <td>{{ vehicle.consommation_with|intcomma }} L</td>
+                    <td>{{ vehicle.consommation_without|intcomma }} L</td>
                     <td style="vertical-align: middle; text-align: center;">
                         <button type="button" onclick="window.location='{% url 'edit_vehicle' vehicle.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmVehicleDel('{{vehicle.id|escapejs}}', '{{vehicle.immatriculation|escapejs}}')" class="btn" style="color: white;"><i class="far fa-trash-alt"></i></button>

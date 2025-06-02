@@ -65,7 +65,7 @@ class FuelRefillFilter(FilterSet):
 class AssuranceFilter(FilterSet):
     other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
 
-    type = ChoiceFilter(choices=Assurance.INSUTANCE_CHOICES, widget=forms.Select(attrs=getAttrs('select', other=other)))
+    type = ChoiceFilter(choices=Assurance.INSUTANCE_CHOICES, widget=forms.Select(attrs=getAttrs('select', other=other)), empty_label="Type d'assurance")
     vehicle = ModelChoiceFilter(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Camion")
 
     class Meta:
