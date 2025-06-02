@@ -32,4 +32,42 @@ class VehicleFilter(FilterSet):
         model = Vehicle
         fields = ['search']
 
+class ReparationTypeFilter(FilterSet):
 
+    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher...')))
+
+    def filter_search(self, queryset, name, value):
+        return queryset.filter(designation__icontains=value).distinct()
+
+    class Meta:
+        model = ReparationType
+        fields = ['search']
+
+class ReparationFilter(FilterSet):
+    other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
+
+    vehicle = ModelChoiceFilter(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Camion")
+    reparation_type = ModelChoiceFilter(queryset=ReparationType.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Type de réparation")
+
+    class Meta:
+        model = Reparation
+        fields = ['vehicle', 'reparation_type']
+
+class FuelRefillFilter(FilterSet):
+    other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
+
+    vehicle = ModelChoiceFilter(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Camion")
+
+    class Meta:
+        model = FuelRefill
+        fields = ['vehicle']
+
+class AssuranceFilter(FilterSet):
+    other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
+
+    type = ChoiceFilter(choices=Assurance.INSUTANCE_CHOICES, widget=forms.Select(attrs=getAttrs('select', other=other)))
+    vehicle = ModelChoiceFilter(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Camion")
+
+    class Meta:
+        model = Assurance
+        fields = ['type', 'vehicle']

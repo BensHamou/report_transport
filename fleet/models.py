@@ -55,3 +55,53 @@ class Cost(models.Model):
     def __str__(self):
         return f'{self.min_km} to {self.max_km} - {self.tarif} DZD'
     
+class ReparationType(models.Model):
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    designation = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.designation
+
+class Reparation(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='reparations')
+    reparation_type = models.ForeignKey(ReparationType, on_delete=models.CASCADE, related_name='reparations')
+    reparation_date = models.DateField()
+    observation = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.vehicle.immatriculation} - {self.reparation_type.designation} le {self.reparation_date}'
+
+class FuelRefill(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='fuel_refills')
+    driver = models.ForeignKey(Driver, null=True, on_delete=models.SET_NULL, blank=True, related_name='fuel_refills')
+    refill_date = models.DateField()
+    km = models.FloatField(validators=[MinValueValidator(0)])
+    amount = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
+    observation = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Recharge - {self.vehicle.immatriculation} le {self.refill_date}'
+
+class Assurance(models.Model):
+
+    INSUTANCE_CHOICES = [
+        ('Assurance', 'Assurance'),
+        ('Vignette', 'Vignette')
+    ]
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    type = models.CharField(choices=INSUTANCE_CHOICES, max_length=10)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='assurances')
+    assurance_date = models.DateField()
+    assurance_expiry_date = models.DateField()
+    observation = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.vehicle.immatriculation} - {self.type} du {self.assurance_date} au {self.assurance_expiry_date}'

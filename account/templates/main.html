@@ -65,6 +65,21 @@
               {% endif %}
               <div class="d-flex" style="width: 100%; margin: 5px 15px;">
                 {% if user.is_admin %}
+                  {% block activeFleet %}{% endblock %}
+                  <h4 class="mx-auto">
+                    <li class="nav-item dropdown dropend list-unstyled">
+                      <a class="nav-link text-reset" style="padding: 5px 0.5px;" data-bs-toggle="dropdown" role="button"><i class="fas fa-car fa-sm menu_item"></i></a >
+                        <ul class="dropdown-menu list-unstyled">
+                          <li><a href="{% url 'reparations' %}" class="dropdown-item">Entretiens et Réparations</a></li>
+                          <li><a href="{% url 'fuel_refills' %}" class="dropdown-item">Recharges Gasoil</a></li>
+                          <li><a href="{% url 'assurances' %}" class="dropdown-item">Vignettes et Assurances</a></li>
+                      </ul>
+                    </li>
+                  </h4>
+                {% endif %}
+              </div>
+              <div class="d-flex" style="width: 100%; margin: 5px 15px;">
+                {% if user.is_admin %}
                   {% block activeUsers %}{% endblock %}
                   <h4 class="mx-auto">
                     <li class="nav-item dropdown dropend list-unstyled">
@@ -96,6 +111,7 @@
                         <li><a href="{% url 'blockeds' %}" class="dropdown-item">Liste Bloqué</a></li>
                         <li><a href="{% url 'drivers' %}" class="dropdown-item">Chauffeurs</a></li>
                         <li><a href="{% url 'vehicles' %}" class="dropdown-item">Camions</a></li>
+                        <li><a href="{% url 'reparation_types' %}" class="dropdown-item">Type de réparations</a></li>
                       </ul>
                     </li>
                   </h4>

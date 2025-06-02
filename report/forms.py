@@ -13,7 +13,7 @@ def getAttrs(type, placeholder='', other={}):
         'controlSearch': {'class': 'form-control search-input', 'autocomplete': "off", 'style': 'background-color: #ebecee; border-color: #ebecee;', 'placeholder': ''},
         'search': {'class': 'form-control form-input', 'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; text-indent: 33px; border-radius: 5px;', 'type': 'search', 'placeholder': '', 'id': 'search'},
         'select': {'class': 'form-select', 'style': 'background-color: #ebecee;'},
-        'select2': {'class': 'form-select', 'style': 'background-color: #ebecee; width: 100%;'},
+        'select2': {'class': 'form-select select2', 'style': 'background-color: #ebecee; width: 100%;'},
         'date': {'type': 'date', 'class': 'form-control dateinput','style': 'background-color: #ebecee;'},
         'textarea': {"rows": "3", 'style': 'width: 100%', 'class': 'form-control', 'placeholder': '', 'style': 'background-color: #ebecee;'}
     }

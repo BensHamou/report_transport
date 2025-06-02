@@ -1,0 +1,108 @@
+{% extends "main.html" %}
+{% load humanize %}
+
+{% block title %}
+Recharges gasoil
+{% endblock %}
+{% load static %} 
+{% block activeFleet %} {% include 'active_bar.html' %} {% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <form method="GET" style="{% if page %}margin: 20px 0px 0px 0px;{% else %}margin-top: 13%;{% endif %}">
+        {% csrf_token %}
+        <div class="row height d-flex justify-content-center align-items-center">
+            <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
+                <div class="form-outline">
+                    {{ filtredData.form.vehicle }}
+                </div>
+            </div>
+            
+            <div class="col-md-1 col-sm-6 mb-2">
+                <input type="number" class="form-control" value="{% if request.GET.page_size %}{{ request.GET.page_size }}{% else %}12{% endif %}" style="background-color: #ebecee; 
+                border-color: transparent; color: #133356; height: 40px; border-radius: 5px;" name="page_size">
+            </div>
+            <div class="col-md-1 col-sm-6 mb-2">
+                <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">Appliquer</button>
+            </div>
+            <div class="col-md-1 mb-2">
+                <a href="{% url 'create_fuel_refill' %}" class="btn btn-secondary" style="background-color: #2a4767; border-color: transparent; box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); height: 40px;">Nouveau</a>
+            </div>
+        </div>
+    </form>  
+    {% if page %}
+    <section class="sectionList"> 
+        <table class="table table-borderless">
+            <thead style="border-bottom: 2px solid white;">
+                <tr class="text-white">
+                <th>#</th>
+                <th>Camion</th>
+                <th>Date</th>
+                <th>Kilométrage</th>
+                <th>Montant</th>
+                <th style="width: 15vw; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for refill in page %}
+                <tr style="color: #dde3f0;">
+                    <td>{{ refill.id }}</td>
+                    <td>{{ refill.vehicle }}</td>
+                    <td>{{ refill.refill_date }}</td>
+                    <td>{{ refill.km }} Km</td>
+                    <td>{{ refill.amount|intcomma }} DZD</td>
+                    <td style="vertical-align: middle; text-align: center;">
+                        <button type="button" onclick="window.location='{% url 'edit_fuel_refill' refill.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
+                        <button type="button" onclick="confirmRefillDel('{{refill.id|escapejs}}')" class="btn" style="color: white; padding: 2px;"><i class="far fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if page.has_other_pages %}
+            {% include 'pagination.html' %}
+        {% endif %}    
+    </section>
+    {% else %}
+        {% include 'empty_list.html' %}
+    {% endif %}
+</div>
+<style>
+    .select2-search {
+        background-color: #ebecee !important;
+    }
+    .select2-search input {
+        background-color: #ebecee !important;
+    }
+    
+    .select2-results {
+        background-color: #ebecee !important;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection {
+        border-color: #ebecee !important;
+        background-color: #ebecee !important;
+    }
+</style>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({theme: 'bootstrap-5', allowClear: true, });
+    });
+    const confirmRefillDel = (refillId) => {
+        swal({ 
+        title: `Confirmation de la suppression.`,   
+        text: `Etes-vous sûr que vous voulez supprimer ${refillId}?`,   
+        type: "warning",
+        showCancelButton: true,   
+        confirmButtonColor: "#DD6B55",   
+        confirmButtonText: "Oui",   
+        cancelButtonText: "Non",   
+        closeOnConfirm: true,   
+        closeOnCancel: true }, 
+        function(isConfirm){   
+            if (isConfirm){
+              window.location.href = "{% url 'delete_fuel_refill' 123456789 %}".replace(/123456789/, refillId);
+            }});
+    }
+</script>
+{% endblock %}
