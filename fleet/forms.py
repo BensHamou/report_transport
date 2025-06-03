@@ -24,7 +24,7 @@ class VehicleForm(ModelForm):
         model = Vehicle
         fields = '__all__'
 
-    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Désignation camion')), required=False)
+    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Code camion')), required=False)
     model = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Modèle')), required=False)
     mark = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Marque')), required=False)
     immatriculation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Immatriculation')))

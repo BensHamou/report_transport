@@ -26,7 +26,7 @@ class VehicleFilter(FilterSet):
     fournisseur = ModelChoiceFilter(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="Fournisseur")
 
     def filter_search(self, queryset, name, value):
-        return queryset.filter(Q(immatriculation__icontains=value) |Q(model__icontains=value) |Q(mark__icontains=value)).distinct()
+        return queryset.filter(Q(designation__icontains=value) |Q(immatriculation__icontains=value) |Q(model__icontains=value) |Q(mark__icontains=value)).distinct()
 
     class Meta:
         model = Vehicle

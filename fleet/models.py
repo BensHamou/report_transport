@@ -33,7 +33,10 @@ class Vehicle(models.Model):
 
 
     def __str__(self):
-        return self.immatriculation
+        if self.designation:
+            return f'{self.immatriculation} - {self.designation}'
+        
+        return f'{self.immatriculation}'
     
 class Distance(models.Model):
 
