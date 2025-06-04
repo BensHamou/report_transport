@@ -98,12 +98,13 @@ class Assurance(models.Model):
 
     INSUTANCE_CHOICES = [
         ('Assurance', 'Assurance'),
-        ('Vignette', 'Vignette')
+        ('Vignette', 'Vignette'),
+        ('Contrôle Technique', 'Contrôle Technique')
     ]
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    type = models.CharField(choices=INSUTANCE_CHOICES, max_length=10)
+    type = models.CharField(choices=INSUTANCE_CHOICES, max_length=20)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='assurances')
     assurance_date = models.DateField()
     assurance_expiry_date = models.DateField()
