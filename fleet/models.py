@@ -28,7 +28,6 @@ class Vehicle(models.Model):
     objectif = models.FloatField(validators=[MinValueValidator(0)])
     consommation_with = models.FloatField(validators=[MinValueValidator(0)])
     consommation_without = models.FloatField(validators=[MinValueValidator(0)])
-    mass_salarial = models.FloatField(validators=[MinValueValidator(0)], default=0, blank=True, null=True)
     dotation = models.FloatField(validators=[MinValueValidator(0)], default=0, blank=True, null=True)
 
 
@@ -76,6 +75,7 @@ class Reparation(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='reparations')
     reparation_type = models.ForeignKey(ReparationType, on_delete=models.CASCADE, related_name='reparations')
     reparation_date = models.DateField()
+    amount = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
     observation = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -112,3 +112,39 @@ class Assurance(models.Model):
 
     def __str__(self):
         return f'{self.vehicle.immatriculation} - {self.type} du {self.assurance_date} au {self.assurance_expiry_date}'
+
+class MissionCostType(models.Model):
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    designation = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.designation
+    
+class MissionCost(models.Model):
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    mission_date = models.DateField()
+    driver = models.ForeignKey(Driver, null=True, on_delete=models.SET_NULL, blank=True, related_name='mission_costs')
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='mission_costs')
+    from_emplacement = models.ForeignKey('account.Site', on_delete=models.CASCADE, related_name='mission_costs_from')
+    to_emplacement = models.ForeignKey('report.Emplacement', on_delete=models.CASCADE, related_name='mission_costs_to')
+    types = models.ManyToManyField(MissionCostType, blank=True)
+    amount = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
+    observation = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Mission le {self.mission_date} - {self.vehicle.immatriculation} de {self.from_emplacement.designation} à {self.to_emplacement.designation}'
+
+class MasseSalariale(models.Model):
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='masse_salariales')
+    month = models.DateField()
+    amount = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
+
+    def __str__(self):
+        return f'Masse Salariale - {self.vehicle.immatriculation} pour le mois de {self.month.strftime("%B %Y")} - {self.amount} DZD'

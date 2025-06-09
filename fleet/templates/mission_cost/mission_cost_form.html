@@ -1,37 +1,24 @@
 {% extends "main.html" %}
 
 {% block title %}
-Recharge gasoil
+Frais de Mission
 {% endblock %}
 {% load static %} 
 {% block activeFleet %} {% include 'active_bar.html' %} {% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-left mb-3">
-  <a href="{% url 'fuel_refills' %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: rgba(222, 226, 230, 0.8); letter-spacing: 1.2px;">
+  <a href="{% url 'mission_costs' %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: rgba(222, 226, 230, 0.8); letter-spacing: 1.2px;">
     <i class="fas fa-caret-left me-2" style="color: #133356;"></i>
     <p class="lead m-0 p-0" style="color: #133356;">retour</p>
 </a>
 </div>
-<h4 class="mb-4" style="color: #133356;">{% if fuel_refill %}Modification du {{ fuel_refill }}{% else %}Création d'un recharge gasoil{% endif %}</h4>
+<h4 class="mb-4" style="color: #133356;">{% if mission_cost %}Modification du {{ mission_cost }}{% else %}Création de frais de mission{% endif %}</h4>
 
 <form method="POST">
   {% csrf_token %}
   <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
     <div class="row mb-4">
-      <div class="col-lg-6 col-md-12 col-sm-12">
-        <div class="form-outline">
-          <label class="form-label labelCustom" for="vehicle">Camion</label>
-            {{ form.vehicle }}
-            {% if form.vehicle.errors %}
-                <div style="color: red;">
-                {% for error in form.vehicle.errors %}
-                    *{{ error }}
-                {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-      </div>
       <div class="col-lg-6 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="driver">Chauffeur</label>
@@ -45,35 +32,63 @@ Recharge gasoil
             {% endif %}
         </div>
       </div>
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="vehicle">Camion</label>
+          {{ form.vehicle }}
+            {% if form.vehicle.errors %}
+                <div style="color: red;">
+                {% for error in form.vehicle.errors %}
+                    *{{ error }}
+                {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+      </div>
     </div>
     <div class="row mb-4">
-      <div class="col-lg-4 col-md-12 col-sm-12">
+      <div class="col-lg-6 col-md-12 col-sm-12">
         <div class="form-outline">
-          <label class="form-label labelCustom" for="refill_date">Le</label>
-            {{ form.refill_date }}
-            {% if form.refill_date.errors %}
+          <label class="form-label labelCustom" for="from_emplacement">Du</label>
+            {{ form.from_emplacement }}
+            {% if form.from_emplacement.errors %}
                 <div style="color: red;">
-                {% for error in form.refill_date.errors %}
+                {% for error in form.from_emplacement.errors %}
                     *{{ error }}
                 {% endfor %}
                 </div>
             {% endif %}
         </div>
       </div>
-      <div class="col-lg-4 col-md-12 col-sm-12">
+      <div class="col-lg-6 col-md-12 col-sm-12">
         <div class="form-outline">
-          <label class="form-label labelCustom" for="km">Kilométrage</label>
-          {{ form.km }}
-            {% if form.km.errors %}
+          <label class="form-label labelCustom" for="to_emplacement">Au</label>
+          {{ form.to_emplacement }}
+            {% if form.to_emplacement.errors %}
                 <div style="color: red;">
-                {% for error in form.km.errors %}
+                {% for error in form.to_emplacement.errors %}
                     *{{ error }}
                 {% endfor %}
                 </div>
             {% endif %}
         </div>
       </div>
-      <div class="col-lg-4 col-md-12 col-sm-12">
+    </div>
+    <div class="row mb-4">
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="mission_date">Le</label>
+            {{ form.mission_date }}
+            {% if form.mission_date.errors %}
+                <div style="color: red;">
+                {% for error in form.mission_date.errors %}
+                    *{{ error }}
+                {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="amount">Montant</label>
           {{ form.amount }}
@@ -86,6 +101,21 @@ Recharge gasoil
             {% endif %}
         </div>
       </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="form-outline">
+                <label class="form-label mt-2 labelCustom" for="types">Type de frais</label>
+                {{ form.types }}
+                {% if form.types.errors %}
+                    <div style="color: red;">
+                    {% for error in form.types.errors %}
+                        *{{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
     <div class="row mb-4">
         <div class="col-lg-12 col-md-12 col-sm-12">
@@ -107,6 +137,7 @@ Recharge gasoil
     <input type='submit' class="btn btn-secondary customSaveButton" name='save' value="Sauvgardez"/>
   </div>
 </form>
+
 <style>
     .select2-search {
         background-color: #ebecee !important;
@@ -128,6 +159,5 @@ Recharge gasoil
     $(document).ready(function() {
         $('.select2').select2({theme: 'bootstrap-5', allowClear: true, });
     });
-</script>
-
+  </script>
 {% endblock %}

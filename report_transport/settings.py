@@ -66,7 +66,9 @@ TEMPLATES = [
                  os.path.join(BASE_DIR, 'commercial', 'templates', 'livraison'), os.path.join(BASE_DIR, 'commercial', 'templates', 'blocked'), 
                  os.path.join(BASE_DIR, 'fleet', 'templates', 'driver'), os.path.join(BASE_DIR, 'fleet', 'templates', 'vehicle'), 
                  os.path.join(BASE_DIR, 'fleet', 'templates', 'reparation_type'), os.path.join(BASE_DIR, 'fleet', 'templates', 'reparation'), 
-                 os.path.join(BASE_DIR, 'fleet', 'templates', 'fuel_refill'), os.path.join(BASE_DIR, 'fleet', 'templates', 'assurance')],
+                 os.path.join(BASE_DIR, 'fleet', 'templates', 'fuel_refill'), os.path.join(BASE_DIR, 'fleet', 'templates', 'assurance'),
+                 os.path.join(BASE_DIR, 'fleet', 'templates', 'mission_cost_type'), os.path.join(BASE_DIR, 'fleet', 'templates', 'mission_cost'),
+                 os.path.join(BASE_DIR, 'fleet', 'templates', 'masse_salariale')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

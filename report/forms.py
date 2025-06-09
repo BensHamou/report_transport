@@ -15,6 +15,7 @@ def getAttrs(type, placeholder='', other={}):
         'select': {'class': 'form-select', 'style': 'background-color: #ebecee;'},
         'select2': {'class': 'form-select select2', 'style': 'background-color: #ebecee; width: 100%;'},
         'date': {'type': 'date', 'class': 'form-control dateinput','style': 'background-color: #ebecee;'},
+        'month': {'type': 'month', 'class': 'form-control dateinput','style': 'background-color: #ebecee;'},
         'textarea': {"rows": "3", 'style': 'width: 100%', 'class': 'form-control', 'placeholder': '', 'style': 'background-color: #ebecee;'}
     }
 

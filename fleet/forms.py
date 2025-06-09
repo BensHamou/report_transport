@@ -2,9 +2,10 @@ from django.forms import ModelForm
 from report.forms import getAttrs
 from django import forms
 from .models import *
-from report.models import Fournisseur
+from report.models import Fournisseur, Emplacement
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from account.models import Site
 
 class DriverForm(ModelForm):
     class Meta:
@@ -33,7 +34,6 @@ class VehicleForm(ModelForm):
     objectif = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Objectif')), validators=[MinValueValidator(0)])
     consommation_with = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Consommation avec marchandise')), validators=[MinValueValidator(0)])
     consommation_without = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Consommation sans marchandise')), validators=[MinValueValidator(0)])
-    mass_salarial = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Masse Salariale')), validators=[MinValueValidator(0)])
     dotation = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Dotation')), validators=[MinValueValidator(0)])
 
 
@@ -78,5 +78,41 @@ class AssuranceForm(ModelForm):
     assurance_date = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
     assurance_expiry_date = forms.DateField(widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
+
+
+class MissionCostTypeForm(ModelForm):
+    class Meta:
+        model = MissionCostType
+        fields = '__all__'
+
+    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Désignation')))
+
+
+class MissionCostForm(ModelForm):
+    class Meta:
+        model = MissionCost
+        fields = '__all__'
+
+    mission_date = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
+    vehicle = forms.ModelChoiceField(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2')))
+    driver = forms.ModelChoiceField(queryset=Driver.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), required=False)
+    from_emplacement = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select2')))
+    to_emplacement = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2')))
+    types = forms.ModelMultipleChoiceField(queryset=MissionCostType.objects.all(), widget=forms.SelectMultiple(attrs=getAttrs('select2')))
+    amount = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Montant de la mission')), validators=[MinValueValidator(0)])
+    observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
+
+
+class MasseSalarialeForm(ModelForm):
+    class Meta:
+        model = MasseSalariale
+        fields = '__all__'
+
+    vehicle = forms.ModelChoiceField(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2')))
+    month = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs=getAttrs('month'), format='%Y-%m'), input_formats=['%Y-%m'])
+    amount = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Montant de la mission')), validators=[MinValueValidator(0)])
+
+
+
 
 

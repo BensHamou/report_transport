@@ -362,3 +362,179 @@ def editAssuranceView(request, id):
             return redirect(redirect_url)
     context = {'form': form, 'assurance': item}
     return render(request, 'assurance_form.html', context)
+
+# MissionCostType Views
+@login_required(login_url='login')
+@admin_required
+def listMissionCostTypeView(request):
+    types = MissionCostType.objects.all().order_by('id')
+    filteredData = MissionCostTypeFilter(request.GET, queryset=types)
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12
+    paginator = Paginator(filteredData.qs, page_size)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {'page': page, 'filtredData': filteredData}
+    return render(request, 'list_mission_cost_types.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def deleteMissionCostTypeView(request, id):
+    item = MissionCostType.objects.get(id=id)
+    item.delete()
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('mission_cost_types')
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@admin_required
+def createMissionCostTypeView(request):
+    form = MissionCostTypeForm()
+    if request.method == 'POST':
+        form = MissionCostTypeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('mission_cost_types')
+            redirect_url = f'{url_path}?cache={cache_param}'
+            return redirect(redirect_url)
+    context = {'form': form}
+    return render(request, 'mission_cost_type_form.html', context)
+
+@login_required(login_url='login')
+@admin_required
+def editMissionCostTypeView(request, id):
+    item = MissionCostType.objects.get(id=id)
+    form = MissionCostTypeForm(instance=item)
+    if request.method == 'POST':
+        form = MissionCostTypeForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('mission_cost_types')
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
+            return redirect(redirect_url)
+    context = {'form': form, 'mission_cost_type': item}
+    return render(request, 'mission_cost_type_form.html', context)
+
+# MissionCost Views
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def listMissionCostView(request):
+    items = MissionCost.objects.all().order_by('id')
+    filteredData = MissionCostFilter(request.GET, queryset=items)
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12
+    paginator = Paginator(filteredData.qs, page_size)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {'page': page, 'filtredData': filteredData}
+    return render(request, 'list_mission_costs.html', context)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def deleteMissionCostView(request, id):
+    item = MissionCost.objects.get(id=id)
+    item.delete()
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('mission_costs')
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def createMissionCostView(request):
+    form = MissionCostForm()
+    if request.method == 'POST':
+        form = MissionCostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('mission_costs')
+            redirect_url = f'{url_path}?cache={cache_param}'
+            return redirect(redirect_url)
+    context = {'form': form}
+    return render(request, 'mission_cost_form.html', context)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def editMissionCostView(request, id):
+    item = MissionCost.objects.get(id=id)
+    form = MissionCostForm(instance=item)
+    if request.method == 'POST':
+        form = MissionCostForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('mission_costs')
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
+            return redirect(redirect_url)
+    context = {'form': form, 'mission_cost': item}
+    return render(request, 'mission_cost_form.html', context)
+
+
+# MasseSalariale Views
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def listMasseSalarialeView(request):
+    items = MasseSalariale.objects.all().order_by('id')
+    filteredData = MasseSalarialeFilter(request.GET, queryset=items)
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12
+    paginator = Paginator(filteredData.qs, page_size)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {'page': page, 'filtredData': filteredData}
+    return render(request, 'list_masse_salariales.html', context)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def deleteMasseSalarialeView(request, id):
+    item = MasseSalariale.objects.get(id=id)
+    item.delete()
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('masse_salariales')
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def createMasseSalarialeView(request):
+    form = MasseSalarialeForm()
+    if request.method == 'POST':
+        form = MasseSalarialeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('masse_salariales')
+            redirect_url = f'{url_path}?cache={cache_param}'
+            return redirect(redirect_url)
+    context = {'form': form}
+    return render(request, 'masse_salariale_form.html', context)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def editMasseSalarialeView(request, id):
+    item = MasseSalariale.objects.get(id=id)
+    form = MasseSalarialeForm(instance=item)
+    if request.method == 'POST':
+        form = MasseSalarialeForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('masse_salariales')
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
+            return redirect(redirect_url)
+    context = {'form': form, 'masse_salariale': item}
+    return render(request, 'masse_salariale_form.html', context)
+

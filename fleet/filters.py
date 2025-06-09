@@ -2,8 +2,9 @@ from django import forms
 from django.db.models import Q
 from django_filters import FilterSet, CharFilter, ChoiceFilter, ModelChoiceFilter, DateFilter
 from .models import *
-from report.models import Fournisseur
+from report.models import Fournisseur, Emplacement
 from report.forms import getAttrs
+from account.models import Site
 
 class DriverFilter(FilterSet):
     other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
@@ -71,3 +72,37 @@ class AssuranceFilter(FilterSet):
     class Meta:
         model = Assurance
         fields = ['type', 'vehicle']
+
+class MissionCostTypeFilter(FilterSet):
+
+    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher...')))
+
+    def filter_search(self, queryset, name, value):
+        return queryset.filter(designation__icontains=value).distinct()
+
+    class Meta:
+        model = MissionCostType
+        fields = ['search']
+
+class MissionCostFilter(FilterSet):
+    other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
+
+    vehicle = ModelChoiceFilter(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Camion")
+    driver = ModelChoiceFilter(queryset=Driver.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Chauffeur")
+    from_emplacement = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Du")
+    to_emplacement = ModelChoiceFilter(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Au")
+
+    class Meta:
+        model = MissionCost
+        fields = ['vehicle', 'driver', 'from_emplacement', 'to_emplacement']  
+
+
+class MasseSalarialeFilter(FilterSet):
+    other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
+
+    vehicle = ModelChoiceFilter(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Camion")
+
+    class Meta:
+        model = MasseSalariale
+        fields = ['vehicle']  
+

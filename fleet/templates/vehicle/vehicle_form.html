@@ -49,20 +49,6 @@ Camion
     <div class="row mb-4">
       <div class="col-lg-6 col-md-12 col-sm-12">
         <div class="form-outline">
-          <label class="form-label labelCustom" for="mass_salarial">Masse salariale</label>
-            {{ form.mass_salarial }}
-        </div>
-      </div>
-      <div class="col-lg-6 col-md-12 col-sm-12">
-        <div class="form-outline">
-          <label class="form-label labelCustom" for="dotation">Dotation</label>
-            {{ form.dotation }}
-        </div>
-      </div>
-    </div>
-    <div class="row mb-4">
-      <div class="col-lg-6 col-md-12 col-sm-12">
-        <div class="form-outline">
           <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
           {{ form.fournisseur }}
         </div>
@@ -75,16 +61,22 @@ Camion
       </div>
     </div>
     <div class="row mb-4">
-      <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="consommation_with">Consommation avec marchandise</label>
           {{ form.consommation_with }}
         </div>
       </div>
-      <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="consommation_without">Consommation sans marchandise</label>
             {{ form.consommation_without }}
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="dotation">Dotation</label>
+            {{ form.dotation }}
         </div>
       </div>
     </div>
