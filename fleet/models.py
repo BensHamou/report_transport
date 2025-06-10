@@ -131,12 +131,28 @@ class MissionCost(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='mission_costs')
     from_emplacement = models.ForeignKey('account.Site', on_delete=models.CASCADE, related_name='mission_costs_from')
     to_emplacement = models.ForeignKey('report.Emplacement', on_delete=models.CASCADE, related_name='mission_costs_to')
-    types = models.ManyToManyField(MissionCostType, blank=True)
-    amount = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
     observation = models.TextField(null=True, blank=True)
+
+    @property
+    def amount(self):
+        return sum(fee.cost for fee in self.mission_cost_fees.all())
 
     def __str__(self):
         return f'Mission le {self.mission_date} - {self.vehicle.immatriculation} de {self.from_emplacement.designation} à {self.to_emplacement.designation}'
+    
+    
+class MissionCostFee(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    mission_cost = models.ForeignKey(MissionCost, on_delete=models.CASCADE, related_name='mission_cost_fees')
+
+    fee_type = models.ForeignKey(MissionCostType, on_delete=models.CASCADE, related_name='mission_cost_fees')
+    cost = models.FloatField(default=0, validators=[MinValueValidator(0)])
+    observation = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.fee_type.designation} - {self.cost} DZD for {self.mission_cost.vehicle.immatriculation} on {self.mission_cost.mission_date}'
+
 
 class MasseSalariale(models.Model):
 

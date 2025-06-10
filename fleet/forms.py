@@ -1,4 +1,4 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, inlineformset_factory
 from report.forms import getAttrs
 from django import forms
 from .models import *
@@ -98,10 +98,18 @@ class MissionCostForm(ModelForm):
     driver = forms.ModelChoiceField(queryset=Driver.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), required=False)
     from_emplacement = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select2')))
     to_emplacement = forms.ModelChoiceField(queryset=Emplacement.objects.all(), widget=forms.Select(attrs=getAttrs('select2')))
-    types = forms.ModelMultipleChoiceField(queryset=MissionCostType.objects.all(), widget=forms.SelectMultiple(attrs=getAttrs('select2')))
-    amount = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Montant de la mission')), validators=[MinValueValidator(0)])
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
+class MissionCostFeeForm(ModelForm):
+    class Meta:
+        model = MissionCostFee
+        fields = '__all__'
+
+    fee_type = forms.ModelChoiceField(queryset=MissionCostType.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Type de frais")
+    cost = forms.FloatField(widget=forms.NumberInput(attrs= getAttrs('control','Cout')), validators=[MinValueValidator(0)])
+    observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
+
+MissionCostFeesFormSet = inlineformset_factory(MissionCost, MissionCostFee, form=MissionCostFeeForm, fields=['fee_type', 'cost', 'observation'], extra=0)
 
 class MasseSalarialeForm(ModelForm):
     class Meta:

@@ -14,22 +14,22 @@ Frais de Missions
         <div class="row height d-flex justify-content-center align-items-center">
             <div class="col-lg-2 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
-                    {{ filtredData.form.vehicle }}
+                    {{ filter.form.vehicle }}
                 </div>
             </div>
             <div class="col-lg-2 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
-                    {{ filtredData.form.driver }}
+                    {{ filter.form.driver }}
                 </div>
             </div>
             <div class="col-lg-2 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
-                    {{ filtredData.form.from_emplacement }}
+                    {{ filter.form.from_emplacement }}
                 </div>
             </div>
             <div class="col-lg-2 col-md-6 col-sm-12 mb-2">
                 <div class="form-outline">
-                    {{ filtredData.form.to_emplacement }}
+                    {{ filter.form.to_emplacement }}
                 </div>
             </div>
             
@@ -63,13 +63,13 @@ Frais de Missions
             <tbody>
                 {% for mission_cost in page %}
                 <tr style="color: #dde3f0;">
-                    <td>{{ mission_cost.id }}</td>
-                    <td>{{ mission_cost.mission_date }}</td>
-                    <td>{{ mission_cost.driver }}</td>
-                    <td>{{ mission_cost.vehicle }}</td>
-                    <td>{{ mission_cost.from_emplacement }}</td>
-                    <td>{{ mission_cost.to_emplacement }}</td>
-                    <td>{{ mission_cost.amount|intcomma }} DZD</td>
+                    <td onclick="window.location='{% url 'view_mission_cost' mission_cost.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'"  style="cursor: pointer;">{{ mission_cost.id }}</td>
+                    <td onclick="window.location='{% url 'view_mission_cost' mission_cost.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'"  style="cursor: pointer;">{{ mission_cost.mission_date }}</td>
+                    <td onclick="window.location='{% url 'view_mission_cost' mission_cost.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'"  style="cursor: pointer;">{{ mission_cost.driver }}</td>
+                    <td onclick="window.location='{% url 'view_mission_cost' mission_cost.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'"  style="cursor: pointer;">{{ mission_cost.vehicle }}</td>
+                    <td onclick="window.location='{% url 'view_mission_cost' mission_cost.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'"  style="cursor: pointer;">{{ mission_cost.from_emplacement }}</td>
+                    <td onclick="window.location='{% url 'view_mission_cost' mission_cost.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'"  style="cursor: pointer;">{{ mission_cost.to_emplacement }}</td>
+                    <td onclick="window.location='{% url 'view_mission_cost' mission_cost.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'"  style="cursor: pointer;">{{ mission_cost.amount|intcomma }} DZD</td>
                     <td style="vertical-align: middle; text-align: center;">
                         <button type="button" onclick="window.location='{% url 'edit_mission_cost' mission_cost.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmMissionDel('{{mission_cost.id|escapejs}}')" class="btn" style="color: white; padding: 2px;"><i class="far fa-trash-alt"></i></button>

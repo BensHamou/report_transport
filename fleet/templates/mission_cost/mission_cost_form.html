@@ -47,7 +47,7 @@ Frais de Mission
       </div>
     </div>
     <div class="row mb-4">
-      <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="from_emplacement">Du</label>
             {{ form.from_emplacement }}
@@ -60,7 +60,7 @@ Frais de Mission
             {% endif %}
         </div>
       </div>
-      <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="to_emplacement">Au</label>
           {{ form.to_emplacement }}
@@ -73,9 +73,7 @@ Frais de Mission
             {% endif %}
         </div>
       </div>
-    </div>
-    <div class="row mb-4">
-      <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="mission_date">Le</label>
             {{ form.mission_date }}
@@ -88,34 +86,6 @@ Frais de Mission
             {% endif %}
         </div>
       </div>
-      <div class="col-lg-6 col-md-12 col-sm-12">
-        <div class="form-outline">
-          <label class="form-label labelCustom" for="amount">Montant</label>
-          {{ form.amount }}
-            {% if form.amount.errors %}
-                <div style="color: red;">
-                {% for error in form.amount.errors %}
-                    *{{ error }}
-                {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-      </div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-lg-12 col-md-12 col-sm-12">
-            <div class="form-outline">
-                <label class="form-label mt-2 labelCustom" for="types">Type de frais</label>
-                {{ form.types }}
-                {% if form.types.errors %}
-                    <div style="color: red;">
-                    {% for error in form.types.errors %}
-                        *{{ error }}
-                    {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-        </div>
     </div>
     <div class="row mb-4">
         <div class="col-lg-12 col-md-12 col-sm-12">
@@ -133,9 +103,90 @@ Frais de Mission
         </div>
     </div>
   </div>
-  <div class="float-end mt-4">
-    <input type='submit' class="btn btn-secondary customSaveButton" name='save' value="Sauvgardez"/>
+
+  {% with named_formsets.mission_cost_fees as formset %}
+      {{ formset.management_form }}
+      <script type="text/html" id="mission_cost_fees-template">
+          <tr id="mission_cost_fees-__prefix__" class= hide_all>
+                {% for fields in formset.empty_form.hidden_fields %}
+                    {{ fields }}
+                {% endfor %}
+                <td></td>
+                {% for field in formset.empty_form.visible_fields %}
+                <td>
+                    {% if field.label == 'Supprimer' %}
+                        <div class="d-flex justify-content-center">
+                            <button type="button" onclick="deleteRow(this.parentNode.parentNode.parentNode)" class="btn" style="color: white;">
+                                <i class="far fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <span style="color: red">*{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+              {% endfor %}
+          </tr>
+      </script>
+      <div class="table-responsive card mt-4" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+          <div class="card-header card-header-secondary">
+              <p class="card-title lead" style="font-size: 26px; color: rgb(237, 243, 253)">Frais de mission</p>
+          </div>
+          <table class="table card-header">
+              <tbody id="item-mission_cost_fees">
+                  {% for error in formset.non_form_errors %}
+                      <span style="color: red">*{{ error }}</span>
+                  {% endfor %}
+                  {% for formss in formset %}
+                      {{ formss.management_form }}
+                      <tr id="mission_cost_fees-{{ forloop.counter0 }}" class= hide_all>
+                          {{ formss.id }}
+                          <td></td>
+                          {% for field in formss.visible_fields %}
+                              {% if not field.label == 'Supprimer' %}
+                                  <td>
+                                      {{ field }}
+                                      {% for error in field.errors %}
+                                          <span style="color: red">*{{ error }}</span>
+                                      {% endfor %}
+                                  </td>
+                              {% endif %}
+                          {% endfor %}
+                          {% if formss.instance.pk %}
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                <button type="button" onclick="confirmMissionCostFeeDel('{{formss.instance.pk|escapejs}}')" class="btn" style="color: white;">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            </td>    
+                          {% else %}
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <button type="button" onclick="deleteRow(this.parentNode.parentNode)" class="btn" style="color: white;">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>    
+                          {% endif %}
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+          <div class="d-flex justify-content-end align-items-center m-2">
+                <a href="#" id="add-mission_cost_fees-button" class="btn btn-secondary add-mission_cost_fees" style="background-color: #979ba3; border-color: #979ba3;" role="button"><i class="fas fa-plus"></i></a>
+          </div>
+      </div>
+  {% endwith %}
+
+  <div class="d-flex justify-content-center align-items-center form-group m-4">
+    <button type="submit" class="btn btn-secondary btn-block customSaveButton">
+      {% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}
+    </button>
   </div>
+
 </form>
 
 <style>
@@ -154,10 +205,81 @@ Frais de Mission
         border-color: #ebecee !important;
         background-color: #ebecee !important;
     }
+    @media only screen and (max-width: 767px) {
+        td {
+            display: block;
+            width: 100%;
+            text-align: left;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+    }
+    
+    @keyframes highlightAnimation {
+        0% {
+            border: 2px solid green;
+        }
+        100% {
+            border: 1px solid rgba(118, 118, 118, 0.3);
+        }
+    }
 </style>
 <script>
     $(document).ready(function() {
         $('.select2').select2({theme: 'bootstrap-5', allowClear: true, });
     });
-  </script>
+
+    const deleteRow = (row) => {
+        row.remove();
+        $('#id_mission_cost_fees-TOTAL_FORMS').val($('#id_mission_cost_fees-TOTAL_FORMS').val() - 1);
+    }
+
+    const confirmMissionCostFeeDel = (missionCostFeeId) => {
+        swal({ 
+        title: `Confirmation de la suppression.`,   
+        text: `Etes-vous sûr que vous voulez supprimer cette frais de liste?`,   
+        type: "warning",
+        showCancelButton: true,   
+        confirmButtonColor: "#DD6B55",   
+        confirmButtonText: "Oui",   
+        cancelButtonText: "Non",   
+        closeOnConfirm: true,   
+        closeOnCancel: true }, 
+        function(isConfirm){   
+            if (isConfirm){
+              window.location.href = "{% url 'delete_mission_cost_fee' 123456789 %}".replace(/123456789/, missionCostFeeId);
+            }});
+    }
+    
+    $(document).ready(function() { 
+        $('.add-mission_cost_fees').click(function(ev) {
+            ev.preventDefault();
+            var count = $('#item-mission_cost_fees').children().length;
+            var tmplMarkup = $('#mission_cost_fees-template').html();
+            var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+            $('#item-mission_cost_fees').append(compiledTmpl);
+            
+            $('#id_mission_cost_fees-TOTAL_FORMS').attr('value', count+1);
+            $('.form-select').select2({theme: 'bootstrap-5', allowClear: true,});
+            var newElement = $('#item-mission_cost_fees').children().last()[0];
+            newElement.scrollIntoView({ behavior: 'smooth' });
+        });
+        $('form').submit(function (event) {
+            event.preventDefault();
+            var selectedFees = [];
+            $("[id^='id_mission_cost_fees-'][id$='-fee_type']").each(function() {
+                selectedFees.push(this.value);
+            });
+            if(selectedFees.length == 0){
+                swal({title: `Oops, Cette mission ne contient aucun frais.!`,   
+                    text: `Veuillez insérer au moins un frais.`, confirmButtonColor: "#DD6B55",   
+                    confirmButtonText: "Ok", type: "warning", closeOnCancel: true });
+            }
+            else{
+                $('[disabled]').removeAttr('disabled');
+                this.submit(); 
+            }
+        });
+    });
+</script>
 {% endblock %}

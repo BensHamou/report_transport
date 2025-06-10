@@ -38,10 +38,12 @@ urlpatterns = [
     path("mission-cost-type/edit/<int:id>", editMissionCostTypeView, name="edit_mission_cost_type"),
     path("mission-cost-type/create/", createMissionCostTypeView, name="create_mission_cost_type"),
 
-    path('mission-costs/', listMissionCostView, name='mission_costs'),
+    path('mission-costs/', MissionCostList.as_view(), name='mission_costs'),
+    path("mission-cost/<int:pk>", MissionCostDetail.as_view(), name="view_mission_cost"),
     path("mission-cost/delete/<int:id>", deleteMissionCostView, name="delete_mission_cost"),
-    path("mission-cost/edit/<int:id>", editMissionCostView, name="edit_mission_cost"),
-    path("mission-cost/create/", createMissionCostView, name="create_mission_cost"),
+    path("mission-cost/edit/<int:pk>", MissionCostUpdate.as_view(), name="edit_mission_cost"),
+    path("mission-cost/create/", MissionCostCreate.as_view(), name="create_mission_cost"),
+    path("mission-cost/fee/delete/<int:pk>", deleteMissionCostFeeView, name="delete_mission_cost_fee"),
 
     path('masse-salariales/', listMasseSalarialeView, name='masse_salariales'),
     path("masse-salariale/delete/<int:id>", deleteMasseSalarialeView, name="delete_masse_salariale"),

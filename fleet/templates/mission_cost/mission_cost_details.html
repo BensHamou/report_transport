@@ -1,0 +1,202 @@
+{% extends "main.html" %}
+{% load humanize %}
+
+{% block title %}
+Frais de Mission - {{ mission_cost.site.prefix_site }}{{ mission_cost.id|stringformat:"05d" }}/{{ mission_cost.date_dep|date:"y" }}
+{% endblock %}
+{% load static %} 
+{% block activeFleet %} {% include 'active_bar.html' %} {% endblock %}
+{% block content %}
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="d-flex mb-5">
+            <div class="col-lg-2 col-md-3 col-sm-3">
+                <a href="{% url 'mission_costs' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}" class="text-decoration-none text-white d-flex align-items-center" style="color: #133356; letter-spacing: 1.2px;">
+                    <i class="fas fa-caret-left me-2" style="color: #133356;"></i>
+                    <p class="lead m-0 p-0" style="color: #133356;">retour</p>
+                </a>
+            </div>
+            <div class="col-lg-7 col-md-6 col-sm-6"></div>
+            <div class="col-lg-3 col-md-3 col-sm-3 d-flex justify-content-end">
+                <button onclick="window.location='{% url 'edit_mission_cost' mission_cost.id %}'" class="btn btn-secondary btn-block customSaveButton" style="margin-left: 2%;">
+                    Modifier
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12" style="margin-bottom: 20px;">
+        <div class="card" style="background: rgba(19, 51, 86, 0.85); border-radius: 2px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); color: #b7b9bd;">
+            <div class="card-body p-3">
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Créer le</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ mission_cost.date_created }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Chauffeur</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ mission_cost.driver }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Camion</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ mission_cost.vehicle }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Créer le</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ mission_cost.date_created }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Le</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ mission_cost.mission_date }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Départ</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ mission_cost.from_emplacement }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Déstination</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {{ mission_cost.to_emplacement }} ({{ mission_cost.prix.destination.region }})
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row mb-1">
+                    <label class="col-sm-2 col-form-label" style="color: #f2f3f2;">Observation</label>
+                    <div class="col-sm-10">
+                        <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {% if mission_cost.observation  %}{{ mission_cost.observation|linebreaks }}{% else %}/{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="table-responsive card mt-4 mb-4" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+        <div class="card-header card-header-secondary">
+            <p class="card-title lead" style="font-size: 26px; color: rgb(237, 243, 253)">Frais de mission</p>
+        </div>
+        <table class="table card-header text-white">
+            <thead style="border-color: white;">
+                <th class="d-none d-md-table-cell">Type</th>
+                <th class="d-none d-md-table-cell">Montant</th>
+                <th class="d-none d-md-table-cell">Observation</th>
+            </thead>
+            <tbody id="item-mission_cost_fees">
+                {% for mission_cost_fee in mission_cost.mission_cost_fees.all %}
+                    <tr class="trS">
+                        <td>
+                            <div>
+                                <p class="tdLabel">Produit</p>
+                                <p class="valueLead mb-0">{{ mission_cost_fee.fee_type }}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <p class="tdLabel">Quantité</p>
+                                <p class="valueLead mb-0">{{ mission_cost_fee.cost|intcomma }} DZD</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <p class="tdLabel">Observation</p>
+                                <p class="valueLead mb-0">{% if mission_cost_fee.observation  %}{{ mission_cost_fee.observation|linebreaks }}{% else %}/{% endif %}</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr class="trS">
+                        <td>Pas d'enregistrements.</td>
+                        <td>Pas d'enregistrements.</td>
+                        <td>Pas d'enregistrements.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+</div>
+
+<style>
+    .contentStyle {
+        background: rgba(107, 122, 147, 0.75); 
+        border-radius: 16px; 
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+        backdrop-filter: blur(2px);
+    }
+    .tdLabel{
+        display: none;
+    }
+    .trS {
+        border-color: transparent; 
+        color: #d9dce1;
+    }
+    .dateStyle{
+        margin-left: auto; 
+    }
+    @media only screen and (max-width: 767px) {
+        .contentStyle {
+            background: rgba(236, 239, 242, 0.95);
+            border-radius: 16px; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+            backdrop-filter: blur(2px);
+        }
+        .dateStyle{
+            color: #747474;
+        }
+        .headerStyle{
+            color: #0c2858;
+            font-weight: bold;
+        }
+        td {
+            display: block;
+            width: 100%;
+            text-align: left;
+            box-sizing: border-box;
+            margin: 0 0 2px 10px;
+        }
+        .trS {
+            border-left: 4px solid #8b99b0;
+            border-radius: 5px;
+            color: #5b5b5b;
+            border-top: 10px solid transparent;
+        }
+        .tdLast{
+            border-bottom: 2px solid white;
+        }
+        .valueLead{
+            font-size: 16px;
+        }
+        .tdLabel{
+            display: block;
+            color: #929292; 
+            font-size: 16px; 
+            margin-bottom: 5px;
+        }
+    }
+</style>
+{% endblock %}

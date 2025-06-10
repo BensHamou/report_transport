@@ -10,6 +10,12 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from commercial.views import checkAdminOrLogisticien
 
+from django.views.generic.edit import CreateView, UpdateView
+from django_filters.views import FilterView
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.detail import DetailView
+
 
 # Drivers
 @login_required(login_url='login')
@@ -537,4 +543,177 @@ def editMasseSalarialeView(request, id):
             return redirect(redirect_url)
     context = {'form': form, 'masse_salariale': item}
     return render(request, 'masse_salariale_form.html', context)
+
+# MissionCost Views
+
+class CheckEditorMixin:
+    def check_editor(self, mission_cost):
+        if self.request.user.role == 'Admin':
+            return True
+        sites = self.request.user.sites.all()
+        if mission_cost.from_emplacement in sites and self.request.user.role in ['Logisticien']:
+            return True
+        return False
+
+    def dispatch(self, request, *args, **kwargs):
+        mission_cost = self.get_object()  
+        if not self.check_editor(mission_cost):
+            return render(request, '403.html', status=403)
+        return super().dispatch(request, *args, **kwargs)
+    
+class CheckMissionCostViewerMixin:
+    def check_viewer(self, mission_cost):
+        if self.request.user.role == 'Admin':
+            return True
+        sites = self.request.user.sites.all()
+        if mission_cost.from_emplacement in sites and self.request.user.role in ['Logisticien']:
+            return True
+        return False
+
+    def dispatch(self, request, *args, **kwargs):
+        mission_cost = self.get_object()  
+        if not self.check_viewer(mission_cost):
+            return render(request, '403.html', status=403)
+        return super().dispatch(request, *args, **kwargs)
+    
+class CheckMissionCostListViewerMixin:
+    def check_viewer(self):
+        if self.request.user.role in ['Admin', 'Logisticien', 'Observateur']:
+            return True
+        return False
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.check_viewer():
+            return render(request, '403.html', status=403)
+        return super().dispatch(request, *args, **kwargs)
+    
+class MissionCostInline():
+    form_class = MissionCostForm
+    model = MissionCost
+    template_name = "mission_cost_form.html"    
+    login_url = 'login'
+
+    def form_valid(self, form):
+        named_formsets = self.get_named_formsets()
+        if not all((x.is_valid() for x in named_formsets.values())):
+            return self.render_to_response(self.get_context_data(form=form))
+        mission_cost = form.save(commit=False)
+        
+        mission_cost.save()
+        new = True
+        if self.object:
+            new = False
+        else:
+            self.object = mission_cost
+
+        for name, formset in named_formsets.items():
+            formset_save_func = getattr(self, 'formset_{0}_valid'.format(name), None)
+            if formset_save_func is not None:
+                formset_save_func(formset)
+            else:
+                formset.save()
+
+        if not new:
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('view_mission_cost', args=[self.object.pk])
+            redirect_url = f'{url_path}?cache={cache_param}'
+            return redirect(redirect_url)
+        return redirect('mission_costs')
+
+    def formset_mission_cost_fees_valid(self, formset):
+        mission_cost_fees = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for mission_cost_fee in mission_cost_fees:
+            mission_cost_fee.mission_cost = self.object
+            mission_cost_fee.save()
+
+class MissionCostCreate(LoginRequiredMixin, MissionCostInline, CreateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(MissionCostCreate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        if self.request.method == "GET":
+            return {'mission_cost_fees': MissionCostFeesFormSet(prefix='mission_cost_fees')}
+        else:
+            return {'mission_cost_fees': MissionCostFeesFormSet(self.request.POST or None, prefix='mission_cost_fees')}
+
+class MissionCostUpdate(LoginRequiredMixin, CheckEditorMixin, MissionCostInline, UpdateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(MissionCostUpdate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        return {'mission_cost_fees': MissionCostFeesFormSet(self.request.POST or None, instance=self.object, prefix='mission_cost_fees')}
+    
+class MissionCostDetail(LoginRequiredMixin, CheckMissionCostViewerMixin, DetailView):
+    model = MissionCost
+    template_name = 'mission_cost_details.html'
+    context_object_name = 'mission_cost'
+    login_url = 'login'
+
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fields = [field for field in self.model._meta.get_fields() if field.concrete]
+        context['fields'] = fields
+        return context
+
+class MissionCostList(LoginRequiredMixin, CheckMissionCostListViewerMixin, FilterView):
+    model = MissionCost
+    template_name = "list_mission_costs.html"
+    context_object_name = "mission_costs"
+    filterset_class = MissionCostFilter
+    ordering = ['-mission_date', '-date_created']
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        sites = self.request.user.sites.all()
+        queryset = queryset.filter(from_emplacement__in=sites)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page_size_param = self.request.GET.get('page_size')
+        page_size = int(page_size_param) if page_size_param else 12        
+        paginator = Paginator(context['mission_costs'], page_size)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        context['page'] = page_obj
+        return context
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def deleteMissionCostView(request, id):
+    mission_cost = MissionCost.objects.get(id=id)
+    mission_cost.delete()
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('mission_costs')
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def deleteMissionCostFeeView(request, pk):
+    try:
+        mission_cost_fee = MissionCostFee.objects.get(id=pk)
+    except MissionCostFee.DoesNotExist:
+        messages.success(request, 'Mission Cost Fee Does not exit')
+        url_path = reverse('edit_mission_cost', args=[mission_cost_fee.mission_cost.id])
+        cache_param = str(uuid.uuid4())
+        redirect_url = f'{url_path}?cache={cache_param}'
+        return redirect(redirect_url)
+
+    mission_cost_fee.delete()
+    messages.success(request, 'Mission Cost Fee deleted successfully')
+    url_path = reverse('edit_mission_cost', args=[mission_cost_fee.mission_cost.id])
+    cache_param = str(uuid.uuid4())
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
 
