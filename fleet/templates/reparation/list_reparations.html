@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load humanize %}
 
 {% block title %}
 Entretiens/Réparations
@@ -43,6 +44,7 @@ Entretiens/Réparations
                 <th>Camion</th>
                 <th>Type</th>
                 <th>Date</th>
+                <th>Montant</th>
                 <th style="width: 15vw; text-align: center;">Actions</th>
                 </tr>
             </thead>
@@ -53,6 +55,7 @@ Entretiens/Réparations
                     <td>{{ reparation.vehicle }}</td>
                     <td>{{ reparation.reparation_type }}</td>
                     <td>{{ reparation.reparation_date }}</td>
+                    <td>{{ reparation.amount|intcomma }} DZD</td>
                     <td style="vertical-align: middle; text-align: center;">
                         <button type="button" onclick="window.location='{% url 'edit_reparation' reparation.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmReparationDel('{{reparation.id|escapejs}}')" class="btn" style="color: white; padding: 2px;"><i class="far fa-trash-alt"></i></button>

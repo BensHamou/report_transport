@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load humanize %}
 
 {% block title %}
 Vignettes/Assurances
@@ -44,6 +45,7 @@ Vignettes/Assurances
                 <th>Camion</th>
                 <th>Du</th>
                 <th>Au</th>
+                <th>Montant</th>
                 <th style="width: 15vw; text-align: center;">Actions</th>
                 </tr>
             </thead>
@@ -55,6 +57,7 @@ Vignettes/Assurances
                     <td>{{ assurance.vehicle }}</td>
                     <td>{{ assurance.assurance_date }}</td>
                     <td>{{ assurance.assurance_expiry_date }}</td>
+                    <td>{{ assurance.amount|intcomma }} DZD</td>
                     <td style="vertical-align: middle; text-align: center;">
                         <button type="button" onclick="window.location='{% url 'edit_assurance' assurance.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}'" class="btn" style="padding: 2px;"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmAssuranceDel('{{assurance.id|escapejs}}')" class="btn" style="color: white; padding: 2px;"><i class="far fa-trash-alt"></i></button>
