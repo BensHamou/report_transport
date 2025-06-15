@@ -78,6 +78,7 @@ class AssuranceForm(ModelForm):
     vehicle = forms.ModelChoiceField(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Camion")
     assurance_date = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
     assurance_expiry_date = forms.DateField(widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
+    amount = forms.FloatField(widget=forms.NumberInput(attrs=getAttrs('control','Montant')), validators=[MinValueValidator(0)])
     observation = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
 

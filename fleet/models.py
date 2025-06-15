@@ -108,6 +108,7 @@ class Assurance(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='assurances')
     assurance_date = models.DateField()
     assurance_expiry_date = models.DateField()
+    amount = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
     observation = models.TextField(null=True, blank=True)
 
     def __str__(self):

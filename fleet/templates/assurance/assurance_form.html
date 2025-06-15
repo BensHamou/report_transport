@@ -47,7 +47,7 @@ Vignette/Assurance
       </div>
     </div>
     <div class="row mb-4">
-      <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="assurance_date">Du</label>
             {{ form.assurance_date }}
@@ -60,13 +60,26 @@ Vignette/Assurance
             {% endif %}
         </div>
       </div>
-      <div class="col-lg-6 col-md-12 col-sm-12">
+      <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="assurance_expiry_date">Au</label>
           {{ form.assurance_expiry_date }}
             {% if form.assurance_expiry_date.errors %}
                 <div style="color: red;">
                 {% for error in form.assurance_expiry_date.errors %}
+                    *{{ error }}
+                {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="amount">Montant</label>
+          {{ form.amount }}
+            {% if form.amount.errors %}
+                <div style="color: red;">
+                {% for error in form.amount.errors %}
                     *{{ error }}
                 {% endfor %}
                 </div>
