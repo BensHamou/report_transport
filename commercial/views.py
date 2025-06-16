@@ -587,7 +587,8 @@ def deliverPlanning(request, pk):
             return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
     
         
-    create_rotation = request.POST.get('create_rotation')
+    # create_rotation = request.POST.get('create_rotation')
+    create_rotation = True
     if create_rotation:
         prix = Price.objects.filter(
             depart=planning.site,
