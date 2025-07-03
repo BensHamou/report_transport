@@ -84,10 +84,10 @@ TEMPLATES = [
 WSGI_APPLICATION = "report_transport.wsgi.application"
 
 
-CRONJOBS = [
-    ('0 7 * * 5', 'report.cron.send_weekly_email'),
-    ('0 7 * * *', 'report.cron.send_monthly_email'),
-]
+# CRONJOBS = [
+#     ('0 7 * * 5', 'report.cron.send_weekly_email'),
+#     ('0 7 * * *', 'report.cron.send_monthly_email'),
+# ]
 
 
 DATABASES = {
@@ -105,6 +105,14 @@ DATABASES = {
     #    'USER': 'trans_report',
     #    'PASSWORD': 'trans_report',
     #    'HOST': '10.10.10.20',
+    #    'PORT': '5166',
+    # }
+    # 'default': {
+    #    'ENGINE': 'django.db.backends.postgresql',
+    #    'NAME': 'TransDB',
+    #    'USER': 'trans_report',
+    #    'PASSWORD': 'trans_report',
+    #    'HOST': '10.10.10.53',
     #    'PORT': '5166',
     # }
     # 'default': {
