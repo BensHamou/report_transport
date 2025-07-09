@@ -291,17 +291,17 @@ Planning - {{ planning }}
                     <p class="card-title lead m-3">Produits Plannifier</p>
                 </div>
             </div>
-            {% comment %} {% if planning.code and not planning.is_marked %}
+            {% if planning.code and not planning.images %}
                 <div class="card mx-auto mt-4 text-center" style="background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
                     <div class="position-relative d-flex justify-content-center align-items-center" style="height: 175px;">
-                        <p class="display-6 fw-bold m-0" style="color: #486c95;">{{ planning.code }}</p>
+                        <p class="display-6 fw-bold m-0" style="color: #486c95;">{{ planning.code|default:"/" }}</p>
                         <small class="position-absolute bottom-0 start-0 m-2" style="color: #486c95;">Ce code est d'une utilisation unique</small>
                     </div>
                     <div class="card-body p-0 mx-auto" style="background-color: #486c95; border-radius: 0 0 5px 5px; width: 100%;">
                         <p class="card-title lead m-3" style="color: #ecebeb;">Code généré</p>
                     </div>
                 </div>
-            {% endif %} {% endcomment %}
+            {% endif %}
             {% if planning.images %}
                 <div class="card mx-auto mt-3 text-center" id="bls-card" style="cursor: pointer; background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
                     <div class="ratio" style="--bs-aspect-ratio: 50%;">
