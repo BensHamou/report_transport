@@ -3,6 +3,11 @@ from django.core.validators import MinValueValidator
 from account.models import User, Site
 from report.models import Fournisseur, Product, Tonnage, Emplacement, Report
 from fleet.models import Driver, Vehicle
+from django.template.defaultfilters import slugify
+from PIL import Image as PILImage
+import os
+import string
+import random
 
 class Setting(models.Model):
     name = models.CharField(max_length=50)
@@ -74,6 +79,9 @@ class Planning(models.Model):
     
     date_honored = models.DateField(null=True, blank=True)
     n_bl = models.IntegerField(validators=[MinValueValidator(0)], null=True, blank=True)
+    n_invoice = models.IntegerField(validators=[MinValueValidator(0)], null=True, blank=True)
+    code = models.CharField(max_length=50, null=True, blank=True, unique=True)
+    google_maps_coords = models.CharField(max_length=255, blank=True, null=True)
     is_marked = models.BooleanField(default=False)
     supplier_informed = models.BooleanField(default=False)
     observation_logi = models.TextField(null=True, blank=True)
@@ -82,6 +90,15 @@ class Planning(models.Model):
 
     def pplanneds(self):
         return self.pplanned_set.all()
+    
+    @classmethod
+    def generate_unique_code(cls):
+        chars = string.ascii_uppercase + string.digits
+        while True:
+            code = ''.join(random.choices(chars, k=6))
+            if not cls.objects.filter(code=code).exists():
+                return code
+
 
     @property
     def date_planning_final(self):
@@ -109,6 +126,10 @@ class Planning(models.Model):
         if self.state == 'Livraison Confirmé':
             return self.validation_set.filter(new_state='Livraison Confirmé').order_by('date').last().date
         return None
+    
+
+    def images(self):
+        return self.image_set.all()
     
     def __str__(self):
         return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
@@ -145,3 +166,21 @@ class Validation(models.Model):
 
     def __str__(self):
         return "Validation - " + str(self.planning.id) + " - " + str(self.date)
+    
+def get_image_filename(instance, filename):
+    title = instance.planning.id
+    slug = slugify(title)
+    return "planning_images/%s-%s" % (slug, filename)
+
+class Image(models.Model):
+    planning = models.ForeignKey(Planning, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to=get_image_filename, verbose_name='Image')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.image and os.path.exists(self.image.path):
+            img = PILImage.open(self.image.path)
+            max_size = (1920, 1080)
+            img.thumbnail(max_size, PILImage.LANCZOS)
+            img.save(self.image.path, quality=80, optimize=True)
+

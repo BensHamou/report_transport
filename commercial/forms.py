@@ -31,7 +31,7 @@ class PlanningCommForm(ModelForm):
     class Meta:
         model = Planning
         fields = ['site', 'date_planning', 'distributeur_id', 'distributeur','client_id', 'client', 'destination', 
-                  'livraison', 'observation_comm', 'fournisseur', 'tonnage', 'n_bl', 'observation_logi',
+                  'livraison', 'observation_comm', 'fournisseur', 'tonnage', 'n_bl', 'n_invoice', 'observation_logi',
                   'chauffeur', 'immatriculation', 'driver', 'vehicle', 'date_honored']
 
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
@@ -50,6 +50,7 @@ class PlanningCommForm(ModelForm):
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur", required=False)
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage", required=False)
     n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')), required=False)
+    n_invoice = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° Facture')), required=False)
     observation_logi = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')), required=False)
@@ -161,3 +162,13 @@ class PlanningConfirmForm(ModelForm):
                 self.fields['driver'].required = True
             else:
                 self.fields['chauffeur'].required = True
+
+class ImageForm(ModelForm):
+    class Meta:
+        model = Image
+        fields = ['image']
+        widgets = {
+            'image': forms.ClearableFileInput(attrs={'class': 'd-none'}),
+        }
+
+ImageFormSet = inlineformset_factory(Planning, Image, form=ImageForm, fields=['image'], extra=0, can_delete=True)

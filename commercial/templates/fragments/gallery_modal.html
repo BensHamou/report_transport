@@ -1,0 +1,74 @@
+{% load static %} 
+<div class="modal" id="blsModal" tabindex="-1" aria-labelledby="blsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content contentStyle">
+            <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
+                <h4 class="headerStyle mb-0">Images BL - {{ planning }}</h4>
+                <p class="lead mb-0 dateStyle">{{ planning.date_planning_final|date:"d/m/Y"}}</p>
+                <button type="button" class="btn-close" style="margin-left: 10px;" data-dismiss="modal" id="buttonBLX" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in planning.images.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img src="{{ image.image.url }}" class="d-block image-responsive" alt="Image">
+                            </div>
+                        {% empty %}
+                            <div class="carousel-item active">
+                                <div class="no-images-message text-center">
+                                    <img src="{% static 'img/image_bl.png' %}" class="d-block image-responsive" alt="Image">
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselExampleControls" role="button" style="background-color: rgba(0, 0, 0, 0.3);" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselExampleControls" role="button" style="background-color: rgba(0, 0, 0, 0.3);" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-color: transparent;">
+                <button type="button" class="btn" style="background-color: #23305d; color: white;" id="buttonBLClose" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+
+<style>
+
+    .image-responsive{
+        max-height: 500px; 
+        width: auto; 
+        display: block; 
+        margin-left: auto; 
+        margin-right: auto; 
+        border-raduis: 5px;
+    }
+</style>
+
+
+<script>
+    $(document).ready(function () {
+        $('#bls-card').click(function () {
+            $("#blsModal").prependTo("body");
+            $('#blsModal').modal('show');
+
+        });
+        $('#buttonBLX').click(function () {
+            $('#blsModal').modal('hide')
+
+        });
+        $('#buttonBLClose').click(function () {
+            $('#blsModal').modal('hide')
+        });
+    });
+</script>

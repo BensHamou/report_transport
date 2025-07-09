@@ -351,7 +351,10 @@ class PlanningUpdate(LoginRequiredMixin, CheckEditorMixin, PlanningInline, Updat
         return ctx
 
     def get_named_formsets(self):
-        return {'pplanneds': PPlannedsFormSet(self.request.POST or None, instance=self.object, prefix='pplanneds')}
+        return {
+            'pplanneds': PPlannedsFormSet(self.request.POST or None, instance=self.object, prefix='pplanneds'),
+            'images': ImageFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='images')
+            }
     
 class PlanningDetail(LoginRequiredMixin, CheckPlanningViewerMixin, DetailView):
     model = Planning
@@ -550,7 +553,8 @@ def deliverPlanning(request, pk):
     if planning.state == 'Livraison Confirmé':
         return JsonResponse({'status': True, 'message': 'Livraison confirmé avec succès', 'redirect': getRedirectionURL(request, url_path)})
     
-    n_bl = request.POST.get('n_bl')
+    n_bl = request.POST.get('n_bl', None)
+    n_invoice = request.POST.get('n_invoice', None)
 
     # if n_bl and planning.fournisseur.send_email:
     #     try:
@@ -566,9 +570,10 @@ def deliverPlanning(request, pk):
     #     except ValueError:
     #         return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
         
-    if n_bl and planning.fournisseur.send_email:
+    if n_bl and n_invoice and planning.fournisseur.send_email:
         try:
             n_bl_numeric = int(n_bl)
+            n_invoice_numeric = int(n_invoice)
             current_year = planning.date_honored.year
             
             previous_report = Report.objects.filter(prix__fournisseur=planning.fournisseur, prix__depart=planning.site, 
@@ -608,6 +613,8 @@ def deliverPlanning(request, pk):
 
     old_state = planning.state
     planning.n_bl = n_bl
+    planning.n_invoice = n_invoice
+    planning.code = Planning.generate_unique_code()
     planning.state = 'Livraison Confirmé'
     new_state = planning.state
     actor = request.user

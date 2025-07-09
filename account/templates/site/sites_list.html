@@ -33,6 +33,7 @@ Sites
                 <th class="d-none d-md-table-cell">Préfixe (BL)</th>
                 <th class="d-none d-md-table-cell">Préfixe (BTR)</th>
                 <th class="d-none d-md-table-cell">Préfixe (Planning)</th>
+                <th class="d-none d-md-table-cell">Préfixe (Facture)</th>
                 <th style="text-align: right;">Actions</th>
                 </tr>
             </thead>
@@ -45,6 +46,7 @@ Sites
                     <td class="d-none d-md-table-cell">{{ site.prefix_site }}</td>
                     <td class="d-none d-md-table-cell">{{ site.btr_prefix_site }}</td>
                     <td class="d-none d-md-table-cell">{{ site.planning_prefix }}</td>
+                    <td class="d-none d-md-table-cell">{{ site.prefix_invocie_site }}</td>
                     <td style="text-align: right;">
                         <button type="button" onclick="window.location='{% url 'edit_site' site.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% endif %}'" class="btn"><i class="fas fa-edit" style="color: white;"></i></button>
                         <button type="button" onclick="confirmSiteDel('{{site.id|escapejs}}', '{{site.designation|escapejs}}')" class="btn" style="color: white;"><i class="far fa-trash-alt"></i></button>

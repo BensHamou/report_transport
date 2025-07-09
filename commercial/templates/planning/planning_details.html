@@ -128,6 +128,14 @@ Planning - {{ planning }}
                             </div>
                         </div>
                     </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">N° Facture</label>
+                        <div class="col-sm-9">
+                            <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                                {{ planning.site.prefix_invocie_site }}{{ planning.n_invoice|stringformat:"05d" }}/{{ planning.date_honored|date:"y" }} 
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
                 <div class="form-group row mb-1">
                     <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Créer par</label>
@@ -273,18 +281,54 @@ Planning - {{ planning }}
         {% endif %}
     </div>
     <div class="col-md-4 justify-content-center">
-        <div class="row">
-            <div class="col-md-12 mt-3">
-                <div class="card mx-auto text-white" id="pplanneds-card" style="cursor: pointer; background: #486c95; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
-                    <div class="ratio" style="--bs-aspect-ratio: 50%;">
-                        <img src="{% static 'img/ptransporteds.png' %}" class="card-img-top img-fluid" alt="Image Title">
-                    </div>
-                    <div class="card-body p-0 mx-auto">
-                        <p class="card-title lead m-3">Produits Plannifier</p>
-                    </div>
+    <div class="row">
+        <div class="col-md-12 mt-3">
+            <div class="card mx-auto text-white" id="pplanneds-card" style="cursor: pointer; background: #486c95; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
+                <div class="ratio" style="--bs-aspect-ratio: 50%;">
+                    <img src="{% static 'img/ptransporteds.png' %}" class="card-img-top img-fluid" alt="Image Title">
+                </div>
+                <div class="card-body p-0 mx-auto">
+                    <p class="card-title lead m-3">Produits Plannifier</p>
                 </div>
             </div>
+            {% comment %} {% if planning.code and not planning.is_marked %}
+                <div class="card mx-auto mt-4 text-center" style="background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
+                    <div class="position-relative d-flex justify-content-center align-items-center" style="height: 175px;">
+                        <p class="display-6 fw-bold m-0" style="color: #486c95;">{{ planning.code }}</p>
+                        <small class="position-absolute bottom-0 start-0 m-2" style="color: #486c95;">Ce code est d'une utilisation unique</small>
+                    </div>
+                    <div class="card-body p-0 mx-auto" style="background-color: #486c95; border-radius: 0 0 5px 5px; width: 100%;">
+                        <p class="card-title lead m-3" style="color: #ecebeb;">Code généré</p>
+                    </div>
+                </div>
+            {% endif %} {% endcomment %}
+            {% if planning.images %}
+                <div class="card mx-auto mt-3 text-center" id="bls-card" style="cursor: pointer; background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
+                    <div class="ratio" style="--bs-aspect-ratio: 50%;">
+                        <div class="d-flex align-items-center justify-content-center w-100 h-100">
+                            <img src="{% static 'img/image_bl.png' %}" alt="Image BL" style="max-width: 100%; max-height: 100%; height: auto; width: auto;" />
+                        </div>
+                    </div>
+                    <div class="card-body p-0 mx-auto" style="background-color: #486c95; border-radius: 0 0 5px 5px; width: 100%;">
+                        <p class="card-title lead m-3" style="color: #ecebeb;">Images BL jointe</p>
+                    </div>
+                </div>
+            {% endif %}
+            {% if planning.google_maps_coords %}
+                <div class="card mx-auto mt-3 text-center mb-1" id="gps-card" style="cursor: pointer; background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
+                    <div class="ratio" style="--bs-aspect-ratio: 50%;">
+                        <div class="d-flex align-items-center justify-content-center w-100 h-100">
+                            <img src="{% static 'img/map.png' %}" alt="Image BL" style="max-width: 100%; max-height: 100%; height: auto; width: auto;" />
+                        </div>
+                    </div>
+                    <div class="card-body p-0 mx-auto" style="background-color: #486c95; border-radius: 0 0 5px 5px; width: 100%;">
+                        <p class="card-title lead m-3" style="color: #ecebeb;">Localisation GPS</p>
+                    </div>
+                </div>
+            {% endif %}
         </div>
+    </div>
+
     </div>
 </div>
 <script>
@@ -344,4 +388,6 @@ Planning - {{ planning }}
 {% include 'miss_planning_modal.html' %}
 {% include 'validate_planning_modal.html' %}
 {% include 'reschedule_planning_modal.html' %}
+{% include 'gallery_modal.html' %}
+{% include 'map_modal.html' %}
 {% endblock %}

@@ -9,11 +9,15 @@
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="form-group row">
-                        <div class="col-lg-8 col-md-8">
+                        <div class="col-lg-5 col-md-5">
                             <label class="form-label labelCustom" for="n_bl">N° BL</label>
                             <input type="number" class="form-control" placeholder="Veuillez indiquer le N° de BL." id="n_bl" name="n_bl" style="background-color: #cacfd7;" required/>
                         </div>
-                        <div class="col-lg-4 col-md-4">
+                        <div class="col-lg-5 col-md-5">
+                            <label class="form-label labelCustom" for="n_bl">N° Facture</label>
+                            <input type="number" class="form-control" placeholder="Veuillez indiquer le N° de Facture." id="n_invoice" name="n_invoice" style="background-color: #cacfd7;" required/>
+                        </div>
+                        <div class="col-lg-2 col-md-2">
                             <label class="form-label labelCustom" for="create_rotation">Créer une rotation </label> </br>
                             <input type="checkbox" id="create_rotation" name="create_rotation" data-toggle="switchbutton" data-onstyle="primary" data-onlabel="Oui" data-offlabel="Non" checked disabled>
                         </div>

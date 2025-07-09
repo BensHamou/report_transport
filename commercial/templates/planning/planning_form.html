@@ -15,7 +15,7 @@ Rapport
 </div>
 <h4 class="mb-4" style="color: #133356;">{% if planning %}Modification du planning - {{ planning }}{% else %}Création d'un planning{% endif %}</h4>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
         <div class="row mb-4">
@@ -176,6 +176,19 @@ Rapport
                                 {% endif %}
                         </div>
                     </div>
+                    <div class="col-md-12 col-sm-12 mb-2">
+                        <div class="form-outline">
+                            <label class="form-label labelCustom" for="n_invoice">N° Facture</label><br>
+                            {{ form.n_invoice }}
+                                {% if form.n_invoice.errors %}
+                                    <div style="color: red;">
+                                    {% for error in form.n_invoice.errors %}
+                                        *{{ error }}
+                                    {% endfor %}
+                                    </div>
+                                {% endif %}
+                        </div>
+                    </div>
                 {% endif %}
                 <div class="col-md-6 col-sm-12 mb-2">
                     <div class="form-outline">
@@ -323,7 +336,65 @@ Rapport
                 <a href="#" id="add-pplanneds-button" class="btn btn-secondary add-pplanneds" style="background-color: #979ba3; border-color: #979ba3;" role="button"><i class="fas fa-plus"></i></a>
           </div>
       </div>    
-  {% endwith %}
+    {% endwith %}
+    
+    {% if planning.state == 'Livraison Confirmé' %}
+        <div class="row" id="images-container">
+            {% with named_formsets.images as formset %}
+                {{ formset.management_form }}
+
+                <div class="card mt-4" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px;">
+                    <div class="card-header card-header-secondary">
+                    <p class="card-title lead" style="font-size: 26px; color: rgb(237, 243, 253)">Images</p>
+                    </div>
+                    <div class="card-body">
+                    <div class="row" id="images-container">
+                        {% for form in formset %}
+                        <div class="col-md-4 mb-3 image-form position-relative">
+                            {{ form.id }}
+                            {{ form.DELETE }}
+                            <input type="file" accept="image/*" class="d-none image-input" name="{{ form.image.html_name }}">
+                            <div class="image-box border border-secondary rounded d-flex align-items-center justify-content-center position-relative" style="height: 200px; cursor: pointer;">
+                            {% if form.instance.image %}
+                                <img src="{{ form.instance.image.url }}" class="preview-image w-100 h-100 object-fit-cover" />
+                            {% else %}
+                                <img src="{% static 'img/placeholder.jpg' %}" class="preview-image w-100 h-100 object-fit-contain" style="opacity: 0.5;" />
+                            {% endif %}
+                            <button type="button" class="btn btn-danger btn-sm position-absolute delete-image-btn" style="top: 5px; right: 5px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <a href="#" id="add-image-button" class="btn btn-secondary" style="background-color: #979ba3;">
+                        <i class="fas fa-plus"></i> Ajouter une image
+                        </a>
+                    </div>
+                    </div>
+                </div>
+
+                <script type="text/html" id="image-template">
+                    <div class="col-md-4 mb-3 image-form position-relative">
+                        __ID_FIELD__
+                        __DELETE_FIELD__
+                        <input type="file" accept="image/*" class="d-none image-input" name="__NAME__" />
+                        <div class="image-box border border-secondary rounded d-flex align-items-center justify-content-center position-relative" style="height: 200px; cursor: pointer;">
+                            <img src="{% static 'img/placeholder.jpg' %}" class="preview-image w-100 h-100 object-fit-contain" style="opacity: 0.5;" />
+                            <button type="button" class="btn btn-danger btn-sm position-absolute delete-image-btn" style="top: 5px; right: 5px;">
+                            <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </script>
+            {% endwith %}
+        </div>
+
+    {% endif %}
+
+  
     <div class="d-flex justify-content-center align-items-center form-group m-4">
         <button type="submit" class="btn btn-secondary btn-block customSaveButton">
             {% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}
@@ -332,6 +403,11 @@ Rapport
 </form>
 
 <style>
+    
+    [name$="-DELETE"] {
+        display: none;
+    }
+
     #suggestions {
       top: 100%;
       left: 0;
@@ -420,9 +496,41 @@ Rapport
             border: 1px solid rgba(118, 118, 118, 0.3);
         }
     }
+    .image-box {
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s ease;
+    }
+
+    .image-box:hover {
+    transform: scale(1.03);
+    }
+
+    .image-box:hover .delete-image-btn {
+    display: block;
+    }
+
+    .preview-image {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease;
+    }
 </style>
 
 <script>
+    
+    function readAndPreviewImage(input, imgElement) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+        imgElement.src = e.target.result;
+        imgElement.style.opacity = "1";
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+    }
+
     const setValue = (e, selectedId) => {
         var suggestions = e.parentNode;
         var fieldIdInput = suggestions.previousElementSibling;
@@ -508,7 +616,45 @@ Rapport
             $('[disabled]').removeAttr('disabled');
             this.submit(); 
         });
-    });
+        $('#images-container').on('click', '.image-box', function (e) {
+            if (!$(e.target).hasClass('delete-image-btn') && !$(e.target).parents('.delete-image-btn').length) {
+            $(this).siblings('input[type="file"]').trigger('click');
+            }
+        });
+
+        $('#images-container').on('change', '.image-input', function () {
+            const img = $(this).siblings('.image-box').find('.preview-image')[0];
+            readAndPreviewImage(this, img);
+        });
+
+        $('#images-container').on('click', '.delete-image-btn', function () {
+            const formBlock = $(this).closest('.image-form');
+            const checkbox = formBlock.find('input[type="checkbox"][name*="DELETE"]');
+            if (checkbox.length) {
+            checkbox.prop('checked', true);
+            }
+            formBlock.hide(); 
+        });
+
+        $('#add-image-button').click(function (e) {
+            e.preventDefault();
+            const totalForms = $('#id_images-TOTAL_FORMS');
+            const formIdx = parseInt(totalForms.val());
+            const prefix = `images-${formIdx}`;
+
+            const idField = `<input type="hidden" name="${prefix}-id" id="id_${prefix}-id">`;
+            const deleteField = `<input type="checkbox" name="${prefix}-DELETE" id="id_${prefix}-DELETE" style="display: none;">`;
+            const nameAttr = `${prefix}-image`;
+
+            const tmpl = $('#image-template').html()
+            .replace('__ID_FIELD__', idField)
+            .replace('__DELETE_FIELD__', deleteField)
+            .replace('__NAME__', nameAttr);
+
+            $('#images-container .row').append(tmpl);
+            totalForms.val(formIdx + 1);
+        });
+        });
 </script>
 
 {% endblock %}
