@@ -386,8 +386,14 @@ Planning - {{ planning }}
 {% include 'pplanned_modal.html' %}
 {% include 'validation_modal.html' %}
 {% include 'miss_planning_modal.html' %}
-{% include 'validate_planning_modal.html' %}
-{% include 'reschedule_planning_modal.html' %}
-{% include 'gallery_modal.html' %}
-{% include 'map_modal.html' %}
+{% if planning.state == 'Planning Confirmé' %}
+    {% include 'validate_planning_modal.html' %}
+{% endif %}
+{% if planning.state == 'Raté' %}
+    {% include 'reschedule_planning_modal.html' %}
+{% endif %}
+{% if planning.state == 'Livraison Confirmé' %}
+    {% include 'gallery_modal.html' %}
+    {% include 'map_modal.html' %}
+{% endif %}
 {% endblock %}
