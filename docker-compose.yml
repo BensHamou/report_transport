@@ -24,6 +24,7 @@ services:
       - "8166:8166"
     volumes:
       - ./report_transport:/report_transport
+      - ./media:/app/media
 
     command: >
       sh -c " python manage.py makemigrations &&
@@ -48,6 +49,7 @@ services:
       - db
     volumes:
       - ./report_transport:/report_transport
+      - ./media:/app/media
 
     environment:
       - DB_HOST=db
@@ -61,6 +63,7 @@ services:
             crond -f"
 volumes:
   db_data:
+  media_volume:
 networks:
   default:
     driver: bridge
