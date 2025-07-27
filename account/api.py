@@ -34,7 +34,7 @@ def submit_planning_data(request):
         planning_id = request.POST.get('planning_id')
         x = request.POST.get('coords_x')
         y = request.POST.get('coords_y')
-        images = request.FILES.getlist('images')
+        files = request.FILES.getlist('files')
 
         try:
             planning = Planning.objects.get(id=planning_id)
@@ -45,8 +45,8 @@ def submit_planning_data(request):
             planning.google_maps_coords = f"{x},{y}"
             planning.save()
 
-        for img in images:
-            Image.objects.create(planning=planning, image=img)
+        for file in files:
+            File.objects.create(planning=planning, file=file)
 
         return JsonResponse({'message': 'Soumission réussie'})
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)

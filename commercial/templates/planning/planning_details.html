@@ -6,6 +6,7 @@ Planning - {{ planning }}
 {% load static %} 
 {% block activeListPlanning %} {% include 'active_bar.html' %} {% endblock %}
 {% block content %}
+{% load filters %}
 
 <div class="row mt-3">
     <div class="col-md-8">
@@ -281,56 +282,97 @@ Planning - {{ planning }}
         {% endif %}
     </div>
     <div class="col-md-4 justify-content-center">
-    <div class="row">
-        <div class="col-md-12 mt-3">
-            <div class="card mx-auto text-white" id="pplanneds-card" style="cursor: pointer; background: #486c95; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
-                <div class="ratio" style="--bs-aspect-ratio: 50%;">
-                    <img src="{% static 'img/ptransporteds.png' %}" class="card-img-top img-fluid" alt="Image Title">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <div class="card mx-auto text-white" id="pplanneds-card" style="cursor: pointer; background: #486c95; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
+                    <div class="ratio" style="--bs-aspect-ratio: 50%;">
+                        <img src="{% static 'img/ptransporteds.png' %}" class="card-img-top img-fluid" alt="Image Title">
+                    </div>
+                    <div class="card-body p-0 mx-auto">
+                        <p class="card-title lead m-3">Produits Plannifier</p>
+                    </div>
                 </div>
-                <div class="card-body p-0 mx-auto">
-                    <p class="card-title lead m-3">Produits Plannifier</p>
-                </div>
+                {% if planning.code and not planning.files %}
+                    <div class="card mx-auto mt-4 text-center" style="background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
+                        <div class="position-relative d-flex justify-content-center align-items-center" style="height: 175px;">
+                            <p class="display-6 fw-bold m-0" style="color: #486c95;">{{ planning.code|default:"/" }}</p>
+                            <small class="position-absolute bottom-0 start-0 m-2" style="color: #486c95;">Ce code est d'une utilisation unique</small>
+                        </div>
+                        <div class="card-body p-0 mx-auto" style="background-color: #486c95; border-radius: 0 0 5px 5px; width: 100%;">
+                            <p class="card-title lead m-3" style="color: #ecebeb;">Code généré</p>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-            {% if planning.code and not planning.images %}
-                <div class="card mx-auto mt-4 text-center" style="background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
-                    <div class="position-relative d-flex justify-content-center align-items-center" style="height: 175px;">
-                        <p class="display-6 fw-bold m-0" style="color: #486c95;">{{ planning.code|default:"/" }}</p>
-                        <small class="position-absolute bottom-0 start-0 m-2" style="color: #486c95;">Ce code est d'une utilisation unique</small>
-                    </div>
-                    <div class="card-body p-0 mx-auto" style="background-color: #486c95; border-radius: 0 0 5px 5px; width: 100%;">
-                        <p class="card-title lead m-3" style="color: #ecebeb;">Code généré</p>
-                    </div>
-                </div>
-            {% endif %}
-            {% if planning.images %}
-                <div class="card mx-auto mt-3 text-center" id="bls-card" style="cursor: pointer; background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
-                    <div class="ratio" style="--bs-aspect-ratio: 50%;">
-                        <div class="d-flex align-items-center justify-content-center w-100 h-100">
-                            <img src="{% static 'img/image_bl.png' %}" alt="Image BL" style="max-width: 100%; max-height: 100%; height: auto; width: auto;" />
-                        </div>
-                    </div>
-                    <div class="card-body p-0 mx-auto" style="background-color: #486c95; border-radius: 0 0 5px 5px; width: 100%;">
-                        <p class="card-title lead m-3" style="color: #ecebeb;">Images BL jointe</p>
-                    </div>
-                </div>
-            {% endif %}
-            {% if planning.google_maps_coords %}
-                <div class="card mx-auto mt-3 text-center mb-1" id="gps-card" style="cursor: pointer; background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
-                    <div class="ratio" style="--bs-aspect-ratio: 50%;">
-                        <div class="d-flex align-items-center justify-content-center w-100 h-100">
-                            <img src="{% static 'img/map.png' %}" alt="Image BL" style="max-width: 100%; max-height: 100%; height: auto; width: auto;" />
-                        </div>
-                    </div>
-                    <div class="card-body p-0 mx-auto" style="background-color: #486c95; border-radius: 0 0 5px 5px; width: 100%;">
-                        <p class="card-title lead m-3" style="color: #ecebeb;">Localisation GPS</p>
-                    </div>
-                </div>
-            {% endif %}
         </div>
     </div>
-
-    </div>
+    {% if planning.state == 'Livraison Confirmé' %}
+        <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="attachments-tab" data-bs-toggle="tab" data-bs-target="#attachments" type="button" role="tab" aria-controls="attachments" aria-selected="true">
+                    Pièces jointes
+                </button>
+            </li>
+            {% if planning.google_maps_coords %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="localisation-tab" data-bs-toggle="tab" data-bs-target="#localisation" type="button" role="tab" aria-controls="localisation" aria-selected="false">
+                    Localisation
+                </button>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="tab-content mt-3 mb-3 p-0" id="myTabContent">
+            <div class="tab-pane fade show active" id="attachments" role="tabpanel" aria-labelledby="attachments-tab">
+                <div class="card custom-card">
+                    <div class="card-header card-header-secondary d-flex justify-content-between align-items-center">
+                        <p class="card-title lead mb-0" style="font-size: 26px; color: #45558A;">Pièces jointes</p>
+                    </div>
+                    <div class="row m-4">
+                        {% for file in planning.files.all %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card file-card h-100">
+                                <div class="card-body text-center">
+                                    <i class="far fa-file-pdf fa-3x text-danger mb-3"></i>
+                                    <h6 class="card-title text-truncate" title="{{ file.file.name|basename }}">
+                                        {{ file.file.name|basename }}
+                                    </h6>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <a href="{{ file.file.url }}" download class="btn btn-sm btn-primary w-100">
+                                        <i class="fas fa-download me-2"></i>Télécharger
+                                    </a>
+                                    {% if file.uploaded_at %}
+                                    <small class="text-muted d-block mt-2">
+                                        Ajouté le {{ file.uploaded_at|date:"d/m/Y" }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-info-circle me-2"></i>Aucune pièce jointe disponible.
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="localisation" role="tabpanel" aria-labelledby="localisation-tab">
+                <div class="card custom-card">
+                    <div class="card-header card-header-secondary">
+                        <p class="card-title lead mb-0" style="font-size: 26px; color: #45558A;">Localisation</p>
+                    </div>
+                    <input type="hidden" id="id_google_maps_coords" value="{{ planning.google_maps_coords|default:'' }}">
+                    <div id="map" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 </div>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const confirmPlanCan = (planID) => {
         swal({ 
@@ -382,6 +424,32 @@ Planning - {{ planning }}
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const coordsInput = document.getElementById('id_google_maps_coords').value;
+        const defaultCoords = [36.752887, 3.042048];
+        const initialCoords = coordsInput
+            ? coordsInput.split(',').map(coord => parseFloat(coord))
+            : defaultCoords;
+    
+        var map = L.map('map').setView(initialCoords, 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: 'Grupo Puma - DZ'
+        }).addTo(map);
+        
+        var marker = L.marker(initialCoords, { draggable: false }).addTo(map);
+    
+        document.querySelector('button[data-bs-target="#localisation"]').addEventListener('shown.bs.tab', function () {
+            setTimeout(() => {
+                map.invalidateSize();
+                window.scrollTo(0, document.body.scrollHeight);
+            }, 100);
+        });
+
+        setTimeout(() => {map.invalidateSize();}, 500);
+    });
+
 </script>
 {% include 'pplanned_modal.html' %}
 {% include 'validation_modal.html' %}
@@ -391,9 +459,5 @@ Planning - {{ planning }}
 {% endif %}
 {% if planning.state == 'Raté' %}
     {% include 'reschedule_planning_modal.html' %}
-{% endif %}
-{% if planning.state == 'Livraison Confirmé' %}
-    {% include 'gallery_modal.html' %}
-    {% include 'map_modal.html' %}
 {% endif %}
 {% endblock %}

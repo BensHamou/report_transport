@@ -297,8 +297,10 @@ class PlanningInline():
 
     def form_valid(self, form):
         named_formsets = self.get_named_formsets()
+
         if not all((x.is_valid() for x in named_formsets.values())):
             return self.render_to_response(self.get_context_data(form=form))
+        
         planning = form.save(commit=False)
         if not planning.state or planning.state == 'Brouillon':
             planning.state = 'Brouillon'
@@ -329,6 +331,14 @@ class PlanningInline():
         for pplanned in pplanneds:
             pplanned.planning = self.object
             pplanned.save()
+            
+    def formset_files_valid(self, formset):
+        files = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for file in files:
+            file.planning = self.object
+            file.save()
 
 class PlanningCreate(LoginRequiredMixin, PlanningInline, CreateView):
 
@@ -353,7 +363,7 @@ class PlanningUpdate(LoginRequiredMixin, CheckEditorMixin, PlanningInline, Updat
     def get_named_formsets(self):
         return {
             'pplanneds': PPlannedsFormSet(self.request.POST or None, instance=self.object, prefix='pplanneds'),
-            'images': ImageFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='images')
+            'files': FileFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='files')
             }
     
 class PlanningDetail(LoginRequiredMixin, CheckPlanningViewerMixin, DetailView):

@@ -90,6 +90,9 @@ class Planning(models.Model):
 
     def pplanneds(self):
         return self.pplanned_set.all()
+
+    def files(self):
+        return self.file_set.all()
     
     @classmethod
     def generate_unique_code(cls):
@@ -168,19 +171,29 @@ class Validation(models.Model):
         return "Validation - " + str(self.planning.id) + " - " + str(self.date)
     
 def get_image_filename(instance, filename):
+    pass
+
+def get_upload_filename(instance, filename):
     title = instance.planning.id
     slug = slugify(title)
-    return "planning_images/%s-%s" % (slug, filename)
+    return "planning_files/%s-%s" % (slug, filename)
 
-class Image(models.Model):
+class File(models.Model):
     planning = models.ForeignKey(Planning, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=get_image_filename, verbose_name='Image')
+    file = models.FileField(upload_to=get_upload_filename, verbose_name='Fichier')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if self.image and os.path.exists(self.image.path):
-            img = PILImage.open(self.image.path)
-            max_size = (1920, 1080)
-            img.thumbnail(max_size, PILImage.LANCZOS)
-            img.save(self.image.path, quality=80, optimize=True)
+
+        if self.file and os.path.exists(self.file.path):
+            ext = os.path.splitext(self.file.name)[1].lower()
+            if ext in ['.jpg', '.jpeg', '.png', '.webp']:
+                try:
+                    img = PILImage.open(self.file.path)
+                    max_size = (1920, 1080)
+                    img.thumbnail(max_size, PILImage.LANCZOS)
+                    img.save(self.file.path, quality=80, optimize=True)
+                except Exception:
+                    pass 
 
