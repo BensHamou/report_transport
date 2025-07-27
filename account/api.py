@@ -19,8 +19,8 @@ def lookup_planning_by_code(request):
                 'driver': planning.str_chauffeur,
                 'n_invoice': invoice_number,
                 'bl_number': bl_number,
-                'depart': planning.prix.depart.designation,
-                'destination': planning.prix.destination.designation,
+                'depart': planning.site.designation,
+                'destination': planning.destination.designation,
                 'date': planning.date_honored.strftime('%d/%m/%Y'),
             })
         except Planning.DoesNotExist:
