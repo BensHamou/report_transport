@@ -21,7 +21,16 @@ ADMIN_URL = 'puma_trans/admin/'
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_COOKIE_SECURE = False
+CSRF_TRUSTED_ORIGINS = [
+    'https://mytransview.grupopuma-dz.com',
+    'https://www.mytransview.grupopuma-dz.com'
+]
+
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     "django.contrib.admin",
