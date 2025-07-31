@@ -277,7 +277,7 @@ def sendEmail(supplier, from_date, to_date):
                 })
         
     subject = f'Calcule Rotations {supplier.designation}'
-    # addresses = ['mohammed.senoussaoui@grupopuma-dz.com', 'mohammed.benslimane@groupe-hasnaoui.com', 'lotfi.sellaf@grupopuma-dz.com']
+    # addresses = ['mohammed.senoussaoui@grupopuma-dz.com', 'mohammed.benslimane@groupe-hasnaoui.com', 'lotfi.sellaf@grupopuma-dz.commmm']
     addresses = ['gestion.flotte@grupopuma-dz.com']
     # addresses = ['mohammed.benslimane@groupe-hasnaoui.com']
 
