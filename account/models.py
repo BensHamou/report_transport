@@ -6,6 +6,7 @@ class Site(models.Model):
     designation = models.CharField(max_length=100)
     address = models.CharField(max_length=250, null=True)
     prefix_site = models.CharField(max_length=6, blank=True, null=True)
+    prefix_invocie_site = models.CharField(max_length=6, blank=True, null=True)
     btr_prefix_site = models.CharField(max_length=25, blank=True, null=True)
     planning_prefix = models.CharField(max_length=25, blank=True, null=True)
     include_cron = models.BooleanField(default=False)

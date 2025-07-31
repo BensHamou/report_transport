@@ -85,21 +85,21 @@ TEMPLATES = [
 WSGI_APPLICATION = "report_transport.wsgi.application"
 
 
-CRONJOBS = [
-    ('0 7 * * 5', 'report.cron.send_weekly_email'),
-    ('0 7 * * *', 'report.cron.send_monthly_email'),
-]
+# CRONJOBS = [
+#     ('0 7 * * 5', 'report.cron.send_weekly_email'),
+#     ('0 7 * * *', 'report.cron.send_monthly_email'),
+# ]
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASS'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-    } 
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.environ.get('DB_NAME'),
+    #     'USER': os.environ.get('DB_USER'),
+    #     'PASSWORD': os.environ.get('DB_PASS'),
+    #     'HOST': os.environ.get('DB_HOST'),
+    #     'PORT': os.environ.get('DB_PORT'),
+    # } 
     # 'default': {
     #    'ENGINE': 'django.db.backends.postgresql',
     #    'NAME': 'TransDB',
@@ -108,14 +108,14 @@ DATABASES = {
     #    'HOST': '10.10.10.20',
     #    'PORT': '5166',
     # }
-    # 'default': {
-    #    'ENGINE': 'django.db.backends.postgresql',
-    #    'NAME': 'TransDB',
-    #    'USER': 'puma_prod',
-    #    'PASSWORD': 'puma_prod',
-    #    'HOST': '10.10.10.101',
-    #    'PORT': '5434',
-    # }
+    'default': {
+       'ENGINE': 'django.db.backends.postgresql',
+       'NAME': 'TransDB',
+       'USER': 'puma_prod',
+       'PASSWORD': 'puma_prod',
+       'HOST': '10.10.10.101',
+       'PORT': '5434',
+    }
 }
 
 
@@ -150,6 +150,9 @@ LOGOUT_REDIRECT_URL = '/login'
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

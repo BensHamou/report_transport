@@ -24,13 +24,14 @@ class UserForm(ModelForm):
 class SiteForm(ModelForm):
     class Meta:
         model = Site
-        fields = ['designation', 'address', 'prefix_site', 'btr_prefix_site', 'planning_prefix', 'include_cron']
+        fields = ['designation', 'address', 'prefix_site', 'btr_prefix_site', 'planning_prefix', 'include_cron', 'prefix_invocie_site']
 
     designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Désignation')))
     address = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Address')))
     prefix_site = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Préfixe (BL)')))
     btr_prefix_site = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Préfixe (BTR)')))
     planning_prefix = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Préfixe (Planning)')))
+    prefix_invocie_site = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Préfixe (Facture)')))
     include_cron = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'type': 'checkbox', 'data-onstyle':'secondary', 'data-toggle':'switchbutton'}))
 
 class CustomLoginForm(AuthenticationForm):

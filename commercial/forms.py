@@ -31,8 +31,8 @@ class PlanningCommForm(ModelForm):
     class Meta:
         model = Planning
         fields = ['site', 'date_planning', 'distributeur_id', 'distributeur','client_id', 'client', 'destination', 
-                  'livraison', 'observation_comm', 'fournisseur', 'tonnage', 'n_bl', 'observation_logi',
-                  'chauffeur', 'immatriculation', 'driver', 'vehicle', 'date_honored']
+                  'livraison', 'observation_comm', 'fournisseur', 'tonnage', 'n_bl', 'n_invoice', 'observation_logi',
+                  'chauffeur', 'immatriculation', 'driver', 'vehicle', 'date_honored', 'google_maps_coords']
 
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
     date_planning = forms.DateField(initial=timezone.now().date() + timedelta(days=1), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
@@ -50,6 +50,7 @@ class PlanningCommForm(ModelForm):
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur", required=False)
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage", required=False)
     n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')), required=False)
+    n_invoice = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° Facture')), required=False)
     observation_logi = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')), required=False)
@@ -57,6 +58,7 @@ class PlanningCommForm(ModelForm):
     immatriculation = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Immatriculation')), required=False)
     vehicle = forms.ModelChoiceField(queryset=Vehicle.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Immatriculation", required=False)
     date_honored = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'), required=False)
+    google_maps_coords = forms.CharField(widget=forms.HiddenInput(attrs=getAttrs('control', 'Coordonnées Google Maps')), required=False)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -161,3 +163,12 @@ class PlanningConfirmForm(ModelForm):
                 self.fields['driver'].required = True
             else:
                 self.fields['chauffeur'].required = True
+
+class FileForm(ModelForm):
+    class Meta:
+        model = File
+        fields = ['file']
+
+    file = forms.FileField(widget=forms.ClearableFileInput(attrs={'class': 'custom-file-input', 'accept': '.pdf'}))
+
+FileFormSet = inlineformset_factory(Planning, File, form=FileForm, fields=['file'], extra=0, can_delete=True)

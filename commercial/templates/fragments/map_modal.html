@@ -1,0 +1,79 @@
+<div class="modal" id="gpsModal" tabindex="-1" aria-labelledby="gpsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content contentStyle">
+            <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
+                <h4 class="headerStyle mb-0">Localisation GPS - {{ planning }}</h4>
+                <p class="lead mb-0 dateStyle">{{ planning.date_planning_final|date:"d/m/Y"}}</p>
+                <button type="button" class="btn-close" style="margin-left: 10px;" data-dismiss="modal" id="buttonGPSX" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="localisation">
+                <div class="card custom-card">
+                    <div class="card-header card-header-secondary">
+                        <p class="card-title lead mb-0" style="font-size: 26px; color: #45558A;">Localisation</p>
+                    </div>
+                    <input type="hidden" id="id_google_maps_coords" value="{{ planning.google_maps_coords|default:'' }}">
+                    <div id="map" style="height: 400px;"></div>
+                    <p id="gps-address" class="mt-2 text-muted" style="font-size: 0.9rem;"></p>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-color: transparent;">
+                <button type="button" class="btn" style="background-color: #23305d; color: white;" id="buttonGPSClose" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#gps-card').click(function () {
+            $("#gpsModal").prependTo("body");
+            $('#gpsModal').modal('show');
+
+            const coordsInput = document.getElementById('id_google_maps_coords').value;
+            const defaultCoords = [36.752887, 3.042048];
+            const initialCoords = coordsInput
+                ? coordsInput.split(',').map(coord => parseFloat(coord))
+                : defaultCoords;
+
+            var map = L.map('map').setView(initialCoords, 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: 'Grupo Puma - DZ'
+            }).addTo(map);
+
+            var marker = L.marker(initialCoords, { draggable: false }).addTo(map);
+
+            // Reverse geocoding using Nominatim
+            const [lat, lon] = initialCoords;
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        $('#gps-address').text(data.display_name);
+                    } else {
+                        $('#gps-address').text("Adresse inconnue");
+                    }
+                })
+                .catch(error => {
+                    $('#gps-address').text("Erreur lors de la récupération de l'adresse");
+                    console.error(error);
+                });
+
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 500);
+        });
+
+
+        $('#buttonGPSX').click(function () {
+            $('#gpsModal').modal('hide')
+
+        });
+        $('#buttonGPSClose').click(function () {
+            $('#gpsModal').modal('hide')
+        });
+    });
+</script>

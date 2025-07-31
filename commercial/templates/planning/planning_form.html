@@ -5,6 +5,7 @@ Rapport
 {% endblock %}
 {% load static %} 
 {% load widget_tweaks %}
+{% load filters %}
 {% block activeCreatePlanning %} {% include 'active_bar.html' %} {% endblock %}
 {% block content %}
 <div class="d-flex justify-content-left mb-3">
@@ -15,7 +16,7 @@ Rapport
 </div>
 <h4 class="mb-4" style="color: #133356;">{% if planning %}Modification du planning - {{ planning }}{% else %}Création d'un planning{% endif %}</h4>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
         <div class="row mb-4">
@@ -176,6 +177,19 @@ Rapport
                                 {% endif %}
                         </div>
                     </div>
+                    <div class="col-md-12 col-sm-12 mb-2">
+                        <div class="form-outline">
+                            <label class="form-label labelCustom" for="n_invoice">N° Facture</label><br>
+                            {{ form.n_invoice }}
+                                {% if form.n_invoice.errors %}
+                                    <div style="color: red;">
+                                    {% for error in form.n_invoice.errors %}
+                                        *{{ error }}
+                                    {% endfor %}
+                                    </div>
+                                {% endif %}
+                        </div>
+                    </div>
                 {% endif %}
                 <div class="col-md-6 col-sm-12 mb-2">
                     <div class="form-outline">
@@ -323,7 +337,74 @@ Rapport
                 <a href="#" id="add-pplanneds-button" class="btn btn-secondary add-pplanneds" style="background-color: #979ba3; border-color: #979ba3;" role="button"><i class="fas fa-plus"></i></a>
           </div>
       </div>    
-  {% endwith %}
+    {% endwith %}
+    
+    {% if planning.state == 'Livraison Confirmé' %}
+        <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="attachments-tab" data-bs-toggle="tab" data-bs-target="#attachments" type="button" role="tab" aria-controls="attachments" aria-selected="true">
+                    Pièces jointes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="localisation-tab" data-bs-toggle="tab" data-bs-target="#localisation" type="button" role="tab" aria-controls="localisation" aria-selected="false">
+                    Localisation
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3" id="myTabContent">
+            <div class="tab-pane fade show active" id="attachments" role="tabpanel" aria-labelledby="attachments-tab">
+                <div class="card custom-card">
+                    <div class="card-header card-header-secondary d-flex justify-content-between align-items-center">
+                        <p class="card-title lead mb-0" style="font-size: 26px; color: #45558A;">Pièces jointes</p>
+                        <button type="button" class="btn btn-primary" id="addPdf">Ajouter un élément</button>
+                    </div>
+                    <div class="row m-4" id="pdfContainer">
+                        {% with named_formsets.files as formset %}
+                            {{ formset.management_form }}
+                            {% for form in formset %}
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                    <div class="file-container">
+                                        <div class="pdf-form">
+                                            <div class="form-outline pdf-div">
+                                                {{ form.file }}
+                                                {{ form.id }}
+                                                {{ form.DELETE }}
+                                            </div>
+                                            <div class="pdf-preview">
+                                                {% if form.instance.pk %}
+                                                    <div class="pdf-thumbnail">
+                                                        <i class="far fa-file-pdf fa-3x"></i>
+                                                        <p class="pdf-filename">{{ form.instance.file.name|basename }}</p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <button type="button" class="btn remove-form" data-instance-id="{{ form.instance.pk }}">
+                                                <i class="far fa-trash-alt" style="color: #45558A;"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="localisation" role="tabpanel" aria-labelledby="localisation-tab">
+                <div class="card custom-card">
+                    <div class="card-header card-header-secondary">
+                        <p class="card-title lead mb-0" style="font-size: 26px; color: #45558A;">Localisation</p>
+                    </div>
+                    <div id="map" style="height: 400px;"></div>
+                    {{ form.google_maps_coords }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+  
     <div class="d-flex justify-content-center align-items-center form-group m-4">
         <button type="submit" class="btn btn-secondary btn-block customSaveButton">
             {% if form.instance.pk %}Sauvegarder les modifications{% else %}Créer{% endif %}
@@ -332,6 +413,11 @@ Rapport
 </form>
 
 <style>
+    
+    [name$="-DELETE"] {
+        display: none;
+    }
+
     #suggestions {
       top: 100%;
       left: 0;
@@ -420,9 +506,58 @@ Rapport
             border: 1px solid rgba(118, 118, 118, 0.3);
         }
     }
+    .pdf-thumbnail {
+        text-align: center;
+        padding: 15px;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #f9f9f9;
+    }
+
+    .pdf-thumbnail i {
+        color: #e74c3c;
+        margin-bottom: 10px;
+    }
+
+    .pdf-filename {
+        margin-top: 5px;
+        font-size: 12px;
+        word-break: break-all;
+    }
+
+    .pdf-form {
+        position: relative;
+    }
+
+    .remove-form {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .pdf-div > a,
+    .pdf-div > br { 
+        display: none !important; 
+    }
+
+
 </style>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+    
     const setValue = (e, selectedId) => {
         var suggestions = e.parentNode;
         var fieldIdInput = suggestions.previousElementSibling;
@@ -454,8 +589,48 @@ Rapport
               window.location.href = "{% url 'planning_delete_product' 123456789 %}".replace(/123456789/, produitId);
             }});
     }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const pdfDivs = document.querySelectorAll('.pdf-div');
+        pdfDivs.forEach(div => {
+          const children = Array.from(div.childNodes);
+          children.forEach(child => {
+            if (child.nodeType === Node.TEXT_NODE && child.textContent.trim() !== "") {
+              child.remove();
+            }
+          });
+        });
+    });
     
     $(document).ready(function() {
+        
+        const coordsInput = document.getElementById('id_google_maps_coords').value;
+
+        const defaultCoords = [36.752887, 3.042048];
+        const initialCoords = coordsInput
+        ? coordsInput.split(',').map(coord => parseFloat(coord))
+        : defaultCoords;
+
+        var map = L.map('map').setView(initialCoords, 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: 'Grupo Puma - DZ'
+        }).addTo(map);
+
+        var marker = L.marker(initialCoords, { draggable: true }).addTo(map);
+    
+        document.querySelector('button[data-bs-target="#localisation"]').addEventListener('shown.bs.tab', function () {
+            setTimeout(() => {map.invalidateSize();}, 100);
+        });
+
+        marker.on('dragend', function (event) {
+            var lat = marker.getLatLng().lat.toFixed(6);
+            var lng = marker.getLatLng().lng.toFixed(6);
+            document.getElementById('id_google_maps_coords').value = `${lat},${lng}`;
+        });
+
+        setTimeout(() => {map.invalidateSize();}, 500);
         $('.search-input').keyup(function() {
             var suggestions = $(this).siblings('#suggestions');
             var searchInput = $(this);
@@ -508,7 +683,80 @@ Rapport
             $('[disabled]').removeAttr('disabled');
             this.submit(); 
         });
-    });
+
+        function getFileName(path) {
+            return path.split('\\').pop().split('/').pop();
+        }
+
+        function updatePdfPreview(input, previewElement) {
+            if (input.files && input.files[0]) {
+                const fileName = getFileName(input.files[0].name);
+                previewElement.html(`
+                    <div class="pdf-thumbnail">
+                        <i class="far fa-file-pdf fa-3x"></i>
+                        <p class="pdf-filename">${fileName}</p>
+                    </div>
+                `);
+            }
+        }
+
+        $('#pdfContainer').on('click', '.pdf-thumbnail', function (e) {
+            $(this).closest('.pdf-form').find('input[type="file"]').trigger('click');
+        });
+
+        $('#pdfContainer').on('change', 'input[type="file"]', function () {
+            const preview = $(this).closest('.pdf-form').find('.pdf-preview');
+            updatePdfPreview(this, preview);
+        });
+
+        $('#pdfContainer').on('click', '.remove-form', function () {
+            const formBlock = $(this).closest('.pdf-form');
+            const checkbox = formBlock.find('input[type="checkbox"][name*="DELETE"]');
+            if (checkbox.length) {
+                checkbox.prop('checked', true);
+            }
+            formBlock.hide();
+        });
+
+        $('#addPdf').click(function (e) {
+            e.preventDefault();
+            const totalForms = $('#id_files-TOTAL_FORMS');
+            const formIdx = parseInt(totalForms.val());
+            const prefix = `files-${formIdx}`;
+
+            const idField = `<input type="hidden" name="${prefix}-id" id="id_${prefix}-id">`;
+            const deleteField = `<input type="checkbox" name="${prefix}-DELETE" id="id_${prefix}-DELETE" style="display: none;">`;
+            const nameAttr = `${prefix}-file`;
+
+            const newForm = `
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                    <div class="file-container">
+                        <div class="pdf-form">
+                            <div class="form-outline pdf-div">
+                                <input type="file" name="${nameAttr}" id="id_${nameAttr}" accept=".pdf">
+                                ${idField}
+                                ${deleteField}
+                            </div>
+                            <div class="pdf-preview">
+                                <div class="pdf-thumbnail">
+                                    <i class="far fa-file-pdf fa-3x"></i>
+                                    <p class="pdf-filename">Aucun fichier sélectionné</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn remove-form">
+                                <i class="far fa-trash-alt" style="color: #45558A;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            $('#pdfContainer').append(newForm);
+            totalForms.val(formIdx + 1);
+            console.log('here', totalForms.val(), formIdx, prefix, nameAttr);
+
+        });
+        });
 </script>
 
 {% endblock %}

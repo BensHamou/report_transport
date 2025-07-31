@@ -297,8 +297,10 @@ class PlanningInline():
 
     def form_valid(self, form):
         named_formsets = self.get_named_formsets()
+
         if not all((x.is_valid() for x in named_formsets.values())):
             return self.render_to_response(self.get_context_data(form=form))
+        
         planning = form.save(commit=False)
         if not planning.state or planning.state == 'Brouillon':
             planning.state = 'Brouillon'
@@ -329,6 +331,14 @@ class PlanningInline():
         for pplanned in pplanneds:
             pplanned.planning = self.object
             pplanned.save()
+            
+    def formset_files_valid(self, formset):
+        files = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for file in files:
+            file.planning = self.object
+            file.save()
 
 class PlanningCreate(LoginRequiredMixin, PlanningInline, CreateView):
 
@@ -351,7 +361,10 @@ class PlanningUpdate(LoginRequiredMixin, CheckEditorMixin, PlanningInline, Updat
         return ctx
 
     def get_named_formsets(self):
-        return {'pplanneds': PPlannedsFormSet(self.request.POST or None, instance=self.object, prefix='pplanneds')}
+        return {
+            'pplanneds': PPlannedsFormSet(self.request.POST or None, instance=self.object, prefix='pplanneds'),
+            'files': FileFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='files')
+            }
     
 class PlanningDetail(LoginRequiredMixin, CheckPlanningViewerMixin, DetailView):
     model = Planning
@@ -550,7 +563,8 @@ def deliverPlanning(request, pk):
     if planning.state == 'Livraison Confirmé':
         return JsonResponse({'status': True, 'message': 'Livraison confirmé avec succès', 'redirect': getRedirectionURL(request, url_path)})
     
-    n_bl = request.POST.get('n_bl')
+    n_bl = request.POST.get('n_bl', None)
+    n_invoice = request.POST.get('n_invoice', None)
 
     # if n_bl and planning.fournisseur.send_email:
     #     try:
@@ -566,9 +580,10 @@ def deliverPlanning(request, pk):
     #     except ValueError:
     #         return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
         
-    if n_bl and planning.fournisseur.send_email:
+    if n_bl and n_invoice and planning.fournisseur.send_email:
         try:
             n_bl_numeric = int(n_bl)
+            n_invoice_numeric = int(n_invoice)
             current_year = planning.date_honored.year
             
             previous_report = Report.objects.filter(prix__fournisseur=planning.fournisseur, prix__depart=planning.site, 
@@ -608,6 +623,8 @@ def deliverPlanning(request, pk):
 
     old_state = planning.state
     planning.n_bl = n_bl
+    planning.n_invoice = n_invoice
+    planning.code = Planning.generate_unique_code()
     planning.state = 'Livraison Confirmé'
     new_state = planning.state
     actor = request.user

@@ -122,8 +122,8 @@ class PriceForm(ModelForm):
             existing_date_to = price.date_to or timezone.datetime.max.date()
             current_date_to = date_to or timezone.datetime.max.date()
             if date_from <= existing_date_to and price.date_from <= current_date_to:
-                self.add_error('date_from', 'Un autre prix existe pour cette configuration avec des dates qui se chevauchent.')
-                self.add_error('date_to', 'Un autre prix existe pour cette configuration avec des dates qui se chevauchent.')
+                self.add_error('date_from', 'Un autre prix existe pour cette configuration avec des dates qui se chevauchent..')
+                self.add_error('date_to', 'Un autre prix existe pour cette configuration avec des dates qui se chevauchent..')
 
         return cleaned_data
 
