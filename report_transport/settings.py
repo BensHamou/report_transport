@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'fontawesomefree',
     'django_filters',
     'widget_tweaks',
+    'django_crontab',
     'django_extensions',
 ]
 
