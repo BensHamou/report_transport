@@ -105,7 +105,7 @@ DATABASES = {
     #    'NAME': 'TransDB',
     #    'USER': 'trans_report',
     #    'PASSWORD': 'trans_report',
-    #    'HOST': '10.10.10.20',
+    #    'HOST': '10.20.10.18',
     #    'PORT': '5166',
     # }
     # 'default': {
