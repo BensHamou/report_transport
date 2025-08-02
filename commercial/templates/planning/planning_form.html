@@ -603,34 +603,35 @@ Rapport
     });
     
     $(document).ready(function() {
+        {% if planning.state == 'Livraison Confirmé' %}
+            const coordsInput = document.getElementById('id_google_maps_coords').value;
+
+            const defaultCoords = [36.752887, 3.042048];
+            const initialCoords = coordsInput
+            ? coordsInput.split(',').map(coord => parseFloat(coord))
+            : defaultCoords;
+
+            var map = L.map('map').setView(initialCoords, 12);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: 'Grupo Puma - DZ'
+            }).addTo(map);
+
+            var marker = L.marker(initialCoords, { draggable: true }).addTo(map);
         
-        const coordsInput = document.getElementById('id_google_maps_coords').value;
+            document.querySelector('button[data-bs-target="#localisation"]').addEventListener('shown.bs.tab', function () {
+                setTimeout(() => {map.invalidateSize();}, 100);
+            });
 
-        const defaultCoords = [36.752887, 3.042048];
-        const initialCoords = coordsInput
-        ? coordsInput.split(',').map(coord => parseFloat(coord))
-        : defaultCoords;
+            marker.on('dragend', function (event) {
+                var lat = marker.getLatLng().lat.toFixed(6);
+                var lng = marker.getLatLng().lng.toFixed(6);
+                document.getElementById('id_google_maps_coords').value = `${lat},${lng}`;
+            });
 
-        var map = L.map('map').setView(initialCoords, 12);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: 'Grupo Puma - DZ'
-        }).addTo(map);
-
-        var marker = L.marker(initialCoords, { draggable: true }).addTo(map);
-    
-        document.querySelector('button[data-bs-target="#localisation"]').addEventListener('shown.bs.tab', function () {
-            setTimeout(() => {map.invalidateSize();}, 100);
-        });
-
-        marker.on('dragend', function (event) {
-            var lat = marker.getLatLng().lat.toFixed(6);
-            var lng = marker.getLatLng().lng.toFixed(6);
-            document.getElementById('id_google_maps_coords').value = `${lat},${lng}`;
-        });
-
-        setTimeout(() => {map.invalidateSize();}, 500);
+            setTimeout(() => {map.invalidateSize();}, 500);
+        {% endif %}
         $('.search-input').keyup(function() {
             var suggestions = $(this).siblings('#suggestions');
             var searchInput = $(this);
