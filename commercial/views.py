@@ -21,6 +21,7 @@ from collections import defaultdict
 from django.core.mail import EmailMessage
 from django.db.models import Q
 from report.models import Report, PTransported, Price
+from datetime import datetime
 
 def check_creator(view_func):
     @wraps(view_func)
@@ -701,7 +702,6 @@ def unmarkPlanning(request, pk):
     messages.success(request, 'Planning non visée avec succès')
     return redirect(getRedirectionURL(request, url_path))
 
-
 @login_required(login_url='login')
 @checkAdminOrLogisticien
 def reschedulePlanning(request, pk):
@@ -755,18 +755,18 @@ def sendSelectedPlannings(request):
 
     data = json.loads(request.body)
     ids = data.get('ids', [])
+
     have_draft = Planning.objects.filter(creator=request.user, state='Brouillon').exists()
     if have_draft and ids:
         return JsonResponse({'message': 'Vous devez vous assurer de ne pas avoir de planning en brouillon avant d\'envoyer l\'émail.', 'OK': False}, safe=False)
     
-    if ids:
-        selected_plannings = Planning.objects.filter(id__in=ids, state='Planning')
-        date_planning_final = selected_plannings[0].date_planning_final
-        plannings_by_site = defaultdict(list)
-        for planning in selected_plannings:
-            plannings_by_site[planning.site].append(planning)
+    selected_plannings = Planning.objects.filter(id__in=ids, state='Planning')
+    date_planning_final = selected_plannings[0].date_planning_final
+    plannings_by_site = defaultdict(list)
+    for planning in selected_plannings:
+        plannings_by_site[planning.site].append(planning)
 
-        for site, plannings in plannings_by_site.items():
+    for site, plannings in plannings_by_site.items():
             missed_plannings = Planning.objects.filter(state='Raté', site=site)
             today_date = timezone.localdate().strftime('%d/%m/%Y')
             subject = f"Planning {site.designation} du {today_date}."
@@ -794,35 +794,45 @@ def sendSelectedPlannings(request):
             formatHtml = format_html(message)
             if plannings or missed_plannings:
                 send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
-        return JsonResponse({'message': 'Les plannings ont été envoyés avec succès.', 'OK': True}, safe=False)
-    else:
-        missed_plannings = Planning.objects.filter(state='Raté')
-        today_date = timezone.localdate().strftime('%d/%m/%Y')
-        plannings_by_site = defaultdict(list)
-        all_sites = Site.objects.all()
-        date_planning_final = missed_plannings[0].date_planning_final
-        for planning in missed_plannings:
-            plannings_by_site[planning.site].append(planning)
-        subject = f"Planning du {timezone.localdate().strftime('%d/%m/%Y')}."
-        message = f'''<p>Bonjour l'équipe,</p>'''
-        message += f'''
-            <h3 style="color: red;">RAPPEL ROTATION RATÉ</h3>
-            <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{today_date}</b></p>
-            <ul><li><p><b>Rotation Ratés : {len(missed_plannings)}</b></p></li>'''
-        recipient_list = []
-        for site in all_sites:
-            message += f'''<li><p><b>Rotation Ratés {site.designation} : {len(site.planning_set.filter(state='Raté'))}</b></p></li>'''
-            recipient_list.append(site.address)
-        message += '''</ul>'''
-        for site, plannings in plannings_by_site.items():
-            if planning:
-                title_missing = f'''<h3 style="color: red;">ROTATION RATÉES {site.designation}</h3>'''
-                message = getTable(message, plannings, title_missing, True, False)
-        formatHtml = format_html(message)
-        if missed_plannings:
-            send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
-        return JsonResponse({'message': 'Les plannings ratés ont été envoyés avec succès.', 'OK': True}, safe=False)
+    return JsonResponse({'message': 'Les plannings ont été envoyés avec succès.', 'OK': True}, safe=False)
 
+
+@login_required(login_url='login')
+@checkAdminOrCommercial
+def sendMissedPlannings(request):
+    missed_plannings = Planning.objects.filter(state='Raté')
+    today_date = timezone.localdate().strftime('%d/%m/%Y')
+    plannings_by_site = defaultdict(list)
+    all_sites = Site.objects.all()
+
+    for planning in missed_plannings:
+        plannings_by_site[planning.site].append(planning)
+
+    subject = f"Planning du {today_date}."
+    message = f'''<p>Bonjour l'équipe,</p>'''
+    message += f'''
+        <h3 style="color: red;">RAPPEL ROTATION RATÉ</h3>
+        <p>Le planning a été créé par <b style="color: #002060">{request.user.fullname}</b>. Veuillez trouver ci-dessous les livraisons <b>ratées</b> du <b>{today_date}</b></p>
+        <ul><li><p><b>Rotation Ratés : {len(missed_plannings)}</b></p></li>'''
+    
+    recipient_list = []
+
+    for site in all_sites:
+        message += f'''<li><p><b>Rotation Ratés {site.designation} : {len(site.planning_set.filter(state='Raté'))}</b></p></li>'''
+        recipient_list.append(site.address)
+
+    message += '''</ul>'''
+
+    for site, plannings in plannings_by_site.items():
+        if planning:
+            title_missing = f'''<h3 style="color: red;">ROTATION RATÉES {site.designation}</h3>'''
+            message = getTable(message, plannings, title_missing, True, False)
+
+    formatHtml = format_html(message)
+    if missed_plannings:
+        send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
+    return JsonResponse({'message': 'Les plannings ratés ont été envoyés avec succès.', 'OK': True}, safe=False)
+    
 @login_required(login_url='login')
 @checkAdminOrLogisticien
 def sendPlanningSupplier(request):
@@ -878,7 +888,7 @@ def sendPlanningSupplier(request):
         email.content_subtype = "html" 
         email.send(fail_silently=False)
         selected_plannings.update(supplier_informed=True)
-    return JsonResponse({'message': 'Les plannings ratés ont été envoyés avec succès.', 'OK': True}, safe=False)
+    return JsonResponse({'message': 'Les fournisseurs ont été notifiés avec succès.', 'OK': True}, safe=False)
 
 def getTable(msg, plannings, title, addDate, addSupp):
     old_message = msg
@@ -1009,6 +1019,19 @@ def sendValidationMail(request):
         formatHtml = format_html(message)
         send_mail(subject, "", 'Puma Trans', recipient_list, html_message=formatHtml)
     return JsonResponse({'message': 'Les plannings confirmés ont été envoyés avec succès.', 'OK': True}, safe=False)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def changePlanningDates(request):
+    data = json.loads(request.body)
+    ids = data.get('ids', [])
+    new_date_str = data.get('new_date')
+    new_date = datetime.strptime(new_date_str, '%Y-%m-%d').date()
+    selected_plannings = Planning.objects.filter(id__in=ids).exclude(state='Livraison Confirmé')
+
+    selected_plannings.update(date_replanning=new_date)
+
+    return JsonResponse({'message': f'{selected_plannings.count()} plannings ont été mis à jour avec succès.', 'OK': True}, safe=False)
 
 def getRedirectionURL(request, url_path):
     params = {

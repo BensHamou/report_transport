@@ -33,8 +33,10 @@ urlpatterns = [
     path('planning/<int:pk>/reschedule/', reschedulePlanning, name='reschedule_planning'),
     path('planning/<int:pk>/deliver/', deliverPlanning, name='validate_delivery'),
     path('planning/mail/', sendSelectedPlannings, name='send_selected_plannings'),
+    path('planning/missing/', sendMissedPlannings, name='send_missed_plannings'),
     path('planning/supplier/', sendPlanningSupplier, name='send_selected_supplier'),
     path('planning/finished/', sendValidationMail, name='send_confirmed'),
+    path('planning/change-dates/', changePlanningDates, name='change_planning_dates'),
     
     path('live_search/', live_search, name='live_search'),
 ]

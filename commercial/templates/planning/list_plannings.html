@@ -49,33 +49,33 @@ Liste des plannings
         </div>
     </form>
     {% if page %}
-        {% if user.role in 'Commercial,Admin' %}
-            <div class="mb-2">
-                <div id="send-planning-container" class="mb-3" style="display: none;">
-                    <button id="send-planning-button" class="btn btn-primary" onclick="sendSelectedPlannings()">Envoyer les Plannings</button>
-                </div>
-                <div class="mb-2"><div id="send-missed-container" class="mb-3">
-                    <button id="send-missed-button" class="btn btn-danger" onclick="sendMissedPlannings()">Envoyer les Plannings Ratés Uniquement</button>
-                </div>
+        <div class="mb-3">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Actions
+                </button>
+                <ul class="dropdown-menu">
+                    {% if user.role in 'Commercial,Admin' %}
+                        <li><a class="dropdown-item" href="#" onclick="sendSelectedPlannings()">Envoyer les Plannings</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sendMissedPlannings()">Envoyer les Plannings Ratés</a></li>
+                    {% endif %}
+                    {% if user.role in 'Logisticien,Admin' %}
+                        <li><a class="dropdown-item" href="#" onclick="sendPlanningSupplier()">Envoyer au Fournisseur</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sendPlanningConfirmed()">Envoyer les plannings confirmés</a></li>
+                    {% endif %}
+                    {% if user.role in 'Admin' %}
+                        <li><a class="dropdown-item" href="#" onclick="changePlanningDates()">Changer les dates</a></li>
+                    {% endif %}
+                </ul>
             </div>
-        {% endif %}
-        {% if user.role in 'Logisticien,Admin' %}
-            <div class="mb-2 d-flex">
-                <div id="send-supplier-container" class="mb-3" style="display: none; margin-right: 5px;">
-                    <button id="send-supplier-button" class="btn btn-success" onclick="sendPlanningSupplier()">Envoyer au Fournisseur</button>
-                </div>
-                <div class="mb-3">
-                    <button class="btn btn-secondary" onclick="sendPlanningConfirmed()">Envoyer les plannings confirmés</button>
-                </div>
-            </div>
-        {% endif %}
+        </div>
+
         <section class="sectionList"> 
             <div class="tableStyle">
                 <table class="table table-borderless">
                     <thead style="border-bottom: 2px solid white;">
                         <tr class="text-white" style="vertical-align: middle; font-size: 13px;">
-                            {% if user.role in 'Commercial,Admin' %}<th class="d-none d-lg-table-cell"><input type="checkbox" id="select-all-comm" onclick="toggleSelectCommAll(this)"></th>{% endif %}
-                            {% if user.role in 'Logisticien,Admin' %}<th class="d-none d-lg-table-cell"><input type="checkbox" id="select-all-log" onclick="toggleSelectLogAll(this)"></th>{% endif %}
+                            <th class="d-none d-lg-table-cell"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>
                             <th class="d-none d-lg-table-cell">N° Planning</th>
                             <th class="d-none d-lg-table-cell">Créateur</th>
                             <th class="d-none d-lg-table-cell" style="width: 10vw;">Date de création</th>
@@ -93,22 +93,12 @@ Liste des plannings
                     <tbody>
                         {% for planning in page %}
                         <tr class="trS">
-                            {% if user.role in 'Commercial,Admin' %}
-                                <td>
-                                    {% if planning.state == 'Planning' and user.role in 'Commercial,Admin' %}
-                                        {% if planning.creator == user or user.role == 'Admin' %}
-                                            <input type="checkbox" class="planning-checkbox" value="{{ planning.id }}" onclick="toggleSendPlanningButton()">
-                                        {% endif %}
-                                    {% endif %}
-                                </td>
-                            {% endif %}
-                            {% if user.role in 'Logisticien,Admin' %}
-                                <td>
-                                    {% if planning.state == 'Planning en Attente' and user.role in 'Logisticien,Admin' and not planning.supplier_informed %}
-                                        <input type="checkbox" class="supplier-checkbox" value="{{ planning.id }}" onclick="toggleSendSupplierButton()">
-                                    {% endif %}
-                                </td>
-                            {% endif %}
+                            <td>
+                                <input type="checkbox" class="planning-checkbox" value="{{ planning.id }}" 
+                                    data-planning-state="{{ planning.state }}"
+                                    data-creator-id="{{ planning.creator.id }}"
+                                    data-supplier-informed="{% if planning.supplier_informed %}true{% else %}false{% endif %}">
+                            </td>
                             <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
                                 <div>
                                     <p class="d-lg-none tdLabel">N° Planning</p>
@@ -190,7 +180,6 @@ Liste des plannings
                 {% include 'pagination.html' %}
             {% endif %}    
         </section>
-        </div>
     {% else %}
         {% include 'empty_list.html' %}
     {% endif %}
@@ -264,112 +253,195 @@ Liste des plannings
     }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function toggleSelectCommAll(source) {
-        checkboxes = document.getElementsByClassName('planning-checkbox');
-        for(var i = 0, n = checkboxes.length; i < n; i++) {
-            checkboxes[i].checked = source.checked;
-        }
-        toggleSendPlanningButton();
-    }
-    function toggleSelectLogAll(source) {
-        checkboxes = document.getElementsByClassName('supplier-checkbox');
-        for(var i = 0, n = checkboxes.length; i < n; i++) {
-            checkboxes[i].checked = source.checked;
-        }
-        toggleSendSupplierButton();
+    function toggleSelectAll(source) {
+        const checkboxes = document.querySelectorAll('.planning-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = source.checked;
+        });
     }
 
-    function toggleSendPlanningButton() {
-        const checkboxes = document.querySelectorAll('.planning-checkbox:checked');
-        const sendPlanningContainer = document.getElementById('send-planning-container');
-        const sendMissedContainer = document.getElementById('send-missed-container');
-        if (checkboxes.length > 0) {
-            sendPlanningContainer.style.display = 'block';
-            sendMissedContainer.style.display = 'none';
-        } else {
-            sendPlanningContainer.style.display = 'none';
-            sendMissedContainer.style.display = 'block';
+    async function makeRequest(url, data = {}) {
+        const csrfToken = "{{ csrf_token }}";
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
         }
     }
 
-    function toggleSendSupplierButton() {
-        const checkboxes = document.querySelectorAll('.supplier-checkbox:checked');
-        const sendSupplierContainer = document.getElementById('send-supplier-container');
-        if (checkboxes.length > 0) {
-            sendSupplierContainer.style.display = 'block';
-        } else {
-            sendSupplierContainer.style.display = 'none';
+    async function handleResponse(promise) {
+        swal({
+                title: "Veuillez patienter...",
+                text: "en cours...",
+                icon: "info",
+                buttons: false,
+                closeOnClickOutside: false,
+                closeOnEsc: false
+            });
+        try {
+            const data = await promise;
+            if (!data.OK) {
+                swal("Attention", data.message, "warning");
+            } else {
+                swal("Succès", data.message, "success");
+                setTimeout(() => window.location.reload(), 3000);
+            }
+        } catch (error) {
+            swal("Erreur", "Une erreur s'est produite.", "error");
         }
+    }
+
+    function getSelectedPlannings(filterFn) {
+        const selected = [];
+        document.querySelectorAll('.planning-checkbox:checked').forEach(checkbox => {
+            if (filterFn(checkbox)) {
+                selected.push(checkbox.value);
+            }
+        });
+        return selected;
     }
 
     function sendSelectedPlannings() {
-        const checkboxes = document.querySelectorAll('.planning-checkbox:checked');
-        const ids = Array.from(checkboxes).map(cb => cb.value);
-        const url = "{% url 'send_selected_plannings' %}";
-        const csrfToken = "{{ csrf_token }}";
-        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),})
-        .then(response => {
-            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
-            return response.json();
-        }).then(data => {
-            if(!data.OK){swal("Attention", data.message, "warning");}
-            else{
-                swal("Succès", data.message, "success");
-                setTimeout(function() {window.location.reload();}, 3000);
-            }
-        });
+        const selected = getSelectedPlannings(checkbox => 
+            checkbox.dataset.planningState === 'Planning' && 
+            (checkbox.dataset.creatorId === '{{ user.id }}' || '{{ user.role }}' === 'Admin')
+        );
+        
+        if (selected.length === 0) {
+            swal("Attention", "Veuillez sélectionner au moins un planning à envoyer.", "warning");
+            return;
+        }
+
+        handleResponse(
+            makeRequest("{% url 'send_selected_plannings' %}", { ids: selected })
+        );
     }
 
     function sendPlanningSupplier() {
-        const checkboxes = document.querySelectorAll('.supplier-checkbox:checked');
-        const ids = Array.from(checkboxes).map(cb => cb.value);
-        const url = "{% url 'send_selected_supplier' %}";
-        const csrfToken = "{{ csrf_token }}";
-        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: ids }),})
-        .then(response => {
-            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
-            return response.json();
-        }).then(data => {
-            if(!data.OK){swal("Attention", data.message, "warning");}
-            else{
-                swal("Succès", data.message, "success");
-                setTimeout(function() {window.location.reload();}, 3000);
-            }
-        });
+        const selected = getSelectedPlannings(checkbox => 
+            checkbox.dataset.planningState === 'Planning en Attente' && 
+            checkbox.dataset.supplierInformed === 'false'
+        );
+        
+        if (selected.length === 0) {
+            swal("Attention", "Veuillez sélectionner au moins un planning à envoyer.", "warning");
+            return;
+        }
+
+        handleResponse(
+            makeRequest("{% url 'send_selected_supplier' %}", { ids: selected })
+        );
     }
-    
+
     function sendPlanningConfirmed() {
-        const url = "{% url 'send_confirmed' %}";
-        const csrfToken = "{{ csrf_token }}";
-        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,},})
-        .then(response => {
-            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
-            return response.json();
-        }).then(data => {
-            if(!data.OK){swal("Attention", data.message, "warning");}
-            else{
-                swal("Succès", data.message, "success");
-                setTimeout(function() {window.location.reload();}, 3000);
+        handleResponse(
+            makeRequest("{% url 'send_confirmed' %}")
+        );
+    }
+
+    function sendMissedPlannings() {
+        handleResponse(
+            makeRequest("{% url 'send_missed_plannings' %}")
+        );
+    }
+
+    function changePlanningDates() {
+        const selected = getSelectedPlannings(checkbox => 
+            checkbox.dataset.planningState !== 'Livraison Confirmé' && 
+            (checkbox.dataset.creatorId === '{{ user.id }}' || '{{ user.role }}' === 'Admin')
+        );
+        
+        if (selected.length === 0) {
+            Swal.fire({
+                title: "Attention",
+                text: "Veuillez sélectionner au moins un planning à modifier.",
+                icon: "warning"
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: "Changer les dates",
+            text: "Sélectionnez la nouvelle date pour les plannings sélectionnés:",
+            html: `
+                <input type="date" id="dateInput" class="swal2-input" required>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: "Confirmer",
+            cancelButtonText: "Annuler",
+            preConfirm: () => {
+                const dateInput = document.getElementById('dateInput');
+                if (!dateInput.value) {
+                    Swal.showValidationMessage("Veuillez sélectionner une date");
+                    return false;
+                }
+                return dateInput.value;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const newDate = result.value;
+                
+                Swal.fire({
+                    title: "Traitement en cours",
+                    html: "Mise à jour des dates...",
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const url = "{% url 'change_planning_dates' %}";
+                const csrfToken = "{{ csrf_token }}";
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        ids: selected,
+                        new_date: newDate
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(data => {
+                    Swal.close();
+                    if (!data.OK) {
+                        Swal.fire("Attention", data.message, "warning");
+                    } else {
+                        Swal.fire("Succès", data.message, "success");
+                        setTimeout(() => window.location.reload(), 3000);
+                    }
+                })
+                .catch(error => {
+                    Swal.close();
+                    Swal.fire("Erreur", "Une erreur s'est produite lors de la mise à jour des dates.", "error");
+                });
             }
         });
     }
 
-    function sendMissedPlannings() {
-        const url = "{% url 'send_selected_plannings' %}";
-        const csrfToken = "{{ csrf_token }}";
-        fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,}, body: JSON.stringify({ ids: [] }),})
-        .then(response => {
-            if (!response.ok) {swal("Erreur", "Une erreur s'est produite.", "error");}
-            return response.json();
-        }).then(data => {
-            if(!data.OK){swal("Attention", data.message, "warning");}
-            else{
-                swal("Succès", data.message, "success");
-                setTimeout(function() {window.location.reload();}, 3000);
-            }
-        });
-    }
     const confirmPlanningDel = (planningID, planningDes) => {
         swal({ 
         title: `Confirmation de la suppression.`,   
