@@ -1101,6 +1101,7 @@ def planning_detail_api(request, pk):
         })
     
     data = {
+        'n_planning': planning.__str__(),
         'n_bl': f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}",
         'n_invoice': f"{planning.site.prefix_invocie_site}{planning.n_invoice:05d}/{planning.date_honored.strftime('%y')}" if planning.n_invoice else '/',
         'date_honored': planning.date_honored.strftime('%d/%m/%Y') if planning.date_honored else None,

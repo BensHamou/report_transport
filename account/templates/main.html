@@ -34,40 +34,40 @@
           <div class="d-flex flex-column" style="height: 100vh; background: #133356; z-index:10; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); position: sticky; top: 0; left: 0;">
             <div class="pb-1 d-flex align-items-center flex-column" style="margin-top: 100%;">
               {% if user.is_admin or user.role in 'Logisticien,Commercial,Admin' %}
-                <div class="d-flex" style="width: 100%; margin: 0px 15px;">
+                <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                   {% block activeHome %}{% endblock %}
                   <h4 class="mx-auto" ><a href="{% url 'home' %}" class="text-reset"><i class="fas fa-home menu_item"></i></a></h4>
                 </div>
               {% endif %}
               {% if user.role in 'Logisticien,Observateur,Admin' %}
-                <div class="d-flex" style="width: 100%; margin: 5px 15px;">
+                <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                   {% block activeCreateReport %}{% endblock %}
                   <h4 class="mx-auto"><a href="{% url 'create_report' %}" class="text-reset"><i class="fas fa-file-circle-plus menu_item"></i></a></h4>
                 </div>
               {% endif %}
               {% if user.role in 'Logisticien,Observateur,Admin' %}
-                <div class="d-flex" style="width: 100%; margin: 0px 15px;">
+                <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                   {% block activeListReport %}{% endblock %}
                   <h4 class="mx-auto"><a href="{% url 'reports' %}" class="text-reset"><i class="fas fa-rectangle-list menu_item"></i></a></h4>
                 </div>
               {% endif %}
               {% if user.role in 'Commercial,Observateur,Admin' %}
-                <div class="d-flex" style="width: 100%; margin: 5px 15px;">
+                <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                   {% block activeCreatePlanning %}{% endblock %}
                   <h4 class="mx-auto"><a href="{% url 'create_planning' %}" class="text-reset"><i class="far fa-calendar-plus menu_item"></i></a></h4>
                 </div>
               {% endif %}
               {% if user.role in 'Logisticien,Observateur,Admin,Commercial' %}
-                <div class="d-flex" style="width: 100%; margin: 0px 15px;">
+                <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                   {% block activeListPlanning %}{% endblock %}
                   <h4 class="mx-auto"><a href="{% url 'plannings' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}" class="text-reset"><i class="far fa-calendar-days menu_item"></i></a></h4>
                 </div>
-                <div class="d-flex" style="width: 100%; margin: 0px 15px;">
+                <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                   {% block activeListArchive %}{% endblock %}
                   <h4 class="mx-auto"><a href="{% url 'archived_plannings' %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}" class="text-reset"><i class="fas fa-bookmark menu_item"></i></a></h4>
                 </div>
               {% endif %}
-              <div class="d-flex" style="width: 100%; margin: 5px 15px;">
+              <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                 {% comment %} {% if user.is_admin %} {% endcomment %}
                 {% if user.role in 'Logisticien,Admin' %}
                   {% block activeFleet %}{% endblock %}
@@ -85,7 +85,7 @@
                   </h4>
                 {% endif %}
               </div>
-              <div class="d-flex" style="width: 100%; margin: 5px 15px;">
+              <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                 {% if user.is_admin %}
                   {% block activeUsers %}{% endblock %}
                   <h4 class="mx-auto">
@@ -101,7 +101,7 @@
                   </h4>
                 {% endif %}
               </div>
-              <div class="d-flex" style="width: 100%; margin: 0px 15px;">
+              <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                 {% if user.is_admin %}
                   {% block activeSettings %}{% endblock %}
                   <h4 class="mx-auto">
