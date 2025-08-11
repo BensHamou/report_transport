@@ -86,6 +86,7 @@ class Planning(models.Model):
     supplier_informed = models.BooleanField(default=False)
     observation_logi = models.TextField(null=True, blank=True)
 
+
     report = models.ForeignKey(Report, on_delete=models.SET_NULL, null=True, blank=True)
 
     def pplanneds(self):
@@ -129,10 +130,6 @@ class Planning(models.Model):
         if self.state == 'Livraison Confirmé':
             return self.validation_set.filter(new_state='Livraison Confirmé').order_by('date').last().date
         return None
-    
-
-    def images(self):
-        return self.image_set.all()
     
     def __str__(self):
         return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"

@@ -10,17 +10,6 @@
             <div class="modal-body">
                 <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner">
-                        {% for image in planning.images.all %}
-                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                <img src="{{ image.image.url }}" class="d-block image-responsive" alt="Image">
-                            </div>
-                        {% empty %}
-                            <div class="carousel-item active">
-                                <div class="no-images-message text-center">
-                                    <img src="{% static 'img/image_bl.png' %}" class="d-block image-responsive" alt="Image">
-                                </div>
-                            </div>
-                        {% endfor %}
                     </div>
                     <a class="carousel-control-prev" href="#carouselExampleControls" role="button" style="background-color: rgba(0, 0, 0, 0.3);" data-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>

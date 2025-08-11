@@ -37,7 +37,8 @@ urlpatterns = [
     path('planning/supplier/', sendPlanningSupplier, name='send_selected_supplier'),
     path('planning/finished/', sendValidationMail, name='send_confirmed'),
     path('planning/change-dates/', changePlanningDates, name='change_planning_dates'),
-    
+    path('planning/archived/', ArchivedPlanningListView.as_view(), name='archived_plannings'),
+    path('planning/archive/detail/<int:pk>/', planning_detail_api, name='planning_detail_api'),
     path('live_search/', live_search, name='live_search'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

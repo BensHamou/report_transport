@@ -3,6 +3,8 @@ from django_filters.views import FilterView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
+from django.views.generic import ListView
+from django.db.models.functions import ExtractYear, ExtractMonth
 import uuid
 from .forms import *
 from .filters import *
@@ -22,6 +24,28 @@ from django.core.mail import EmailMessage
 from django.db.models import Q
 from report.models import Report, PTransported, Price
 from datetime import datetime
+from django.core.cache import cache
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from django.utils.translation import gettext_lazy as _
+from django_filters.views import FilterView
+
+FRENCH_MONTHS = {
+    1: _("janvier"),
+    2: _("février"),
+    3: _("mars"), 
+    4: _("avril"),
+    5: _("mai"),
+    6: _("juin"),
+    7: _("juillet"),
+    8: _("août"),
+    9: _("septembre"),
+    10: _("octobre"),
+    11: _("novembre"),
+    12: _("décembre")
+}
+
 
 def check_creator(view_func):
     @wraps(view_func)
@@ -1032,6 +1056,65 @@ def changePlanningDates(request):
     selected_plannings.update(date_replanning=new_date)
 
     return JsonResponse({'message': f'{selected_plannings.count()} plannings ont été mis à jour avec succès.', 'OK': True}, safe=False)
+
+
+class ArchivedPlanningListView(FilterView, ListView):
+    model = Planning
+    template_name = 'archived_list.html'
+    context_object_name = 'archived_plannings'
+    filterset_class = ArchivedPlanningFilter
+    
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(state='Livraison Confirmé', is_marked=True).select_related('site', 'livraison')
+        return queryset.annotate(year=ExtractYear('date_honored'), month=ExtractMonth('date_honored')).order_by('date_honored') 
+    
+    def get_context_data(self, **kwargs):
+        filtered_qs = self.filterset.qs if hasattr(self, 'filterset') else self.get_queryset()
+        
+        grouped_data = {}
+        for planning in filtered_qs:
+            year = planning.date_honored.year
+            month = (planning.date_honored.month, FRENCH_MONTHS[planning.date_honored.month].capitalize())
+            site = planning.site
+            client = (planning.client, planning.client_id)
+            
+            grouped_data.setdefault(year, {}).setdefault(month, {}).setdefault(site, {}).setdefault(client, []).append(planning)
+        
+        context = super().get_context_data(**kwargs)
+        context['grouped_plannings'] = grouped_data
+        context['filter'] = self.filterset
+        
+        return context
+
+@require_GET
+def planning_detail_api(request, pk):
+    planning = get_object_or_404(Planning, pk=pk)
+    
+    files = []
+    for file in planning.files():
+        filename = file.file.name.split('/')[-1]
+        files.append({
+            'name': filename,
+            'url': file.file.url,
+            'icon': 'fa-file-pdf text-danger',
+            'uploaded_at': file.uploaded_at.strftime('%d/%m/%Y %H:%M') if file.uploaded_at else None
+        })
+    
+    data = {
+        'n_bl': f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}",
+        'n_invoice': f"{planning.site.prefix_invocie_site}{planning.n_invoice:05d}/{planning.date_honored.strftime('%y')}" if planning.n_invoice else '/',
+        'date_honored': planning.date_honored.strftime('%d/%m/%Y') if planning.date_honored else None,
+        'client': str(planning.client),
+        'distributeur': planning.distributeur,
+        'site': str(planning.site),
+        'tonnage': str(planning.tonnage) if planning.tonnage else None,
+        'destination': str(planning.destination),
+        'chauffeur': planning.str_chauffeur,
+        'vehicle': planning.str_immatriculation,
+        'files': files,
+    }
+    
+    return JsonResponse(data)
 
 def getRedirectionURL(request, url_path):
     params = {

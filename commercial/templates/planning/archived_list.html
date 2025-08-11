@@ -1,0 +1,396 @@
+{% extends "main.html" %}
+
+{% block title %}Liste des plannings archivés{% endblock %}
+
+{% load static %} 
+
+{% block activeListArchive %}{% include 'active_bar.html' %}{% endblock %}
+
+{% block content %}
+<form method="GET" style="margin: 25px 0;">
+    {% csrf_token %}
+    <div class="row height d-flex justify-content-center align-items-center">
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-2">
+            <div class="form" style="position: relative;">
+                <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>
+                {{ filter.form.bl_number }}
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-2">
+            {{ filter.form.start_date }}
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-2">
+            {{ filter.form.end_date }}
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-12 mb-2">
+            {{ filter.form.site }}
+        </div>
+        <div class="col-lg-1 col-md-6 col-sm-6 mb-2">
+            <input type="number" class="form-control" value="{% if request.GET.page_size %}{{ request.GET.page_size }}{% else %}12{% endif %}" 
+                   style="background-color: #ebecee; border-color: transparent; color: #133356; height: 40px;" 
+                   name="page_size">
+        </div>
+        <div class="col-lg-1 col-md-6 col-sm-6 mb-2">
+            <button type="submit" class="btn btn-secondary btn-block customSaveButton" style="height: 40px;">
+                Appliquer
+            </button>
+        </div>
+    </div>
+    <div class="row height d-flex align-items-center">
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-2">
+            <div class="form" style="position: relative;">
+                <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>
+                {{ filter.form.distributeur }}
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-2">
+            <div class="form" style="position: relative;">
+                <i class="fa fa-search" style="position: absolute; top:12px; left: 17px; color: #133356;"></i>
+                {{ filter.form.driver }}
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-12 col-sm-12 mb-2">
+            <div class="form">
+                {{ filter.form.fournisseur }}
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="container m-0 p-0" style="width: 100%; max-width: 100%;">
+    <div class="archive-hierarchy">
+        {% for year, months in grouped_plannings.items %}
+        <div class="archive-level mb-1">
+            <div class="level-header" data-bs-toggle="collapse" data-bs-target="#year-{{ year }}">
+                <i class="fas fa-calendar-alt me-2"></i>
+                <strong>{{ year }}</strong>
+                <i class="fas fa-chevron-down toggle-icon ms-auto"></i>
+            </div>
+            
+            <div class="collapse" id="year-{{ year }}">
+                <div class="level-content">
+                    {% for month, sites in months.items %}
+                    <div class="archive-level">
+                        <div class="level-header" data-bs-toggle="collapse" data-bs-target="#month-{{ year }}-{{ month.0 }}">
+                            <i class="fas fa-calendar me-2"></i>
+                            {{ month.1 }}
+                            <i class="fas fa-chevron-down toggle-icon ms-auto"></i>
+                        </div>
+                        
+                        <div class="collapse" id="month-{{ year }}-{{ month.0 }}">
+                            <div class="level-content">
+                                {% for site, clients in sites.items %}
+                                <div class="archive-level">
+                                    <div class="level-header" data-bs-toggle="collapse" data-bs-target="#site-{{ year }}-{{ month.0 }}-{{ site.id }}">
+                                        <i class="fas fa-building me-2"></i>
+                                        {{ site.designation }}
+                                        <span class="badge bg-primary ms-2">{{ clients|length }} client{{ clients|length|pluralize }}</span>
+                                        <i class="fas fa-chevron-down toggle-icon ms-auto"></i>
+                                    </div>
+                                    
+                                    <div class="collapse" id="site-{{ year }}-{{ month.0 }}-{{ site.id }}">
+                                        <div class="level-content">
+                                            {% for client, plannings in clients.items %}
+                                            <div class="archive-level">
+                                                <div class="level-header" data-bs-toggle="collapse" data-bs-target="#client-{{ year }}-{{ month.0 }}-{{ site.id }}-{{ client.1 }}">
+                                                    <i class="fas fa-user-tie me-2"></i>
+                                                    {{ client.0 }}
+                                                    <span class="badge bg-success ms-2">{{ plannings|length }} BL{{ plannings|length|pluralize }}</span>
+                                                    <i class="fas fa-chevron-down toggle-icon ms-auto"></i>
+                                                </div>
+                                                
+                                                <div class="collapse" id="client-{{ year }}-{{ month.0 }}-{{ site.id }}-{{ client.1 }}">
+                                                    <div class="bl-list">
+                                                        {% for planning in plannings %}
+                                                        <div class="bl-item" data-planning-id="{{ planning.id }}">
+                                                            <span class="bl-number">{{ planning.site.prefix_site }}{{ planning.n_bl|stringformat:"05d"|default:"N/A" }}/{{ planning.date_honored|date:"y" }}</span>
+                                                            <span class="bl-date">{{ planning.date_honored|date:"d/m/Y" }}</span>
+                                                            <button class="btn btn-sm btn-outline-primary details-btn float-end" 
+                                                                    data-bs-toggle="modal" 
+                                                                    data-bs-target="#planningModal"
+                                                                    data-planning-id="{{ planning.id }}">
+                                                                Détails
+                                                            </button>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">Aucune planification archivée trouvée</div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .archive-hierarchy {
+        border-left: 2px solid #dee2e6;
+        padding: 15px;
+        background-color: #36516f;
+        border-radius: 5px;
+    }
+    
+    .archive-level {
+        margin-bottom: 8px;
+    }
+    
+    .level-header {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background-color: #ffffff;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .level-header:hover {
+        background-color: #e9ecef;
+    }
+    
+    .level-header[aria-expanded="true"] {
+        background-color: #e2e6ea;
+    }
+    
+    .level-header[aria-expanded="true"] .toggle-icon {
+        transform: rotate(180deg);
+    }
+    
+    .toggle-icon {
+        transition: transform 0.2s;
+    }
+    
+    .level-content {
+        padding-left: 25px;
+        margin-top: 8px;
+        border-left: 2px solid #eee;
+    }
+    
+    .bl-list {
+        margin-top: 5px;
+    }
+    
+    .bl-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        margin-bottom: 5px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    
+    .bl-item:hover {
+        background-color: #e9ecef;
+    }
+    
+    .bl-number {
+        font-weight: 500;
+        margin-right: 15px;
+    }
+    
+    .bl-date {
+        color: #6c757d;
+        font-size: 0.9em;
+        margin-right: auto;
+    }
+    
+    .details-btn {
+        padding: 0.15rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .attachments-container {
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+    .attachment-item {
+        padding: 8px 10px;
+        margin-bottom: 5px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .attachment-item:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Scrollbar styling */
+    .attachments-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .attachments-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .attachments-container::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+
+    .attachments-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+</style>
+
+<script>
+$(document).ready(function() {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+    
+    $('.level-header').on('click', function() {
+        $(this).find('.toggle-icon').toggleClass('fa-chevron-down fa-chevron-up');
+    });
+        $('#planningModal').on('show.bs.modal', function(event) {
+        const button = $(event.relatedTarget);
+        const planningId = button.data('planning-id');
+        const modal = $(this);
+        
+        modal.find('#planningModalBody').html(`
+            <div class="text-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+                <p>Chargement des détails de planification...</p>
+            </div>
+        `);
+        
+        $.ajax({
+            url: `/planning/archive/detail/${planningId}/`,
+            method: 'GET',
+            success: function(data) {
+                modal.find('#planningModalBody').html(`
+                    <div class="container-fluid">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Information basique</h6>
+                                <dl class="row">
+                                    <dt class="col-sm-4">N° BL:</dt>
+                                    <dd class="col-sm-8">${data.n_bl || 'N/A'}</dd>
+
+                                    <dt class="col-sm-4">N° Facture:</dt>
+                                    <dd class="col-sm-8">${data.n_invoice || 'N/A'}</dd>
+                                    
+                                    <dt class="col-sm-4">Date Honoré:</dt>
+                                    <dd class="col-sm-8">${data.date_honored || 'N/A'}</dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Parts</h6>
+                                <dl class="row">
+                                    <dt class="col-sm-4">Client:</dt>
+                                    <dd class="col-sm-8">${data.client || 'N/A'}</dd>
+                                    
+                                    <dt class="col-sm-4">Distributeur:</dt>
+                                    <dd class="col-sm-8">${data.distributeur || 'N/A'}</dd>
+                                    
+                                    <dt class="col-sm-4">Site:</dt>
+                                    <dd class="col-sm-8">${data.site || 'N/A'}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Logistiques</h6>
+                                <dl class="row">
+                                    <dt class="col-sm-4">Tonnage:</dt>
+                                    <dd class="col-sm-8">${data.tonnage || 'N/A'}</dd>
+                                    
+                                    <dt class="col-sm-4">Destination:</dt>
+                                    <dd class="col-sm-8">${data.destination || 'N/A'}</dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Transport</h6>
+                                <dl class="row">
+                                    <dt class="col-sm-4">Chauffeur:</dt>
+                                    <dd class="col-sm-8">${data.chauffeur || 'N/A'}</dd>
+                                    
+                                    <dt class="col-sm-4">Vehicle:</dt>
+                                    <dd class="col-sm-8">${data.vehicle || 'N/A'}</dd>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2">Pièces jointes (${data.files.length})</h6>
+                                <div class="attachments-container">
+                                    ${data.files.length > 0 ? 
+                                        data.files.map(file => `
+                                            <div class="attachment-item">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="far ${file.icon} me-2"></i>
+                                                    <div class="flex-grow-1 text-truncate" title="${file.name}">
+                                                        ${file.name}
+                                                    </div>
+                                                    <a href="${file.url}" download class="btn btn-sm btn-outline-light ms-2">
+                                                        <i class="fas fa-download"></i>
+                                                    </a>
+                                                </div>
+                                                ${file.uploaded_at ? `
+                                                <small>${file.uploaded_at}</small>
+                                                ` : ''}
+                                            </div>
+                                        `).join('') : 
+                                        '<p>Aucune pièce jointe disponible</p>'
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                `);
+                $('#printPlanningBtn').show();
+            },
+            error: function() {
+                modal.find('#planningModalBody').html(`
+                    <div class="alert alert-danger">
+                        Échec du chargement des détails de planification. Veuillez réessayer.
+                    </div>
+                `);
+                $('#printPlanningBtn').hide();
+            }
+        });
+    });
+});
+</script>
+
+<div class="modal fade" id="planningModal" tabindex="-1" aria-labelledby="planningModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background: rgba(107, 122, 147, 0.75); border-radius: 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter: blur(2px);">
+      <div class="modal-header text-white" style="border-color: rgba(171, 175, 181, 0.4);">
+        <h5 class="modal-title text-white" id="planningModalLabel">Détails de Planification</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-white" id="planningModalBody">
+        <div class="text-center my-4">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p>Chargement des détails de planification...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" style="background-color: #23305d; color: white;" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

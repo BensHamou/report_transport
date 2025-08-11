@@ -4,6 +4,8 @@ from django_filters import FilterSet, CharFilter, ChoiceFilter, ModelChoiceFilte
 from .models import *
 from account.models import Site
 from report.forms import getAttrs
+from datetime import timedelta
+from django.utils import timezone
 
 class LivraisonFilter(FilterSet):
 
@@ -60,3 +62,23 @@ class PlanningFilter(FilterSet):
         super(PlanningFilter, self).__init__(*args, **kwargs)
         if user:
             self.filters['site'].queryset = user.sites.all()
+
+class ArchivedPlanningFilter(FilterSet):
+    other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
+
+    bl_number = CharFilter(field_name='n_bl', lookup_expr='exact', widget=forms.NumberInput(attrs=getAttrs('search', 'Rechercher BL...')))
+    start_date = DateFilter(field_name='date_honored', lookup_expr='gte', widget=forms.widgets.DateInput(attrs=getAttrs('date', other=other)))
+    end_date = DateFilter(field_name='date_honored', lookup_expr='lte', widget=forms.widgets.DateInput(attrs=getAttrs('date', other=other)))
+    site = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Site")
+    distributeur = CharFilter(field_name='distributeur', lookup_expr='icontains', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Distributeur...')))
+    driver = CharFilter(method='filter_driver', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Chauffeur...')))
+    fournisseur = ModelChoiceFilter(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2', other=other)), empty_label="Fournisseur")
+
+    def filter_driver(self, queryset, name, value):
+        return queryset.filter(Q(chauffeur__icontains=value) | Q(driver__last_name__icontains=value) | Q(driver__first_name__icontains=value)).distinct()
+
+    class Meta:
+        model = Planning
+        fields = ['bl_number', 'start_date', 'end_date', 'site', 'distributeur', 'driver', 'fournisseur']
+
+
