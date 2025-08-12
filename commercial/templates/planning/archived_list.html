@@ -333,6 +333,26 @@ $(document).ready(function() {
 
                         <div class="row mt-3">
                             <div class="col-12">
+                                <h6 class="border-bottom pb-2">Produits</h6>
+                                <div class="attachments-container">
+                                    ${data.products.length > 0 ? 
+                                        data.products.map(product => `
+                                            <div class="attachment-item">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 text-truncate" title="${product.name}">
+                                                        ${product.name}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('') : 
+                                        '<p>Aucun produit disponible</p>'
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
                                 <h6 class="border-bottom pb-2">Pièces jointes (${data.files.length})</h6>
                                 <div class="attachments-container">
                                     ${data.files.length > 0 ? 

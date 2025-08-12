@@ -30,6 +30,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.utils.translation import gettext_lazy as _
 from django_filters.views import FilterView
+from django.db.models import Exists, OuterRef
 
 FRENCH_MONTHS = {
     1: _("janvier"),
@@ -1065,8 +1066,12 @@ class ArchivedPlanningListView(FilterView, ListView):
     filterset_class = ArchivedPlanningFilter
     
     def get_queryset(self):
-        queryset = super().get_queryset().filter(state='Livraison Confirmé', is_marked=True).select_related('site', 'livraison')
-        return queryset.annotate(year=ExtractYear('date_honored'), month=ExtractMonth('date_honored')).order_by('date_honored') 
+        return (
+            super().get_queryset().filter(state='Livraison Confirmé', is_marked=True)
+            .annotate(has_files=Exists(File.objects.filter(planning=OuterRef('pk'))))
+            .filter(has_files=True).select_related('site', 'livraison').prefetch_related('file_set').
+            annotate(year=ExtractYear('date_honored'), month=ExtractMonth('date_honored')).order_by('date_honored')
+        )
     
     def get_context_data(self, **kwargs):
         filtered_qs = self.filterset.qs if hasattr(self, 'filterset') else self.get_queryset()
@@ -1091,6 +1096,7 @@ def planning_detail_api(request, pk):
     planning = get_object_or_404(Planning, pk=pk)
     
     files = []
+    products = []
     for file in planning.files():
         filename = file.file.name.split('/')[-1]
         files.append({
@@ -1099,7 +1105,10 @@ def planning_detail_api(request, pk):
             'icon': 'fa-file-pdf text-danger',
             'uploaded_at': file.uploaded_at.strftime('%d/%m/%Y %H:%M') if file.uploaded_at else None
         })
-    
+
+    for product in planning.pplanneds():
+        products.append({'name': product.__str__()})
+
     data = {
         'n_planning': planning.__str__(),
         'n_bl': f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}",
@@ -1113,6 +1122,7 @@ def planning_detail_api(request, pk):
         'chauffeur': planning.str_chauffeur,
         'vehicle': planning.str_immatriculation,
         'files': files,
+        'products': products
     }
     
     return JsonResponse(data)
