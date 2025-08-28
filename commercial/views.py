@@ -703,6 +703,7 @@ def markPlanning(request, pk):
         return redirect(getRedirectionURL(request, url_path))
     
     planning.is_marked = True
+    planning.code = None
     planning.save()
 
     messages.success(request, 'Planning visé avec succès')
@@ -722,6 +723,7 @@ def unmarkPlanning(request, pk):
         return redirect(getRedirectionURL(request, url_path))
     
     planning.is_marked = False
+    planning.code = Planning.generate_unique_code()
     planning.save()
 
     messages.success(request, 'Planning non visée avec succès')
