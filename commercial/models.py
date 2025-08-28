@@ -97,7 +97,8 @@ class Planning(models.Model):
     
     @classmethod
     def generate_unique_code(cls):
-        chars = string.ascii_uppercase + string.digits
+        # chars = string.ascii_uppercase + string.digits
+        chars = string.digits
         while True:
             code = ''.join(random.choices(chars, k=6))
             if not cls.objects.filter(code=code).exists():
