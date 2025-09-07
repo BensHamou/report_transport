@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load humanize %}
 
 {% block title %}
 Planning - {{ planning }}
@@ -266,6 +267,14 @@ Planning - {{ planning }}
                         <div class="col-sm-9">
                             <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
                             {% if planning.str_immatriculation  %}{{ planning.str_immatriculation }}{% else %}/{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3 col-form-label" style="color: #f2f3f2;">Prix</label>
+                        <div class="col-sm-9">
+                            <div class="form-control-plaintext text-white" style="border-bottom: 1px solid rgba(171, 175, 181, 0.4); letter-spacing: 1.2px;">
+                            {% if planning.report  %}{{ planning.report.prix.price|intcomma }} DZD{% else %}/{% endif %}
                             </div>
                         </div>
                     </div>
