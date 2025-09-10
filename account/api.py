@@ -10,8 +10,8 @@ def lookup_planning_by_code(request):
         code = data.get('code')
         try:
             planning = Planning.objects.get(code=code, is_marked=False, state='Livraison Confirmé')
-            invoice_number = f"{planning.site.prefix_invocie_site}{planning.n_invoice:05d}/{planning.date_honored.strftime('%y')}" if planning.n_invoice and planning.date_honored else None
-            bl_number = f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}" if planning.n_bl and planning.date_honored else None
+            invoice_number = f"{planning.site.prefix_invocie_site}{planning.n_invoice:05d}/{planning.date_honored.strftime('%y')}" if planning.n_invoice and planning.date_honored else '/'
+            bl_number = f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}" if planning.n_bl and planning.date_honored else '/'
 
             return JsonResponse({
                 'planning_id': planning.id,
