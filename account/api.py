@@ -15,13 +15,13 @@ def lookup_planning_by_code(request):
 
             return JsonResponse({
                 'planning_id': planning.id,
-                'supplier': planning.fournisseur.designation if planning.fournisseur else None,
-                'driver': planning.str_chauffeur,
+                'supplier': planning.fournisseur.designation if planning.fournisseur else '/',
+                'driver': planning.str_chauffeur if planning.str_chauffeur else '/',
                 'n_invoice': invoice_number,
                 'bl_number': bl_number,
-                'depart': planning.site.designation,
-                'destination': planning.destination.designation,
-                'date': planning.date_honored.strftime('%d/%m/%Y'),
+                'depart': planning.site.designation if planning.site else '/',
+                'destination': planning.destination.designation if planning.destination else '/',
+                'date': planning.date_honored.strftime('%d/%m/%Y') if planning.date_honored else '/',
             })
         except Planning.DoesNotExist:
             return JsonResponse({'error': 'Code non trouvé'}, status=404)
