@@ -10,17 +10,16 @@ def lookup_planning_by_code(request):
         code = data.get('code')
         try:
             planning = Planning.objects.get(code=code, is_marked=False, state='Livraison Confirmé')
-            invoice_number = f"{planning.site.prefix_invocie_site}{planning.n_invoice:05d}/{planning.date_honored.strftime('%y')}" if planning.n_invoice and planning.date_honored else '/'
             bl_number = f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}" if planning.n_bl and planning.date_honored else '/'
 
             return JsonResponse({
                 'planning_id': planning.id,
                 'supplier': planning.fournisseur.designation if planning.fournisseur else '/',
                 'driver': planning.str_chauffeur if planning.str_chauffeur else '/',
-                'n_invoice': invoice_number,
-                'bl_number': bl_number,
-                'depart': planning.site.designation if planning.site else '/',
-                'destination': planning.destination.designation if planning.destination else '/',
+                'bl_number': '/',
+                'n_invoice': bl_number,
+                'destination': planning.site.designation if planning.site else '/',
+                'depart': planning.destination.designation if planning.destination else '/',
                 'date': planning.date_honored.strftime('%d/%m/%Y') if planning.date_honored else '/',
             })
         except Planning.DoesNotExist:

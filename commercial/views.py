@@ -590,7 +590,6 @@ def deliverPlanning(request, pk):
         return JsonResponse({'status': True, 'message': 'Livraison confirmé avec succès', 'redirect': getRedirectionURL(request, url_path)})
     
     n_bl = request.POST.get('n_bl', None)
-    n_invoice = request.POST.get('n_invoice', None)
 
     # if n_bl and planning.fournisseur.send_email:
     #     try:
@@ -606,10 +605,9 @@ def deliverPlanning(request, pk):
     #     except ValueError:
     #         return JsonResponse({'status': False, 'message': 'Le numéro BL doit être un nombre entier.'}, status=200)
         
-    if n_bl and n_invoice and planning.fournisseur.send_email:
+    if n_bl and planning.fournisseur.send_email:
         try:
             n_bl_numeric = int(n_bl)
-            n_invoice_numeric = int(n_invoice)
             current_year = planning.date_honored.year
             
             previous_report = Report.objects.filter(prix__fournisseur=planning.fournisseur, prix__depart=planning.site, 
@@ -649,7 +647,6 @@ def deliverPlanning(request, pk):
 
     old_state = planning.state
     planning.n_bl = n_bl
-    planning.n_invoice = n_invoice
     planning.code = Planning.generate_unique_code()
     planning.state = 'Livraison Confirmé'
     new_state = planning.state
@@ -1114,7 +1111,6 @@ def planning_detail_api(request, pk):
     data = {
         'n_planning': planning.__str__(),
         'n_bl': f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}",
-        'n_invoice': f"{planning.site.prefix_invocie_site}{planning.n_invoice:05d}/{planning.date_honored.strftime('%y')}" if planning.n_invoice else '/',
         'date_honored': planning.date_honored.strftime('%d/%m/%Y') if planning.date_honored else None,
         'client': str(planning.client),
         'distributeur': planning.distributeur,

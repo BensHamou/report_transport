@@ -31,7 +31,7 @@ class PlanningCommForm(ModelForm):
     class Meta:
         model = Planning
         fields = ['site', 'date_planning', 'distributeur_id', 'distributeur','client_id', 'client', 'destination', 
-                  'livraison', 'observation_comm', 'fournisseur', 'tonnage', 'n_bl', 'n_invoice', 'observation_logi',
+                  'livraison', 'observation_comm', 'fournisseur', 'tonnage', 'n_bl', 'observation_logi',
                   'chauffeur', 'immatriculation', 'driver', 'vehicle', 'date_honored', 'google_maps_coords']
 
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
@@ -50,7 +50,6 @@ class PlanningCommForm(ModelForm):
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur", required=False)
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage", required=False)
     n_bl = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° BL')), required=False)
-    n_invoice = forms.IntegerField(widget=forms.NumberInput(attrs= getAttrs('control','N° Facture')), required=False)
     observation_logi = forms.CharField(widget=forms.Textarea(attrs=getAttrs('textarea','Observation')), required=False)
 
     chauffeur = forms.CharField(widget=forms.TextInput(attrs= getAttrs('control','Chauffeur')), required=False)

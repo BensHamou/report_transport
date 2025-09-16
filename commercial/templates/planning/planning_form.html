@@ -177,19 +177,6 @@ Rapport
                                 {% endif %}
                         </div>
                     </div>
-                    <div class="col-md-12 col-sm-12 mb-2">
-                        <div class="form-outline">
-                            <label class="form-label labelCustom" for="n_invoice">N° Facture</label><br>
-                            {{ form.n_invoice }}
-                                {% if form.n_invoice.errors %}
-                                    <div style="color: red;">
-                                    {% for error in form.n_invoice.errors %}
-                                        *{{ error }}
-                                    {% endfor %}
-                                    </div>
-                                {% endif %}
-                        </div>
-                    </div>
                 {% endif %}
                 <div class="col-md-6 col-sm-12 mb-2">
                     <div class="form-outline">
