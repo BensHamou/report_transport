@@ -1068,7 +1068,7 @@ class ArchivedPlanningListView(FilterView, ListView):
         return (
             super().get_queryset().filter(state='Livraison Confirmé', is_marked=True)
             .annotate(has_files=Exists(File.objects.filter(planning=OuterRef('pk'))))
-            .filter(has_files=True).select_related('site', 'livraison').prefetch_related('file_set').
+            .filter(has_files=True).select_related('site', 'livraison').prefetch_related('files').
             annotate(year=ExtractYear('date_honored'), month=ExtractMonth('date_honored')).order_by('date_honored')
         )
     
@@ -1096,7 +1096,7 @@ def planning_detail_api(request, pk):
     
     files = []
     products = []
-    for file in planning.files():
+    for file in planning.files.all():
         filename = file.file.name.split('/')[-1]
         files.append({
             'name': filename,

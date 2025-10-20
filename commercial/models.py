@@ -92,9 +92,6 @@ class Planning(models.Model):
 
     def pplanneds(self):
         return self.pplanned_set.all()
-
-    def files(self):
-        return self.file_set.all()
     
     @classmethod
     def generate_unique_code(cls):
@@ -105,7 +102,6 @@ class Planning(models.Model):
             if not cls.objects.filter(code=code).exists():
                 return code
 
-
     @property
     def date_planning_final(self):
         if self.date_replanning:
@@ -114,7 +110,7 @@ class Planning(models.Model):
     
     @property
     def is_delivered(self):
-        return self.state == 'Livraison Confirmé' and self.files().exists()
+        return self.state == 'Livraison Confirmé' and self.files.exists()
     
     @property
     def is_missing_delivery_overdue(self):
@@ -122,9 +118,7 @@ class Planning(models.Model):
             cutoff_date = date(2025, 10, 1)
             if self.date_planning_final < cutoff_date:
                 return False
-
-            return self.state == 'Livraison Confirmé' and not self.files().exists() and self.date_planning_final <= date.today() - timedelta(days=2)
-        
+            return self.state == 'Livraison Confirmé' and not self.files.exists() and self.date_planning_final <= date.today() - timedelta(days=2)
         return False
 
     @property
@@ -193,7 +187,7 @@ def get_upload_filename(instance, filename):
     return "planning_files/%s-%s" % (slug, filename)
 
 class File(models.Model):
-    planning = models.ForeignKey(Planning, on_delete=models.CASCADE)
+    planning = models.ForeignKey(Planning, on_delete=models.CASCADE, related_name='files')
     file = models.FileField(upload_to=get_upload_filename, verbose_name='Fichier')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

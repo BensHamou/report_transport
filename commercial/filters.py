@@ -4,8 +4,9 @@ from django_filters import FilterSet, CharFilter, ChoiceFilter, ModelChoiceFilte
 from .models import *
 from account.models import Site
 from report.forms import getAttrs
-from datetime import timedelta
-from django.utils import timezone
+from datetime import timedelta, date
+from django.db.models import F, Q
+from django.db.models.functions import Greatest
 
 class LivraisonFilter(FilterSet):
 
@@ -41,6 +42,26 @@ class PlanningFilter(FilterSet):
     site = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="Site")
     state = ChoiceFilter(choices=Planning.STATE_PLANNING, widget=forms.Select(attrs=getAttrs('select', other=other)), empty_label="Etat")
     distru = CharFilter(method='distru_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Distributeur..')))
+    SCAN_CHOICES = [
+        ('', 'Tous'),
+        ('scanned', 'Scanné'),
+        ('overdue', 'En retard'),
+    ]
+    scan_state = ChoiceFilter(choices=SCAN_CHOICES, method='filter_scan_state', widget=forms.Select(attrs=getAttrs('select', other=other)), empty_label=None)
+
+    def filter_scan_state(self, queryset, name, value):
+        cutoff_date = date(2025, 10, 1)
+        two_days_ago = date.today() - timedelta(days=2)
+
+        queryset = queryset.annotate(final_date=Greatest(F('date_planning'), F('date_replanning')))
+
+        if value == 'scanned':
+            return queryset.filter(state='Livraison Confirmé', files__isnull=False).distinct()
+        elif value == 'overdue':
+            return queryset.filter(state='Livraison Confirmé', files__isnull=True, final_date__lte=two_days_ago, final_date__gte=cutoff_date).distinct()
+
+        return queryset
+
 
 
     def filter_search(self, queryset, name, value):
@@ -56,7 +77,7 @@ class PlanningFilter(FilterSet):
 
     class Meta:
         model = Planning
-        fields = ['search', 'start_date', 'end_date', 'site', 'distru', 'bl_number', 'state']
+        fields = ['search', 'start_date', 'end_date', 'site', 'distru', 'bl_number', 'state', 'scan_state']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
