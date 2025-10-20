@@ -293,7 +293,7 @@ Planning - {{ planning }}
                         <p class="card-title lead m-3">Produits Plannifier</p>
                     </div>
                 </div>
-                {% if planning.code and not planning.files %}
+                {% if planning.code and not planning.files.all %}
                     <div class="card mx-auto mt-4 text-center" style="background: #ecebeb; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.6); max-width: 350px;">
                         <div class="position-relative d-flex justify-content-center align-items-center" style="height: 175px;">
                             <p class="display-6 fw-bold m-0" style="color: #486c95;">{{ planning.code|default:"/" }}</p>
