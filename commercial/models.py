@@ -8,6 +8,7 @@ from PIL import Image as PILImage
 import os
 import string
 import random
+from datetime import date, timedelta
 
 class Setting(models.Model):
     name = models.CharField(max_length=50)
@@ -110,6 +111,21 @@ class Planning(models.Model):
         if self.date_replanning:
             return max(self.date_planning, self.date_replanning)
         return self.date_planning
+    
+    @property
+    def is_delivered(self):
+        return self.state == 'Livraison Confirmé' and self.files().exists()
+    
+    @property
+    def is_missing_delivery_overdue(self):
+        if self.date_planning_final:
+            cutoff_date = date(2025, 10, 1)
+            if self.date_planning_final < cutoff_date:
+                return False
+
+            return self.state == 'Livraison Confirmé' and not self.files().exists() and self.date_planning_final <= date.today() - timedelta(days=2)
+        
+        return False
 
     @property
     def str_chauffeur(self):

@@ -104,70 +104,70 @@ Liste des plannings
                                     data-creator-id="{{ planning.creator.id }}"
                                     data-supplier-informed="{% if planning.supplier_informed %}true{% else %}false{% endif %}">
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">N° Planning</p>
-                                    <p class="valueLead mb-0">{{ planning }}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{{ planning }}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">Créateur</p>
-                                    <p class="valueLead mb-0">{{ planning.creator }}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{{ planning.creator }}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">Date de création</p>
-                                    <p class="valueLead mb-0">{{ planning.date_created|date:"d/m/Y H:i" }}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{{ planning.date_created|date:"d/m/Y H:i" }}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">Distributeur</p>
-                                    <p class="valueLead mb-0">{{ planning.distributeur }}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{{ planning.distributeur }}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">Client</p>
-                                    <p class="valueLead mb-0">{{ planning.client }}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{{ planning.client }}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">Tonnage</p>
-                                    <p class="valueLead mb-0">{% if planning.tonnage %}{{ planning.tonnage }}{% else %}/{% endif %}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{% if planning.tonnage %}{{ planning.tonnage }}{% else %}/{% endif %}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">Destination</p>
-                                    <p class="valueLead mb-0">{{ planning.destination }}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{{ planning.destination }}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">Date Planning</p>
-                                    <p class="valueLead mb-0">{{ planning.date_planning_final|date:"d/m/Y" }}{% if planning.date_replanning %}*{% endif %}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{{ planning.date_planning_final|date:"d/m/Y" }}{% if planning.date_replanning %}*{% endif %}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">Fournisseur</p>
-                                    <p class="valueLead mb-0">{% if planning.fournisseur %}{{ planning.fournisseur }}{% if planning.supplier_informed %}*{% endif %}{% else %}/{% endif %}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{% if planning.fournisseur %}{{ planning.fournisseur }}{% if planning.supplier_informed %}*{% endif %}{% else %}/{% endif %}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">N° BL</p>
-                                    <p class="valueLead mb-0">{% if planning.n_bl %}{{ planning.site.prefix_site }}{{ planning.n_bl|stringformat:"05d" }}/{{ planning.date_honored|date:"y" }}{% else %}/{% endif %}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{% if planning.n_bl %}{{ planning.site.prefix_site }}{{ planning.n_bl|stringformat:"05d" }}/{{ planning.date_honored|date:"y" }}{% else %}/{% endif %}</p>
                                 </div>
                             </td>
-                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer;">
+                            <td onclick="window.location='{% url 'view_planning' planning.id %}{% if request.GET.page %}?page={{ request.GET.page }}{% else %}?page=1{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.site %}&site={{ request.GET.site }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.distru %}&distru={{ request.GET.distru }}{% endif %}'"  style="cursor: pointer; ">
                                 <div>
                                     <p class="d-lg-none tdLabel">État</p>
-                                    <p class="valueLead mb-0">{{ planning.state }}</p>
+                                    <p class="valueLead {% if planning.is_delivered %}delivered{% elif planning.is_missing_delivery_overdue  %}overdue{% endif %} mb-0">{{ planning.state }}</p>
                                 </div>
                             </td>
                             {% if user.role in 'Commercial,Admin' %}
@@ -213,9 +213,7 @@ Liste des plannings
       color: white;
     }
     .valueLead{
-        color: white;
         font-size: 13px;
-        font-weight: 400;
     }
     .valueLeadTotal{
         color: green;
@@ -255,6 +253,13 @@ Liste des plannings
         .td-center{
             text-align: center;
         }
+    }
+    
+    .delivered{
+        color: #5CCB8A;
+    }
+    .overdue{
+        color: #F26D6D;
     }
 </style>
 
@@ -345,7 +350,7 @@ Liste des plannings
         );
         
         if (selected.length === 0) {
-            swal("Attention", "Veuillez sélectionner au moins un planning à envoyer.", "warning");
+            swal("Attention", "Veuillez sélectionner au moins un planning en attente non envoyé déjà.", "warning");
             return;
         }
 
