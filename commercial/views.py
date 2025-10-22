@@ -408,7 +408,7 @@ class PlanningList(LoginRequiredMixin, CheckPlanningListViewerMixin, FilterView)
     template_name = "list_plannings.html"
     context_object_name = "plannings"
     filterset_class = PlanningFilter
-    ordering = ['-date_modified', '-date_planning']
+    ordering = ['-date_planning', '-date_modified']
     
     def get_queryset(self):
         queryset = super().get_queryset()
