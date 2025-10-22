@@ -5,8 +5,7 @@ from .models import *
 from account.models import Site
 from report.forms import getAttrs
 from datetime import timedelta, date
-from django.db.models import F, Q
-from django.db.models.functions import Greatest
+from django.db.models import Q
 
 class LivraisonFilter(FilterSet):
 
@@ -53,12 +52,10 @@ class PlanningFilter(FilterSet):
         cutoff_date = date(2025, 10, 1)
         two_days_ago = date.today() - timedelta(days=2)
 
-        queryset = queryset.annotate(final_date=Greatest(F('date_planning'), F('date_replanning')))
-
         if value == 'scanned':
             return queryset.filter(state='Livraison Confirmé', files__isnull=False).distinct()
         elif value == 'overdue':
-            return queryset.filter(state='Livraison Confirmé', files__isnull=True, final_date__lte=two_days_ago, final_date__gte=cutoff_date).distinct()
+            return queryset.filter(state='Livraison Confirmé', files__isnull=True, date_honored__lte=two_days_ago, date_honored__gte=cutoff_date).distinct()
 
         return queryset
 

@@ -114,11 +114,11 @@ class Planning(models.Model):
     
     @property
     def is_missing_delivery_overdue(self):
-        if self.date_planning_final:
+        if self.date_honored:
             cutoff_date = date(2025, 10, 1)
-            if self.date_planning_final < cutoff_date:
+            if self.date_honored < cutoff_date:
                 return False
-            return self.state == 'Livraison Confirmé' and not self.files.exists() and self.date_planning_final <= date.today() - timedelta(days=2)
+            return self.state == 'Livraison Confirmé' and not self.files.exists() and self.date_honored <= date.today() - timedelta(days=2)
         return False
 
     @property
