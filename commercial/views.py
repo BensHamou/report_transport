@@ -286,10 +286,10 @@ class CheckEditorMixin:
     
 class CheckPlanningViewerMixin:
     def check_viewer(self, planning):
-        if self.request.user.role == 'Admin':
+        if self.request.user.role in ['Admin', 'Commercial']:
             return True
         sites = self.request.user.sites.all()
-        if planning.site in sites and self.request.user.role in ['Observateur', 'Logisticien', 'Commercial']:
+        if planning.site in sites and self.request.user.role in ['Observateur', 'Logisticien']:
             return True
         return False
 
