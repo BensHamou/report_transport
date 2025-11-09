@@ -128,6 +128,10 @@ class Planning(models.Model):
         return self.chauffeur
 
     @property
+    def sequence(self):
+        return self.__str__()
+
+    @property
     def str_immatriculation(self):
         if self.vehicle:
             return self.vehicle.__str__()
@@ -142,6 +146,15 @@ class Planning(models.Model):
             return self.validation_set.filter(new_state='Livraison Confirmé').order_by('date').last().date
         return None
     
+    @property
+    def files_state(self):
+        if all(f.state == 'Approuvé' for f in self.files.all()):
+            return 'Approuvé'
+        elif any(f.state == 'Refusé' for f in self.files.all()):
+            return 'Refusé'
+        else:
+            return 'En attente'
+
     def __str__(self):
         return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
     
@@ -187,9 +200,16 @@ def get_upload_filename(instance, filename):
     return "planning_files/%s-%s" % (slug, filename)
 
 class File(models.Model):
+    STATE_FILE = [
+        ('En attente', 'En attente'),
+        ('Approuvé', 'Approuvé'),
+        ('Refusé', 'Refusé')
+    ]
+
     planning = models.ForeignKey(Planning, on_delete=models.CASCADE, related_name='files')
     file = models.FileField(upload_to=get_upload_filename, verbose_name='Fichier')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    state = models.CharField(choices=STATE_FILE, max_length=20, default='En attente')
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -205,3 +225,33 @@ class File(models.Model):
                 except Exception:
                     pass 
 
+    
+class FileValidation(models.Model):
+
+    STATE_FILE = [
+        ('En attente', 'En attente'),
+        ('Approuvé', 'Approuvé'),
+        ('Refusé', 'Refusé')
+    ]
+
+    old_state = models.CharField(choices=STATE_FILE, max_length=40)
+    new_state = models.CharField(choices=STATE_FILE, max_length=40)
+    date = models.DateTimeField(auto_now_add=True) 
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    refusal_reason = models.TextField(null=True, blank=True)
+    file = models.ForeignKey(File, on_delete=models.CASCADE, related_name='validations')
+
+    def __str__(self):
+        return "Validation - " + str(self.file.id) + " - " + str(self.date)
+    
+class Device(models.Model):
+    DEVICE_TYPES = (('android','android'),('ios','ios'),('web','web'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='devices')
+    token = models.CharField(max_length=512, unique=True)
+    device_type = models.CharField(max_length=16, choices=DEVICE_TYPES, default='android')
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_seen = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.user} - {self.device_type}'
+    

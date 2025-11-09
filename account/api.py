@@ -4,6 +4,19 @@ from commercial.models import *
 import json
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
+from .serializers import *
+import json
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.exceptions import NotAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from collections import defaultdict
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from firebase_admin import messaging
 
 @csrf_exempt
 def lookup_planning_by_code(request):
@@ -84,3 +97,124 @@ def login_api(request):
             return JsonResponse({'success': False, 'message': 'Données JSON invalides.'}, status=400)
 
     return JsonResponse({'success': False, 'message': 'Méthode non autorisée.'}, status=405)
+
+class getPlanningsView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        plannings = (
+            Planning.objects
+            .filter(is_marked=False, state='Livraison Confirmé', code__isnull=False)
+            .select_related('site', 'destination', 'fournisseur', 'driver', 'vehicle')
+            .prefetch_related('files__validations')
+            .order_by('site__designation', 'date_created')
+        )
+
+        grouped_data = defaultdict(lambda: defaultdict(list))
+        for p in plannings:
+            site_name = p.site.designation
+            files_state = p.files_state
+            grouped_data[site_name][files_state].append(PlanningSerializer(p).data)
+
+        # Convert defaultdicts to regular dicts for JSON serialization
+        grouped_dict = {
+            site: {state: plans for state, plans in states.items()}
+            for site, states in grouped_data.items()
+        }
+
+        return Response({"plannings": grouped_dict})
+    
+class ApproveFileView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, file_id):
+        user = request.user
+        file_obj = get_object_or_404(File, id=file_id)
+
+        old_state = file_obj.state
+
+        file_obj.state = 'Approuvé'
+        file_obj.save()
+
+        FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Approuvé', actor=user)
+
+        return Response({"message": "Fichier approuvé avec succès."}, status=status.HTTP_200_OK)
+
+
+class RefuseFileView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, file_id):
+        user = request.user
+        refusal_reason = request.data.get('refusal_reason', '').strip()
+        if not refusal_reason:
+            return Response({"error": "Le motif de refus est requis."}, status=status.HTTP_400_BAD_REQUEST)
+
+        file_obj = get_object_or_404(File, id=file_id)
+        old_state = file_obj.state
+
+        file_obj.state = 'Refusé'
+        file_obj.save()
+
+        FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Refusé', actor=user, refusal_reason=refusal_reason)
+
+        planning = file_obj.planning
+
+        if planning.driver and planning.driver.user:
+            target_user = planning.driver.user
+            title = "Fichier refusé"
+            body = f"Le fichier pour le planning {planning.code} a été refusé."
+            data = {"planning_id": str(planning.id), "file_id": str(file_obj.id), "type": "file_refused"}
+            send_push_to_user(target_user, title, body, data)
+        # else if internal user is planning.creator (adjust to your logic)
+        elif planning.creator:
+            # notify creator's app
+            send_push_to_user(planning.creator, "Fichier refusé", f"Le fichier pour {planning} a été refusé.", {"planning_id": str(planning.id)})
+        # else: optionally notify supplier via email (handled elsewhere)
+
+        # 🔴 Placeholder for notifications/emails
+        # if planning.driver:
+        #     send_internal_notification(planning.driver, file_obj)
+        # elif planning.chauffeur and planning.fournisseur and planning.fournisseur.address:
+        #     send_email_to_supplier(planning.fournisseur.address, file_obj)
+
+        return Response({"message": "Fichier refusé avec succès."}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def register_device(request):
+    token = request.data.get('token')
+    device_type = request.data.get('device_type', 'android')
+    if not token:
+        return Response({'error': 'token required'}, status=400)
+    Device.objects.update_or_create(token=token, defaults={'user': request.user, 'device_type': device_type})
+    return Response({'ok': True})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unregister_device(request):
+    token = request.data.get('token')
+    if token:
+        Device.objects.filter(token=token).delete()
+    return Response({'ok': True})
+
+def send_push_to_tokens(tokens, title, body, data=None):
+    if not tokens:
+        return {'success': 0, 'failure': 0}
+
+    message = messaging.MulticastMessage(notification=messaging.Notification(title=title, body=body),
+                                         data={k:str(v) for k,v in (data or {}).items()}, tokens=tokens )
+
+    response = messaging.send_multicast(message)
+    return {
+        'success': response.success_count,
+        'failure': response.failure_count,
+        'responses': [r.__dict__ for r in response.responses]
+    }
+
+def send_push_to_user(user, title, body, data=None):
+    tokens = list(Device.objects.filter(user=user).values_list('token', flat=True))
+    return send_push_to_tokens(tokens, title, body, data)

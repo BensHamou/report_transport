@@ -24,6 +24,7 @@ class User(AbstractUser):
         ('Logisticien', 'Logisticien'),
         ('Commercial', 'Commercial'),
         ('Observateur', 'Observateur'),
+        ('Chauffeur', 'Chauffeur'),
         ('Admin', 'Admin'),
     ]
 

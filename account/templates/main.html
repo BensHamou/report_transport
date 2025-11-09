@@ -68,7 +68,6 @@
                 </div>
               {% endif %}
               <div class="d-flex" style="width: 100%; margin: 10px 15px;">
-                {% comment %} {% if user.is_admin %} {% endcomment %}
                 {% if user.role in 'Logisticien,Admin' %}
                   {% block activeFleet %}{% endblock %}
                   <h4 class="mx-auto">
