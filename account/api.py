@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from collections import defaultdict
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from firebase_admin import messaging
 
@@ -25,6 +25,9 @@ def lookup_planning_by_code(request):
         code = data.get('code')
         try:
             planning = Planning.objects.get(code=code, is_marked=False, state='Livraison Confirmé')
+            if planning.driver:
+                return JsonResponse({'error': 'Ce planning est attribué à un utilisateur interne. Veuillez vous authentifier.'}, status=403)
+
             bl_number = f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}" if planning.n_bl and planning.date_honored else '/'
 
             return JsonResponse({
@@ -142,7 +145,6 @@ class ApproveFileView(APIView):
 
         return Response({"message": "Fichier approuvé avec succès."}, status=status.HTTP_200_OK)
 
-
 class RefuseFileView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -184,6 +186,7 @@ class RefuseFileView(APIView):
         return Response({"message": "Fichier refusé avec succès."}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def register_device(request):
     token = request.data.get('token')
@@ -194,6 +197,7 @@ def register_device(request):
     return Response({'ok': True})
 
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def unregister_device(request):
     token = request.data.get('token')
@@ -205,15 +209,23 @@ def send_push_to_tokens(tokens, title, body, data=None):
     if not tokens:
         return {'success': 0, 'failure': 0}
 
-    message = messaging.MulticastMessage(notification=messaging.Notification(title=title, body=body),
-                                         data={k:str(v) for k,v in (data or {}).items()}, tokens=tokens )
+    success, failure = 0, 0
+    results = []
+    for token in tokens:
+        message = messaging.Message(
+            notification=messaging.Notification(title=title, body=body),
+            data={k: str(v) for k, v in (data or {}).items()},
+            token=token
+        )
+        try:
+            response = messaging.send(message)
+            success += 1
+            results.append({'token': token, 'response': response})
+        except Exception as e:
+            failure += 1
+            results.append({'token': token, 'error': str(e)})
 
-    response = messaging.send_multicast(message)
-    return {
-        'success': response.success_count,
-        'failure': response.failure_count,
-        'responses': [r.__dict__ for r in response.responses]
-    }
+    return {'success': success, 'failure': failure, 'responses': results}
 
 def send_push_to_user(user, title, body, data=None):
     tokens = list(Device.objects.filter(user=user).values_list('token', flat=True))
