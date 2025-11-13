@@ -90,11 +90,11 @@ Planning - {{ planning }}
                         <a id="miss-planning" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 18px; white-space: nowrap;">Raté</p>
                         </a>
-                    {% elif planning.state in 'Livraison Confirmé' and user.is_admin and not planning.is_marked %}
+                    {% elif planning.state in 'Livraison Confirmé' and user.role == 'Admin' and not planning.is_marked %}
                         <a href="{% url 'mark_planning' planning.id %}" class="btn btn-success text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Visé</p>
                         </a>
-                    {% elif planning.state in 'Livraison Confirmé' and user.is_admin and planning.is_marked %}
+                    {% elif planning.state in 'Livraison Confirmé' and user.role == 'Admin' and planning.is_marked %}
                         <a href="{% url 'unmark_planning' planning.id %}" class="btn btn-danger text-white" style="width: 90%; margin-right: 10px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);">
                             <p class="lead m-0 p-0" style="font-size: 14px; white-space: nowrap;">Non visée</p>
                         </a>
