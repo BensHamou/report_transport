@@ -33,12 +33,14 @@ class PlanningSerializer(serializers.ModelSerializer):
     sequence = serializers.ReadOnlyField()
     n_bl = serializers.ReadOnlyField()
     google_maps_coords = serializers.ReadOnlyField()
+    date_delivered = serializers.ReadOnlyField()
 
     driver_last_name = serializers.CharField(source='driver.last_name', read_only=True)
     driver_first_name = serializers.CharField(source='driver.first_name', read_only=True)
     driver_phone = serializers.CharField(source='driver.phone', read_only=True)
     driver_address = serializers.CharField(source='driver.address', read_only=True)
     immatriculation = serializers.CharField(source='vehicle.immatriculation', read_only=True)
+    vehicle_code = serializers.CharField(source='vehicle.designation', read_only=True)
 
     files = FileSerializer(many=True, read_only=True)
 
@@ -46,7 +48,7 @@ class PlanningSerializer(serializers.ModelSerializer):
         model = Planning
         fields = [
             'id', 'site', 'destination', 'fournisseur', 'date_planning', 'n_bl', 'client',
-            'google_maps_coords', 'sequence',
+            'google_maps_coords', 'sequence', 'code', 'vehicle_code',
             'driver_last_name', 'driver_first_name', 'driver_phone',
-            'driver_address', 'immatriculation', 'files'
+            'driver_address', 'immatriculation', 'files', 'date_delivered'
             ]

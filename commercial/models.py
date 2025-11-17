@@ -113,6 +113,13 @@ class Planning(models.Model):
         return self.state == 'Livraison Confirmé' and self.files.exists()
     
     @property
+    def date_delivered(self):
+        if self.state == 'Livraison Confirmé':
+            return self.validation_set.filter(new_state='Livraison Confirmé').order_by('date').last().date
+        else:
+            return None
+    
+    @property
     def is_missing_delivery_overdue(self):
         if self.date_honored:
             cutoff_date = date(2025, 10, 1)
