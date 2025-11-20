@@ -185,6 +185,62 @@ class RefuseFileView(APIView):
 
         return Response({"message": "Fichier refusé avec succès."}, status=status.HTTP_200_OK)
 
+class ApprovePlanningView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, planning_id):
+        user = request.user
+        planning_obj = get_object_or_404(Planning, id=planning_id)
+        
+        # Get all files for this planning that are not already approved
+        files_to_approve = File.objects.filter(planning=planning_obj).exclude(state='Approuvé')
+        
+        approved_count = 0
+        for file_obj in files_to_approve:
+            old_state = file_obj.state
+            file_obj.state = 'Approuvé'
+            file_obj.save()
+            FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Approuvé', actor=user)
+            approved_count += 1
+
+        return Response({"message": f"Planning approuvé avec succès. {approved_count} fichier(s) approuvé(s)."}, status=status.HTTP_200_OK)
+
+class RefusePlanningView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, planning_id):
+        user = request.user
+        refusal_reason = request.data.get('refusal_reason', '').strip()
+        if not refusal_reason:
+            return Response({"error": "Le motif de refus est requis."}, status=status.HTTP_400_BAD_REQUEST)
+
+        planning_obj = get_object_or_404(Planning, id=planning_id)
+        
+        # Get all files for this planning that are not already refused
+        files_to_refuse = File.objects.filter(planning=planning_obj).exclude(state='Refusé')
+        
+        refused_count = 0
+        for file_obj in files_to_refuse:
+            old_state = file_obj.state
+            file_obj.state = 'Refusé'
+            file_obj.save()
+            FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Refusé', actor=user, refusal_reason=refusal_reason)
+            refused_count += 1
+
+        # Send notifications to relevant users
+        if planning_obj.driver and planning_obj.driver.user:
+            target_user = planning_obj.driver.user
+            title = "Planning refusé"
+            body = f"Le planning {planning_obj.code} a été refusé."
+            data = {"planning_id": str(planning_obj.id), "type": "planning_refused"}
+            send_push_to_user(target_user, title, body, data)
+        elif planning_obj.creator:
+            send_push_to_user(planning_obj.creator, "Planning refusé", f"Le planning {planning_obj} a été refusé.", {"planning_id": str(planning_obj.id)})
+
+        return Response({"message": f"Planning refusé avec succès. {refused_count} fichier(s) refusé(s)."}, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
