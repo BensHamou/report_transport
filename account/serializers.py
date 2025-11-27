@@ -52,3 +52,24 @@ class PlanningSerializer(serializers.ModelSerializer):
             'driver_last_name', 'driver_first_name', 'driver_phone',
             'driver_address', 'immatriculation', 'files', 'date_delivered'
             ]
+
+class PlanningExternSerializer(serializers.ModelSerializer):
+
+    site = serializers.CharField(source='site.designation', read_only=True)
+    destination = serializers.CharField(source='destination.designation', read_only=True)
+    fournisseur = serializers.CharField(source='fournisseur.designation', read_only=True)
+    client = serializers.CharField(read_only=True)
+
+    sequence = serializers.ReadOnlyField()
+    n_bl = serializers.ReadOnlyField()
+    google_maps_coords = serializers.ReadOnlyField()
+    date_delivered = serializers.ReadOnlyField()
+
+
+    files = FileSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Planning
+        fields = [
+            'id', 'site', 'destination', 'fournisseur', 'date_planning', 'n_bl', 'client',
+            'google_maps_coords', 'sequence', 'code', 'chauffeur', 'immatriculation', 'files', 'date_delivered']

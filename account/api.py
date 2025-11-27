@@ -26,25 +26,45 @@ def lookup_planning_by_code(request):
         try:
             planning = Planning.objects.get(code=code, is_marked=False, state='Livraison Confirmé')
             if planning.driver:
-                return JsonResponse({'error': 'Ce planning est attribué à un utilisateur interne. Veuillez vous authentifier.'}, status=403)
+                return JsonResponse({'error': 'Ce planning est interne. Authentification requise.'}, status=403)
+            
+            serializer = PlanningExternSerializer(planning)
+            if serializer.data:
+                return JsonResponse({'planning': serializer.data})
+            else:
+                return JsonResponse({'error': 'Aucun planning trouvé'}, status=404)
 
-            bl_number = f"{planning.site.prefix_site}{planning.n_bl:05d}/{planning.date_honored.strftime('%y')}" if planning.n_bl and planning.date_honored else '/'
-
-            return JsonResponse({
-                'planning_id': planning.id,
-                'supplier': planning.fournisseur.designation if planning.fournisseur else '/',
-                'driver': planning.str_chauffeur if planning.str_chauffeur else '/',
-                'bl_number': '/',
-                'n_invoice': bl_number,
-                'destination': planning.site.designation if planning.site else '/',
-                'depart': planning.destination.designation if planning.destination else '/',
-                'date': planning.date_honored.strftime('%d/%m/%Y') if planning.date_honored else '/',
-                
-            })
         except Planning.DoesNotExist:
             return JsonResponse({'error': 'Code non trouvé'}, status=404)
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def lookup_planning_by_code_internal(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            code = data.get('code')
+            
+            user_role = request.user.role
+            if user_role not in ['Admin', 'Chauffeur']:
+                return JsonResponse({'error': 'Accès non autorisé. Seul Admin ou Chauffeur peut accéder à cette fonctionnalité.'}, status=403)
+            
+            planning = Planning.objects.get(code=code)
+            
+            serializer = PlanningSerializer(planning)
+            if serializer.data:
+                return JsonResponse({'planning': serializer.data})
+            else:
+                return JsonResponse({'error': 'Aucun planning trouvé'}, status=404)
+
+        except Planning.DoesNotExist:
+            return JsonResponse({'error': 'Code non trouvé'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Données JSON invalides'}, status=400)
+    
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
 @csrf_exempt
 def submit_planning_data(request):
@@ -59,6 +79,9 @@ def submit_planning_data(request):
             planning = Planning.objects.get(id=planning_id)
         except Planning.DoesNotExist:
             return JsonResponse({'error': 'ID planning invalide'}, status=400)
+
+        if planning.driver:
+            return JsonResponse({'error': 'Ce planning est interne. Authentification requise.'}, status=403)
 
         if x and y:
             planning.google_maps_coords = f"{x},{y}"
@@ -76,6 +99,43 @@ def submit_planning_data(request):
 
         return JsonResponse({'message': 'Soumission réussie'})
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def submit_planning_data_internal(request):
+    if request.method == 'POST':
+        planning_id = request.data.get('planning_id')
+        x = request.data.get('coords_x')
+        y = request.data.get('coords_y')
+        files = request.FILES.getlist('files')
+        deleted_files = request.FILES.getlist('deleted_files')
+
+        try:
+            planning = Planning.objects.get(id=planning_id)
+        except Planning.DoesNotExist:
+            return Response({'error': 'ID planning invalide'}, status=400)
+
+        user_role = request.user.role
+        if user_role not in ['Admin', 'Chauffeur']:
+            return Response({'error': 'Accès non autorisé. Seul Admin ou Chauffeur peut accéder à cette fonctionnalité.'}, status=403)
+
+        if x and y:
+            planning.google_maps_coords = f"{x},{y}"
+            planning.save()
+
+        for file in files:
+            File.objects.create(planning=planning, file=file)
+
+        for file in deleted_files:
+            try:
+                file_instance = File.objects.get(id=file)
+                file_instance.delete()
+            except File.DoesNotExist:
+                continue
+
+        return Response({'message': 'Soumission réussie'})
+    return Response({'error': 'Méthode non autorisée'}, status=405)
 
 @csrf_exempt
 def login_api(request):
