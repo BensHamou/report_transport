@@ -177,8 +177,8 @@ class getPlanningsView(APIView):
         grouped_data = defaultdict(lambda: defaultdict(list))
         for p in plannings:
             site_name = p.site.designation
-            files_state = p.files_state
-            grouped_data[site_name][files_state].append(PlanningSerializer(p).data)
+            planning_files_state = p.planning_files_state
+            grouped_data[site_name][planning_files_state].append(PlanningSerializer(p).data)
 
         # Convert defaultdicts to regular dicts for JSON serialization
         grouped_dict = {
@@ -288,14 +288,14 @@ class RefusePlanningView(APIView):
             FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Refusé', actor=user, refusal_reason=refusal_reason)
             refused_count += 1
 
-        # if planning_obj.driver and planning_obj.driver.user:
-        #     target_user = planning_obj.driver.user
-        #     title = "Planning refusé"
-        #     body = f"Le planning {planning_obj.code} a été refusé."
-        #     data = {"planning_id": str(planning_obj.id), "type": "planning_refused"}
-        #     send_push_to_user(target_user, title, body, data)
-        # elif planning_obj.creator:
-        #     send_push_to_user(planning_obj.creator, "Planning refusé", f"Le planning {planning_obj} a été refusé.", {"planning_id": str(planning_obj.id)})
+        if planning_obj.driver and planning_obj.driver.user:
+            target_user = planning_obj.driver.user
+            title = "Planning refusé"
+            body = f"Le planning {planning_obj.code} a été refusé."
+            data = {"planning_id": str(planning_obj.id), "type": "planning_refused"}
+            send_push_to_user(target_user, title, body, data)
+        elif planning_obj.creator:
+            send_push_to_user(planning_obj.creator, "Planning refusé", f"Le planning {planning_obj} a été refusé.", {"planning_id": str(planning_obj.id)})
 
         return Response({"message": f"Planning refusé avec succès. {refused_count} fichier(s) refusé(s)."}, status=status.HTTP_200_OK)
 

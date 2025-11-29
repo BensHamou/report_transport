@@ -155,12 +155,23 @@ class Planning(models.Model):
     
     @property
     def files_state(self):
-        if all(f.state == 'Approuvé' for f in self.files.all()):
+        if len(self.files.all()) == 0:
+            return 'Aucun fichier'
+        elif all(f.state == 'Approuvé' for f in self.files.all()):
             return 'Approuvé'
         elif any(f.state == 'Refusé' for f in self.files.all()):
             return 'Refusé'
         else:
             return 'En attente'
+    
+    @property
+    def planning_files_state(self):
+        if len(self.files.all()) == 0:
+            return 'En attente'
+        elif any(f.state == 'Refusé' for f in self.files.all()):
+            return 'Refusé'
+        else:
+            return 'Approuvé'
 
     def __str__(self):
         return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
