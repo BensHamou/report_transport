@@ -278,7 +278,6 @@ class RefusePlanningView(APIView):
 
         planning_obj = get_object_or_404(Planning, id=planning_id)
         
-        # Get all files for this planning that are not already refused
         files_to_refuse = File.objects.filter(planning=planning_obj).exclude(state='Refusé')
         
         refused_count = 0
@@ -289,15 +288,14 @@ class RefusePlanningView(APIView):
             FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Refusé', actor=user, refusal_reason=refusal_reason)
             refused_count += 1
 
-        # Send notifications to relevant users
-        if planning_obj.driver and planning_obj.driver.user:
-            target_user = planning_obj.driver.user
-            title = "Planning refusé"
-            body = f"Le planning {planning_obj.code} a été refusé."
-            data = {"planning_id": str(planning_obj.id), "type": "planning_refused"}
-            send_push_to_user(target_user, title, body, data)
-        elif planning_obj.creator:
-            send_push_to_user(planning_obj.creator, "Planning refusé", f"Le planning {planning_obj} a été refusé.", {"planning_id": str(planning_obj.id)})
+        # if planning_obj.driver and planning_obj.driver.user:
+        #     target_user = planning_obj.driver.user
+        #     title = "Planning refusé"
+        #     body = f"Le planning {planning_obj.code} a été refusé."
+        #     data = {"planning_id": str(planning_obj.id), "type": "planning_refused"}
+        #     send_push_to_user(target_user, title, body, data)
+        # elif planning_obj.creator:
+        #     send_push_to_user(planning_obj.creator, "Planning refusé", f"Le planning {planning_obj} a été refusé.", {"planning_id": str(planning_obj.id)})
 
         return Response({"message": f"Planning refusé avec succès. {refused_count} fichier(s) refusé(s)."}, status=status.HTTP_200_OK)
 

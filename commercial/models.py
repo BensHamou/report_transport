@@ -230,7 +230,10 @@ class File(models.Model):
                     img.thumbnail(max_size, PILImage.LANCZOS)
                     img.save(self.file.path, quality=80, optimize=True)
                 except Exception:
-                    pass 
+                    pass
+    
+    def __str__(self):
+        return f'File - Planning {self.planning.id} - {self.file.name} - {self.state}'
 
     
 class FileValidation(models.Model):

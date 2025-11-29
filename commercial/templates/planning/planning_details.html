@@ -331,7 +331,7 @@ Planning - {{ planning }}
                     <div class="row m-4">
                         {% for file in planning.files.all %}
                         <div class="col-md-4 mb-3">
-                            <div class="card file-card h-100">
+                            <div class="card file-card h-100 {% if file.state == 'Approuvé' %} border-success {% elif file.state == 'Refusé' %} border-danger {% endif %}">
                                 <div class="card-body text-center">
                                     <i class="far fa-file-pdf fa-3x text-danger mb-3"></i>
                                     <h6 class="card-title text-truncate" title="{{ file.file.name|basename }}">
