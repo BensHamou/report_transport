@@ -230,11 +230,13 @@ class RefuseFileView(APIView):
             title = "Fichier refusé"
             body = f"Le fichier pour le planning {planning.code} a été refusé."
             data = {"planning_id": str(planning.id), "file_id": str(file_obj.id), "type": "file_refused"}
-            send_push_to_user(target_user, title, body, data)
+            results = send_push_to_user(target_user, title, body, data)
         # else if internal user is planning.creator (adjust to your logic)
         elif planning.creator:
             # notify creator's app
-            send_push_to_user(planning.creator, "Fichier refusé", f"Le fichier pour {planning} a été refusé.", {"planning_id": str(planning.id)})
+            results = send_push_to_user(planning.creator, "Fichier refusé", f"Le fichier pour {planning} a été refusé.", {"planning_id": str(planning.id)})
+        else:
+            results = ""
         # else: optionally notify supplier via email (handled elsewhere)
 
         # 🔴 Placeholder for notifications/emails
@@ -243,7 +245,7 @@ class RefuseFileView(APIView):
         # elif planning.chauffeur and planning.fournisseur and planning.fournisseur.address:
         #     send_email_to_supplier(planning.fournisseur.address, file_obj)
 
-        return Response({"message": "Fichier refusé avec succès."}, status=status.HTTP_200_OK)
+        return Response({"message": "Fichier refusé avec succès.", "firebase_results": results}, status=status.HTTP_200_OK)
 
 class ApprovePlanningView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -293,11 +295,13 @@ class RefusePlanningView(APIView):
             title = "Planning refusé"
             body = f"Le planning {planning_obj.code} a été refusé."
             data = {"planning_id": str(planning_obj.id), "type": "planning_refused"}
-            send_push_to_user(target_user, title, body, data)
+            results = send_push_to_user(target_user, title, body, data)
         elif planning_obj.creator:
-            send_push_to_user(planning_obj.creator, "Planning refusé", f"Le planning {planning_obj} a été refusé.", {"planning_id": str(planning_obj.id)})
+            results = send_push_to_user(planning_obj.creator, "Planning refusé", f"Le planning {planning_obj} a été refusé.", {"planning_id": str(planning_obj.id)})
+        else: 
+            results = ""
 
-        return Response({"message": f"Planning refusé avec succès. {refused_count} fichier(s) refusé(s)."}, status=status.HTTP_200_OK)
+        return Response({"message": f"Planning refusé avec succès. {refused_count} fichier(s) refusé(s).", "firebase_results": results}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
