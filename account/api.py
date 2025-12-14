@@ -124,8 +124,6 @@ def submit_planning_data_internal(request):
         except (TypeError, json.JSONDecodeError):
             deleted_files = []
 
-        print(request.data)
-
         try:
             planning = Planning.objects.get(id=planning_id)
         except Planning.DoesNotExist:
