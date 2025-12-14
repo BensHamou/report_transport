@@ -6,7 +6,6 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from .serializers import *
-import json
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework.views import APIView
@@ -73,7 +72,14 @@ def submit_planning_data(request):
         x = request.POST.get('coords_x')
         y = request.POST.get('coords_y')
         files = request.FILES.getlist('files')
-        deleted_files = request.FILES.getlist('deleted_files')
+
+        deleted_files_raw = request.data.get('deleted_files', '[]')
+
+        
+        try:
+            deleted_files = json.loads(deleted_files_raw)
+        except (TypeError, json.JSONDecodeError):
+            deleted_files = []
 
         try:
             planning = Planning.objects.get(id=planning_id)
@@ -108,8 +114,15 @@ def submit_planning_data_internal(request):
         planning_id = request.data.get('planning_id')
         x = request.data.get('coords_x')
         y = request.data.get('coords_y')
-        deleted_files = request.data.getlist('deleted_files', [])
         files = request.FILES.getlist('files')
+
+        deleted_files_raw = request.data.get('deleted_files', '[]')
+
+        
+        try:
+            deleted_files = json.loads(deleted_files_raw)
+        except (TypeError, json.JSONDecodeError):
+            deleted_files = []
 
         print(request.data)
 
