@@ -108,8 +108,8 @@ def submit_planning_data_internal(request):
         planning_id = request.data.get('planning_id')
         x = request.data.get('coords_x')
         y = request.data.get('coords_y')
+        deleted_files = request.data.get('deleted_files', [])
         files = request.FILES.getlist('files')
-        deleted_files = request.FILES.getlist('deleted_files')
 
         try:
             planning = Planning.objects.get(id=planning_id)
