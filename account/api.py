@@ -7,7 +7,6 @@ from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from .serializers import *
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.exceptions import NotAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from collections import defaultdict
@@ -20,9 +19,9 @@ from firebase_admin import messaging
 @csrf_exempt
 def lookup_planning_by_code(request):
     if request.method == 'POST':
-        data = json.loads(request.body.decode('utf-8'))
-        code = data.get('code')
         try:
+            data = json.loads(request.body.decode('utf-8'))
+            code = data.get('code')
             planning = Planning.objects.get(code=code, is_marked=False, state='Livraison Confirmé')
             if planning.driver:
                 return JsonResponse({'error': 'Ce planning est interne. Authentification requise.'}, status=403)
@@ -51,6 +50,8 @@ def lookup_planning_by_code_internal(request):
                 return JsonResponse({'error': 'Accès non autorisé. Seul Admin ou Chauffeur peut accéder à cette fonctionnalité.'}, status=403)
             
             planning = Planning.objects.get(code=code)
+            if not planning.driver:
+                return JsonResponse({'error': 'Ce planning est externe, accès non autorisé.'}, status=403)
             
             serializer = PlanningSerializer(planning)
             if serializer.data:
@@ -117,7 +118,6 @@ def submit_planning_data_internal(request):
         files = request.FILES.getlist('files')
 
         deleted_files_raw = request.data.get('deleted_files', '[]')
-
         
         try:
             deleted_files = json.loads(deleted_files_raw)
@@ -193,14 +193,20 @@ class getPlanningsView(APIView):
             planning_files_state = p.planning_files_state
             grouped_data[site_name][planning_files_state].append(PlanningSerializer(p).data)
 
-        # Convert defaultdicts to regular dicts for JSON serialization
-        grouped_dict = {
-            site: {state: plans for state, plans in states.items()}
-            for site, states in grouped_data.items()
-        }
+        grouped_dict = {site: {state: plans for state, plans in states.items()} for site, states in grouped_data.items()}
 
         return Response({"plannings": grouped_dict})
-    
+
+class getRefusalReasonsView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        reasons = FileRefusal.objects.all().order_by('designation')
+        serializer = FileRefusalSerializer(reasons, many=True)
+
+        return Response({"refusal_reasons": serializer.data})
+
 class ApproveFileView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -225,6 +231,7 @@ class RefuseFileView(APIView):
     def post(self, request, file_id):
         user = request.user
         refusal_reason = request.data.get('refusal_reason', '').strip()
+        cause_id = request.data.get('cause_id', None)
         if not refusal_reason:
             return Response({"error": "Le motif de refus est requis."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -234,14 +241,19 @@ class RefuseFileView(APIView):
         file_obj.state = 'Refusé'
         file_obj.save()
 
-        FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Refusé', actor=user, refusal_reason=refusal_reason)
+        try:
+            cause = FileRefusal.objects.get(id=cause_id)
+        except FileRefusal.DoesNotExist:
+            return Response({"error": "Le motif de refus spécifié n'existe pas."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        FileValidation.objects.create(file=file_obj, old_state=old_state, cause=cause, new_state='Refusé', actor=user, refusal_reason=refusal_reason)
 
         planning = file_obj.planning
 
         if planning.driver and planning.driver.user:
             target_user = planning.driver.user
             title = "Fichier refusé"
-            body = f"Le fichier pour le planning {planning.code} a été refusé."
+            body = f"Le fichier pour le planning {planning.code} a été refusé - {cause.designation}."
             data = {"planning_id": str(planning.id), "file_id": str(file_obj.id), "type": "file_refused"}
             results = send_push_to_user(target_user, title, body, data)
         # else if internal user is planning.creator (adjust to your logic)
@@ -288,9 +300,14 @@ class RefusePlanningView(APIView):
     def post(self, request, planning_id):
         user = request.user
         refusal_reason = request.data.get('refusal_reason', '').strip()
+        cause_id = request.data.get('cause_id', None)
         if not refusal_reason:
             return Response({"error": "Le motif de refus est requis."}, status=status.HTTP_400_BAD_REQUEST)
-
+        
+        try:
+            cause = FileRefusal.objects.get(id=cause_id)
+        except FileRefusal.DoesNotExist:
+            return Response({"error": "Le motif de refus spécifié n'existe pas."}, status=status.HTTP_400_BAD_REQUEST)
         planning_obj = get_object_or_404(Planning, id=planning_id)
         
         files_to_refuse = File.objects.filter(planning=planning_obj).exclude(state='Refusé')
@@ -300,13 +317,13 @@ class RefusePlanningView(APIView):
             old_state = file_obj.state
             file_obj.state = 'Refusé'
             file_obj.save()
-            FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Refusé', actor=user, refusal_reason=refusal_reason)
+            FileValidation.objects.create(file=file_obj, old_state=old_state, cause=cause, new_state='Refusé', actor=user, refusal_reason=refusal_reason)
             refused_count += 1
 
         if planning_obj.driver and planning_obj.driver.user:
             target_user = planning_obj.driver.user
             title = "Planning refusé"
-            body = f"Le planning {planning_obj.code} a été refusé."
+            body = f"Le planning {planning_obj.code} a été refusé - {cause.designation}."
             data = {"planning_id": str(planning_obj.id), "type": "planning_refused"}
             results = send_push_to_user(target_user, title, body, data)
         elif planning_obj.creator:
@@ -343,11 +360,7 @@ def send_push_to_tokens(tokens, title, body, data=None):
     success, failure = 0, 0
     results = []
     for token in tokens:
-        message = messaging.Message(
-            notification=messaging.Notification(title=title, body=body),
-            data={k: str(v) for k, v in (data or {}).items()},
-            token=token
-        )
+        message = messaging.Message(notification=messaging.Notification(title=title, body=body), data={k: str(v) for k, v in (data or {}).items()}, token=token)
         try:
             response = messaging.send(message)
             success += 1

@@ -82,6 +82,17 @@ class PlanningFilter(FilterSet):
         if user:
             self.filters['site'].queryset = user.sites.all()
 
+class FileRefusalFilter(FilterSet):
+
+    search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Raison de refus..') ))
+
+    def filter_search(self, queryset, name, value):
+        return queryset.filter(Q(designation__icontains=value)).distinct()
+
+    class Meta:
+        model = FileRefusal
+        fields = ['search']
+
 class ArchivedPlanningFilter(FilterSet):
     other = {'style': 'background-color: #ebecee; border-color: transparent; color: #133356; height: 40px; border-radius: 5px;'}
 

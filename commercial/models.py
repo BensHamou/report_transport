@@ -36,7 +36,6 @@ class Blocked(models.Model):
     def __str__(self):
         return f'{self.distributeur} - {self.id}' 
     
-
 class Planning(models.Model):
  
     STATE_PLANNING = [
@@ -167,6 +166,8 @@ class Planning(models.Model):
     @property
     def planning_files_state(self):
         if len(self.files.all()) == 0:
+            return 'En route'
+        elif all(f.state == 'En attente' for f in self.files.all()):
             return 'En attente'
         elif any(f.state == 'Refusé' for f in self.files.all()):
             return 'Refusé'
@@ -246,7 +247,12 @@ class File(models.Model):
     def __str__(self):
         return f'File - Planning {self.planning.id} - {self.file.name} - {self.state}'
 
-    
+class FileRefusal(models.Model):
+    designation = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.designation
+       
 class FileValidation(models.Model):
 
     STATE_FILE = [
@@ -259,6 +265,7 @@ class FileValidation(models.Model):
     new_state = models.CharField(choices=STATE_FILE, max_length=40)
     date = models.DateTimeField(auto_now_add=True) 
     actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    cause = models.ForeignKey(FileRefusal, on_delete=models.SET_NULL, null=True)
     refusal_reason = models.TextField(null=True, blank=True)
     file = models.ForeignKey(File, on_delete=models.CASCADE, related_name='validations')
 

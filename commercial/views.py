@@ -1139,3 +1139,62 @@ def getRedirectionURL(request, url_path):
     cache_param = str(uuid.uuid4())
     query_string = '&'.join([f'{key}={value}' for key, value in params.items() if value])
     return f'{url_path}?cache={cache_param}&{query_string}'
+
+# REFUSAL REASON
+@login_required(login_url='login')
+@admin_required
+def listFileRefusalView(request):
+    items = FileRefusal.objects.all().order_by('id')
+    filteredData = FileRefusalFilter(request.GET, queryset=items)
+    page_size_param = request.GET.get('page_size')
+    page_size = int(page_size_param) if page_size_param else 12
+    paginator = Paginator(filteredData.qs, page_size)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {'page': page, 'filtredData': filteredData}
+    return render(request, 'list_file_refusals.html', context)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def deleteFileRefusalView(request, id):
+    item = FileRefusal.objects.get(id=id)
+    item.delete()
+    cache_param = str(uuid.uuid4())
+    url_path = reverse('file_refusals')
+    redirect_url = f'{url_path}?cache={cache_param}'
+    return redirect(redirect_url)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def createFileRefusalView(request):
+    form = FileRefusalForm()
+    if request.method == 'POST':
+        form = FileRefusalForm(request.POST)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('file_refusals')
+            redirect_url = f'{url_path}?cache={cache_param}'
+            return redirect(redirect_url)
+    context = {'form': form}
+    return render(request, 'file_refusal_form.html', context)
+
+@login_required(login_url='login')
+@checkAdminOrLogisticien
+def editFileRefusalView(request, id):
+    item = FileRefusal.objects.get(id=id)
+    form = FileRefusalForm(instance=item)
+    if request.method == 'POST':
+        form = FileRefusalForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            cache_param = str(uuid.uuid4())
+            url_path = reverse('file_refusals')
+            page = request.GET.get('page', '1')
+            page_size = request.GET.get('page_size', '12')
+            search = request.GET.get('search', '')
+            redirect_url = f'{url_path}?cache={cache_param}&page={page}&page_size={page_size}&search={search}'
+            return redirect(redirect_url)
+    context = {'form': form, 'file_refusal': item}
+    return render(request, 'file_refusal_form.html', context)
+

@@ -2,12 +2,18 @@ from rest_framework import serializers
 from commercial.models import *
 from .models import *
 
+class FileRefusalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileRefusal
+        fields = ['id', 'designation']
+
 class FileValidationSerializer(serializers.ModelSerializer):
     actor = serializers.CharField(source='actor.fullname', read_only=True)
+    cause = serializers.CharField(source='cause.designation', read_only=True)
 
     class Meta:
         model = FileValidation
-        fields = ['id', 'old_state', 'new_state', 'date', 'actor', 'refusal_reason']
+        fields = ['id', 'old_state', 'new_state', 'date', 'actor', 'cause', 'refusal_reason']
 
 class FileSerializer(serializers.ModelSerializer):
     validations = FileValidationSerializer(many=True, read_only=True)
