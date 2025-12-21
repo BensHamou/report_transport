@@ -2,8 +2,8 @@ import firebase_admin
 from firebase_admin import credentials
 import os
 
-# FIREBASE_CRED_JSON = os.environ.get('FIREBASE_CRED_JSON')
-FIREBASE_CRED_JSON = "C:\\Users\\benslimane_m\\Downloads\\firebase-credentials.json"
+FIREBASE_CRED_JSON = os.environ.get('FIREBASE_CRED_JSON')
+# FIREBASE_CRED_JSON = "C:\\Users\\benslimane_m\\Downloads\\firebase-credentials.json"
 
 def init_firebase():
     if firebase_admin._apps:
