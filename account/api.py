@@ -177,14 +177,8 @@ def login_api(request):
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
-                refused_plannings_data = []
                 token, _ = Token.objects.get_or_create(user=user)
-                if user.role == 'Chauffeur':
-                    refused_plannings = Planning.objects.filter(driver__user=user).distinct()
-                    refused_plannings = [p for p in refused_plannings if p.files_state == 'Refusé']
-                    refused_plannings_data = PlanningCodeSerializer(refused_plannings, many=True).data
-                return JsonResponse({'success': True, 'token': token.key, 'fullname': user.fullname, 'role': user.role, 
-                                     'refused_plannings': refused_plannings_data}, status=200)
+                return JsonResponse({'success': True, 'token': token.key, 'fullname': user.fullname, 'role': user.role}, status=200)
             else:
                 return JsonResponse({'success': False, 'message': 'Identifiants invalides.'}, status=401)
 
@@ -394,3 +388,15 @@ def send_push_to_user(user, title, body, data=None):
     tokens = list(Device.objects.filter(user=user).values_list('token', flat=True))
     return send_push_to_tokens(tokens, title, body, data)
 
+class getPlanningCodeView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        refused_plannings_data = []
+        if request.user.role == 'Chauffeur':
+            refused_plannings = Planning.objects.filter(driver__user=request.user, state='Livraison Confirmé', is_marked=False).distinct()
+            refused_plannings = [p for p in refused_plannings if p.files_state == 'Refusé']
+            refused_plannings_data = PlanningCodeSerializer(refused_plannings, many=True).data
+
+        return Response({"refused_plannings": refused_plannings_data})
