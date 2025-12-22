@@ -105,7 +105,6 @@ def submit_planning_data(request):
 
         users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites=planning.site).distinct()
         for user in users_to_notify:
-            print('Notifying user:', user.fullname)
             title = "Nouveaux fichiers ajoutés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés."
             data = {"planning_id": str(planning.id), "type": "new_files"}
@@ -156,7 +155,6 @@ def submit_planning_data_internal(request):
 
         users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites=planning.site).distinct()
         for user in users_to_notify:
-            print('Notifying user:', user.fullname)
             title = "Nouveaux fichiers ajoutés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés - par {request.user.fullname}."
             data = {"planning_id": str(planning.id), "type": "new_files"}
@@ -388,7 +386,6 @@ def send_push_to_tokens(tokens, title, body, data=None):
 
 def send_push_to_user(user, title, body, data=None):
     tokens = list(Device.objects.filter(user=user).values_list('token', flat=True))
-    print(f"Sending push to user {user.fullname} with tokens: {tokens}")
     return send_push_to_tokens(tokens, title, body, data)
 
 class getPlanningCodeView(APIView):
