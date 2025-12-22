@@ -79,3 +79,13 @@ class PlanningExternSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'site', 'destination', 'fournisseur', 'date_planning', 'n_bl', 'client',
             'google_maps_coords', 'sequence', 'code', 'chauffeur', 'immatriculation', 'files', 'date_delivered']
+
+class PlanningCodeSerializer(serializers.ModelSerializer):
+
+    site = serializers.CharField(source='site.designation', read_only=True)
+    destination = serializers.CharField(source='destination.designation', read_only=True)
+
+    class Meta:
+        model = Planning
+        fields = ['id', 'site', 'destination', 'code']
+        

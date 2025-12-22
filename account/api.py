@@ -75,7 +75,6 @@ def submit_planning_data(request):
         files = request.FILES.getlist('files')
 
         deleted_files_raw = request.data.get('deleted_files', '[]')
-
         
         try:
             deleted_files = json.loads(deleted_files_raw)
@@ -104,7 +103,14 @@ def submit_planning_data(request):
             except File.DoesNotExist:
                 continue
 
-        return JsonResponse({'message': 'Soumission réussie'})
+        users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites__in=planning.site.all()).distinct()
+        for user in users_to_notify:
+            title = "Nouveaux fichiers ajoutés"
+            body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés."
+            data = {"planning_id": str(planning.id), "type": "new_files"}
+            results = send_push_to_user(user, title, body, data)
+
+        return JsonResponse({'message': 'Soumission réussie', "firebase_results": results})
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
 @api_view(['POST'])
@@ -147,7 +153,14 @@ def submit_planning_data_internal(request):
             except File.DoesNotExist:
                 continue
 
-        return Response({'message': 'Soumission réussie'})
+        users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites__in=planning.site.all()).distinct()
+        for user in users_to_notify:
+            title = "Nouveaux fichiers ajoutés"
+            body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés - par {request.user.fullname}."
+            data = {"planning_id": str(planning.id), "type": "new_files"}
+            results = send_push_to_user(user, title, body, data)
+
+        return Response({'message': 'Soumission réussie', "firebase_results": results})
     return Response({'error': 'Méthode non autorisée'}, status=405)
 
 @csrf_exempt
@@ -164,8 +177,14 @@ def login_api(request):
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
+                refused_plannings_data = []
                 token, _ = Token.objects.get_or_create(user=user)
-                return JsonResponse({'success': True, 'token': token.key, 'fullname': user.fullname, 'role': user.role}, status=200)
+                if user.role == 'Chauffeur':
+                    refused_plannings = Planning.objects.filter(driver__user=user).distinct()
+                    refused_plannings = [p for p in refused_plannings if p.files_state == 'Refusé']
+                    refused_plannings_data = PlanningCodeSerializer(refused_plannings, many=True).data
+                return JsonResponse({'success': True, 'token': token.key, 'fullname': user.fullname, 'role': user.role, 
+                                     'refused_plannings': refused_plannings_data}, status=200)
             else:
                 return JsonResponse({'success': False, 'message': 'Identifiants invalides.'}, status=401)
 
@@ -281,7 +300,7 @@ class ApprovePlanningView(APIView):
         planning_obj = get_object_or_404(Planning, id=planning_id)
         
         # Get all files for this planning that are not already approved
-        files_to_approve = File.objects.filter(planning=planning_obj).exclude(state='Approuvé')
+        files_to_approve = File.objects.filter(planning=planning_obj, state='Approuvé').exclude(state='Approuvé')
         
         approved_count = 0
         for file_obj in files_to_approve:
@@ -374,3 +393,4 @@ def send_push_to_tokens(tokens, title, body, data=None):
 def send_push_to_user(user, title, body, data=None):
     tokens = list(Device.objects.filter(user=user).values_list('token', flat=True))
     return send_push_to_tokens(tokens, title, body, data)
+
