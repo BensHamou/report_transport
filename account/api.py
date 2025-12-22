@@ -103,7 +103,7 @@ def submit_planning_data(request):
             except File.DoesNotExist:
                 continue
 
-        users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites=planning.site).distinct()
+        users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien']).distinct()
         for user in users_to_notify:
             print('Notifying user:', user.fullname)
             title = "Nouveaux fichiers ajoutés"
@@ -154,8 +154,9 @@ def submit_planning_data_internal(request):
             except File.DoesNotExist:
                 continue
 
-        users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites=planning.site).distinct()
+        users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien']).distinct()
         for user in users_to_notify:
+            print('Notifying user:', user.fullname)
             title = "Nouveaux fichiers ajoutés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés - par {request.user.fullname}."
             data = {"planning_id": str(planning.id), "type": "new_files"}
