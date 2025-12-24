@@ -88,6 +88,14 @@ def submit_planning_data(request):
 
         if planning.driver:
             return JsonResponse({'error': 'Ce planning est interne. Authentification requise.'}, status=403)
+        
+        files_state = planning.files_state
+        
+        if planning.files_state == 'Refusé':
+            refused_files = File.objects.filter(planning=planning, state='Refusé')
+            for file in refused_files:
+                file.corrected = True
+                file.save()
 
         if x and y:
             planning.google_maps_coords = f"{x},{y}"
@@ -105,7 +113,7 @@ def submit_planning_data(request):
 
         users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites=planning.site).distinct()
         for user in users_to_notify:
-            title = "Nouveaux fichiers ajoutés"
+            title = "Nouveaux fichiers ajoutés" if files_state == 'Refusé' else "Fichiers corrigés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés."
             data = {"planning_id": str(planning.id), "type": "new_files"}
             results = send_push_to_user(user, title, body, data)
@@ -134,6 +142,14 @@ def submit_planning_data_internal(request):
             planning = Planning.objects.get(id=planning_id)
         except Planning.DoesNotExist:
             return Response({'error': 'ID planning invalide'}, status=400)
+        
+        files_state = planning.files_state
+        
+        if planning.files_state == 'Refusé':
+            refused_files = File.objects.filter(planning=planning, state='Refusé')
+            for file in refused_files:
+                file.corrected = True
+                file.save()
 
         user_role = request.user.role
         if user_role not in ['Admin', 'Chauffeur']:
@@ -155,7 +171,7 @@ def submit_planning_data_internal(request):
 
         users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites=planning.site).distinct()
         for user in users_to_notify:
-            title = "Nouveaux fichiers ajoutés"
+            title = "Nouveaux fichiers ajoutés" if files_state == 'Refusé' else "Fichiers corrigés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés - par {request.user.fullname}."
             data = {"planning_id": str(planning.id), "type": "new_files"}
             results = send_push_to_user(user, title, body, data)

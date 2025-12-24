@@ -158,7 +158,7 @@ class Planning(models.Model):
             return 'Aucun fichier'
         elif all(f.state == 'Approuvé' for f in self.files.all()):
             return 'Approuvé'
-        elif any(f.state == 'Refusé' for f in self.files.all()):
+        elif any(f.state == 'Refusé' and not f.corrected for f in self.files.all()):
             return 'Refusé'
         else:
             return 'En attente'
@@ -169,7 +169,7 @@ class Planning(models.Model):
             return 'En route'
         elif all(f.state == 'En attente' for f in self.files.all()):
             return 'En attente'
-        elif any(f.state == 'Refusé' for f in self.files.all()):
+        elif any(f.state == 'Refusé' and not f.corrected for f in self.files.all()):
             return 'Refusé'
         else:
             return 'Approuvé'
@@ -229,6 +229,7 @@ class File(models.Model):
     file = models.FileField(upload_to=get_upload_filename, verbose_name='Fichier')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     state = models.CharField(choices=STATE_FILE, max_length=20, default='En attente')
+    corrected = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

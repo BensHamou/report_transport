@@ -21,7 +21,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ['id', 'file_url', 'uploaded_at', 'state', 'validations']
+        fields = ['id', 'file_url', 'uploaded_at', 'state', 'validations', 'corrected']
 
     def get_file_url(self, obj):
         request = self.context.get('request')
@@ -47,6 +47,7 @@ class PlanningSerializer(serializers.ModelSerializer):
     driver_address = serializers.CharField(source='driver.address', read_only=True)
     immatriculation = serializers.CharField(source='vehicle.immatriculation', read_only=True)
     vehicle_code = serializers.CharField(source='vehicle.designation', read_only=True)
+    files_state = serializers.ReadOnlyField()
 
     files = FileSerializer(many=True, read_only=True)
 
@@ -56,7 +57,7 @@ class PlanningSerializer(serializers.ModelSerializer):
             'id', 'site', 'destination', 'fournisseur', 'date_planning', 'n_bl', 'client',
             'google_maps_coords', 'sequence', 'code', 'vehicle_code',
             'driver_last_name', 'driver_first_name', 'driver_phone',
-            'driver_address', 'immatriculation', 'files', 'date_delivered'
+            'driver_address', 'immatriculation', 'files', 'date_delivered', 'files_state'
             ]
 
 class PlanningExternSerializer(serializers.ModelSerializer):
@@ -70,6 +71,7 @@ class PlanningExternSerializer(serializers.ModelSerializer):
     n_bl = serializers.ReadOnlyField()
     google_maps_coords = serializers.ReadOnlyField()
     date_delivered = serializers.ReadOnlyField()
+    files_state = serializers.ReadOnlyField()
 
 
     files = FileSerializer(many=True, read_only=True)
@@ -78,7 +80,7 @@ class PlanningExternSerializer(serializers.ModelSerializer):
         model = Planning
         fields = [
             'id', 'site', 'destination', 'fournisseur', 'date_planning', 'n_bl', 'client',
-            'google_maps_coords', 'sequence', 'code', 'chauffeur', 'immatriculation', 'files', 'date_delivered']
+            'google_maps_coords', 'sequence', 'code', 'chauffeur', 'immatriculation', 'files', 'date_delivered', 'files_state']
 
 class PlanningCodeSerializer(serializers.ModelSerializer):
 
