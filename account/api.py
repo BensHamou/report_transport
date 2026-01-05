@@ -115,7 +115,7 @@ def submit_planning_data(request):
         for user in users_to_notify:
             title = "Nouveaux fichiers ajoutés" if files_state == 'Refusé' else "Fichiers corrigés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés."
-            data = {"planning_id": str(planning.id), "type": "new_files"}
+            data = {"planning_id": str(planning.id), "type": "new_files", "planning_code": planning.code}
             results = send_push_to_user(user, title, body, data)
 
         return JsonResponse({'message': 'Soumission réussie', "firebase_results": results})
@@ -173,7 +173,7 @@ def submit_planning_data_internal(request):
         for user in users_to_notify:
             title = "Nouveaux fichiers ajoutés" if files_state == 'Refusé' else "Fichiers corrigés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés - par {request.user.fullname}."
-            data = {"planning_id": str(planning.id), "type": "new_files"}
+            data = {"planning_id": str(planning.id), "type": "new_files", "planning_code": planning.code}
             results = send_push_to_user(user, title, body, data)
 
         return Response({'message': 'Soumission réussie', "firebase_results": results})
@@ -283,7 +283,7 @@ class RefuseFileView(APIView):
             target_user = planning.driver.user
             title = "Fichier refusé"
             body = f"Le fichier pour le planning {planning.code} a été refusé - {cause.designation}."
-            data = {"planning_id": str(planning.id), "file_id": str(file_obj.id), "type": "file_refused"}
+            data = {"planning_id": str(planning.id), "file_id": str(file_obj.id), "type": "file_refused", "planning_code": planning.code}
             results = send_push_to_user(target_user, title, body, data)
         # else if internal user is planning.creator (adjust to your logic)
         elif planning.creator:
@@ -353,7 +353,7 @@ class RefusePlanningView(APIView):
             target_user = planning_obj.driver.user
             title = "Planning refusé"
             body = f"Le planning {planning_obj.code} a été refusé - {cause.designation}."
-            data = {"planning_id": str(planning_obj.id), "type": "planning_refused"}
+            data = {"planning_id": str(planning_obj.id), "type": "planning_refused", "planning_code": planning_obj.code}
             results = send_push_to_user(target_user, title, body, data)
         elif planning_obj.creator:
             results = send_push_to_user(planning_obj.creator, "Planning refusé", f"Le planning {planning_obj} a été refusé.", {"planning_id": str(planning_obj.id)})
