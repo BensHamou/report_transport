@@ -156,9 +156,9 @@ class Planning(models.Model):
     def files_state(self):
         if len(self.files.all()) == 0:
             return 'Aucun fichier'
-        elif all(f.state == 'Approuvé' for f in self.files.all()):
+        elif all(f.state == 'Approuvé' for f in self.files.filter(corrected=False)):
             return 'Approuvé'
-        elif any(f.state == 'Refusé' and not f.corrected for f in self.files.all()):
+        elif any(f.state == 'Refusé' for f in self.files.filter(corrected=False)):
             return 'Refusé'
         else:
             return 'En attente'
@@ -167,9 +167,9 @@ class Planning(models.Model):
     def planning_files_state(self):
         if len(self.files.all()) == 0:
             return 'En route'
-        elif all(f.state == 'En attente' for f in self.files.all()):
+        elif all(f.state == 'En attente' for f in self.files.filter(corrected=False)):
             return 'En attente'
-        elif any(f.state == 'Refusé' and not f.corrected for f in self.files.all()):
+        elif any(f.state == 'Refusé' for f in self.files.filter(corrected=False)):
             return 'Refusé'
         else:
             return 'Approuvé'

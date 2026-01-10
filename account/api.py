@@ -145,7 +145,7 @@ def submit_planning_data_internal(request):
         
         files_state = planning.files_state
         
-        if planning.files_state == 'Refusé':
+        if files_state == 'Refusé':
             refused_files = File.objects.filter(planning=planning, state='Refusé')
             for file in refused_files:
                 file.corrected = True
