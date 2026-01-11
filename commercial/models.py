@@ -167,12 +167,12 @@ class Planning(models.Model):
     def planning_files_state(self):
         if len(self.files.all()) == 0:
             return 'En route'
-        elif all(f.state == 'En attente' for f in self.files.filter(corrected=False)):
-            return 'En attente'
+        elif all(f.state == 'Approuvé' for f in self.files.filter(corrected=False)):
+            return 'Approuvé'
         elif any(f.state == 'Refusé' for f in self.files.filter(corrected=False)):
             return 'Refusé'
         else:
-            return 'Approuvé'
+            return 'En attente'
 
     def __str__(self):
         return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
