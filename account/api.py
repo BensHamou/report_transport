@@ -113,7 +113,7 @@ def submit_planning_data(request):
 
         users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites=planning.site).distinct()
         for user in users_to_notify:
-            title = "Nouveaux fichiers ajoutés" if files_state == 'Refusé' else "Fichiers corrigés"
+            title = "Nouveaux fichiers ajoutés" if files_state != 'Refusé' else "Fichiers corrigés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés."
             data = {"planning_id": str(planning.id), "type": "new_files", "planning_code": planning.code}
             results = send_push_to_user(user, title, body, data)
@@ -171,7 +171,7 @@ def submit_planning_data_internal(request):
 
         users_to_notify = User.objects.filter(role__in=['Admin', 'Logisticien'], sites=planning.site).distinct()
         for user in users_to_notify:
-            title = "Nouveaux fichiers ajoutés" if files_state == 'Refusé' else "Fichiers corrigés"
+            title = "Nouveaux fichiers ajoutés" if files_state != 'Refusé' else "Fichiers corrigés"
             body = f"Le planning {planning.code} a de nouveaux fichiers ajoutés - par {request.user.fullname}."
             data = {"planning_id": str(planning.id), "type": "new_files", "planning_code": planning.code}
             results = send_push_to_user(user, title, body, data)
