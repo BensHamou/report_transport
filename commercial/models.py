@@ -173,6 +173,13 @@ class Planning(models.Model):
             return 'Refusé'
         else:
             return 'En attente'
+    
+    @property
+    def visible_files(self):
+        qs = self.files.filter(corrected=False)
+        if self.files_state == 'Approuvé':
+            qs = qs.filter(state='Approuvé')
+        return qs
 
     def __str__(self):
         return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
