@@ -25,8 +25,8 @@ services:
     volumes:
       - ./report_transport:/report_transport
       - ./media:/app/media
-      - /home/benslimane_m/transport/report_transport/firebase-credentials.json:/app/firebase-credentials.json:ro
-
+      - /home/bouchentouf_ama/trans/report_transport/firebase-credentials.json:/app/firebase-credentials.json:ro
+      
     command: >
       sh -c " python manage.py makemigrations &&
               python manage.py migrate &&
