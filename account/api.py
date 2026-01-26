@@ -15,6 +15,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from firebase_admin import messaging
+from django.db.models import Q, Count, Case, When, Value, CharField, F, Max
+from rest_framework.pagination import PageNumberPagination
 
 @csrf_exempt
 def lookup_planning_by_code(request):
@@ -203,28 +205,66 @@ def login_api(request):
 
     return JsonResponse({'success': False, 'message': 'Méthode non autorisée.'}, status=405)
 
+class PlanningPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class getPlanningsView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        plannings = (
+        queryset = (
             Planning.objects
             .filter(is_marked=False, state='Livraison Confirmé', code__isnull=False)
-            .select_related('site', 'destination', 'fournisseur', 'driver', 'vehicle')
+            .select_related('site', 'destination', 'fournisseur', 'driver', 'vehicle', 'tonnage')
             .prefetch_related('files__validations')
-            .order_by('site__designation', 'date_created')
+        )
+        
+        queryset = queryset.annotate(
+            annotated_date_delivered=Max(
+                'validation__date', 
+                filter=Q(validation__new_state='Livraison Confirmé')
+            ),
+            unfilled_files_count=Count('files', filter=Q(files__corrected=False)),
+            approved_files_count=Count('files', filter=Q(files__corrected=False, files__state='Approuvé')),
+            refused_files_count=Count('files', filter=Q(files__corrected=False, files__state='Refusé')),
+        ).annotate(
+            annotated_state=Case(
+                When(unfilled_files_count=0, then=Value('En route')),
+                When(refused_files_count__gt=0, then=Value('Refusé')),
+                When(Q(unfilled_files_count__gt=0) & Q(unfilled_files_count=F('approved_files_count')), then=Value('Approuvé')),
+                default=Value('En attente'),
+                output_field=CharField(),
+            )
         )
 
-        grouped_data = defaultdict(lambda: defaultdict(list))
-        for p in plannings:
-            site_name = p.site.designation
-            planning_files_state = p.planning_files_state
-            grouped_data[site_name][planning_files_state].append(PlanningSerializer(p).data)
+        search = request.query_params.get('search')
+        state = request.query_params.get('state')
+        site_id = request.query_params.get('site_id')
+        date_from = request.query_params.get('date_from')
+        date_to = request.query_params.get('date_to')
 
-        grouped_dict = {site: {state: plans for state, plans in states.items()} for site, states in grouped_data.items()}
+        if search:
+            queryset = queryset.filter(Q(n_bl__icontains=search) | Q(code__icontains=search))
+        if site_id:
+            queryset = queryset.filter(site_id=site_id)
+        if state:
+            queryset = queryset.filter(annotated_state=state)
+        if date_from:
+            queryset = queryset.filter(annotated_date_delivered__date__gte=date_from)
+        if date_to:
+            queryset = queryset.filter(annotated_date_delivered__date__lte=date_to)
 
-        return Response({"plannings": grouped_dict})
+        queryset = queryset.order_by('site__designation', 'date_created')
+        paginator = PlanningPagination()
+        page = paginator.paginate_queryset(queryset, request, view=self)
+        if page is not None:
+            serializer = PlanningSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        serializer = PlanningSerializer(queryset, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 class getRefusalReasonsView(APIView):
     authentication_classes = [TokenAuthentication]
