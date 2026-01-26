@@ -1,5 +1,7 @@
 from django.forms import ModelForm, inlineformset_factory
 from django import forms
+
+from fleet.models import ReparationType
 from .models import *
 from django.db.models import Q
 from account.models import *
@@ -162,6 +164,13 @@ class PlanningConfirmForm(ModelForm):
                 self.fields['driver'].required = True
             else:
                 self.fields['chauffeur'].required = True
+
+class FileRefusalForm(ModelForm):
+    class Meta:
+        model = FileRefusal
+        fields = '__all__'
+
+    designation = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control', 'Désignation')))
 
 class FileForm(ModelForm):
     class Meta:

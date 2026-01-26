@@ -9,6 +9,7 @@ class Driver(models.Model):
     first_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, null=True, blank=True)
     address = models.CharField(max_length=1000, null=True, blank=True)
+    user = models.ForeignKey('account.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='drivers')
     driving_license = models.CharField(max_length=100, null=True, blank=True)
     fournisseur = models.ForeignKey('report.Fournisseur', on_delete=models.CASCADE, limit_choices_to={'is_tracked': True}, related_name='drivers')
     

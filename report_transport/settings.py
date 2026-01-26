@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_crontab',
     'django_extensions',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "report_transport.urls"
@@ -78,7 +82,7 @@ TEMPLATES = [
                  os.path.join(BASE_DIR, 'fleet', 'templates', 'reparation_type'), os.path.join(BASE_DIR, 'fleet', 'templates', 'reparation'), 
                  os.path.join(BASE_DIR, 'fleet', 'templates', 'fuel_refill'), os.path.join(BASE_DIR, 'fleet', 'templates', 'assurance'),
                  os.path.join(BASE_DIR, 'fleet', 'templates', 'mission_cost_type'), os.path.join(BASE_DIR, 'fleet', 'templates', 'mission_cost'),
-                 os.path.join(BASE_DIR, 'fleet', 'templates', 'masse_salariale')],
+                 os.path.join(BASE_DIR, 'fleet', 'templates', 'masse_salariale'), os.path.join(BASE_DIR, 'commercial', 'templates', 'file_refusal')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -101,14 +105,14 @@ CRONJOBS = [
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASS'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-    } 
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.environ.get('DB_NAME'),
+    #     'USER': os.environ.get('DB_USER'),
+    #     'PASSWORD': os.environ.get('DB_PASS'),
+    #     'HOST': os.environ.get('DB_HOST'),
+    #     'PORT': os.environ.get('DB_PORT'),
+    # } 
     # 'default': {
     #    'ENGINE': 'django.db.backends.postgresql',
     #    'NAME': 'TransDB',
@@ -117,14 +121,14 @@ DATABASES = {
     #    'HOST': '10.20.10.18',
     #    'PORT': '5166',
     # }
-    # 'default': {
-    #    'ENGINE': 'django.db.backends.postgresql',
-    #    'NAME': 'TransDB',
-    #    'USER': 'puma_prod',
-    #    'PASSWORD': 'puma_prod',
-    #    'HOST': '10.10.10.101',
-    #    'PORT': '5434',
-    # }
+    'default': {
+       'ENGINE': 'django.db.backends.postgresql',
+       'NAME': 'TransDB',
+       'USER': 'puma_prod',
+       'PASSWORD': 'puma_prod',
+       'HOST': '10.10.10.101',
+       'PORT': '5434',
+    }
 }
 
 

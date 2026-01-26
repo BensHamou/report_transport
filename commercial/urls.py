@@ -40,5 +40,10 @@ urlpatterns = [
     path('planning/archived/', ArchivedPlanningListView.as_view(), name='archived_plannings'),
     path('planning/archive/detail/<int:pk>/', planning_detail_api, name='planning_detail_api'),
     path('live_search/', live_search, name='live_search'),
+
+    path('file-refusals/', listFileRefusalView, name='file_refusals'),
+    path("file-refusal/delete/<int:id>", deleteFileRefusalView, name="delete_file_refusal"),
+    path("file-refusal/edit/<int:id>", editFileRefusalView, name="edit_file_refusal"),
+    path("file-refusal/create/", createFileRefusalView, name="create_file_refusal"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -19,22 +19,30 @@ Chauffeur
   {% csrf_token %}
   <div class="card card-body" style="background: rgba(19, 51, 86, 0.85); border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
     <div class="row mb-4">
-      <div class="col-lg-4 col-md-12 col-sm-12">
+      <div class="col-lg-6 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="last_name">Nom</label>
             {{ form.last_name }}
         </div>
       </div>
-      <div class="col-lg-4 col-md-12 col-sm-12">
+      <div class="col-lg-6 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="first_name">Prénom</label>
           {{ form.first_name }}
         </div>
       </div>
-      <div class="col-lg-4 col-md-12 col-sm-12">
+    </div>
+    <div class="row mb-4">
+      <div class="col-lg-6 col-md-12 col-sm-12">
         <div class="form-outline">
           <label class="form-label labelCustom" for="fournisseur">Fournisseur</label>
           {{ form.fournisseur }}
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="form-outline">
+          <label class="form-label labelCustom" for="user">Utilisateur</label>
+          {{ form.user }}
         </div>
       </div>
     </div>

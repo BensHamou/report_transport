@@ -5,7 +5,7 @@ from .models import *
 from report.models import Fournisseur, Emplacement
 from django.core.validators import MinValueValidator
 from django.utils import timezone
-from account.models import Site
+from account.models import Site, User
 
 class DriverForm(ModelForm):
     class Meta:
@@ -18,6 +18,7 @@ class DriverForm(ModelForm):
     phone = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Téléphone')), required=False)
     address = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Adresse')), required=False)
     driving_license = forms.CharField(widget=forms.TextInput(attrs=getAttrs('control','Permis de conduire')), required=False)
+    user = forms.ModelChoiceField(queryset=User.objects.filter(role='Chauffeur'), widget=forms.Select(attrs=getAttrs('select2')), required=False)
 
 
 class VehicleForm(ModelForm):

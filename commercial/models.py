@@ -36,7 +36,6 @@ class Blocked(models.Model):
     def __str__(self):
         return f'{self.distributeur} - {self.id}' 
     
-
 class Planning(models.Model):
  
     STATE_PLANNING = [
@@ -113,6 +112,13 @@ class Planning(models.Model):
         return self.state == 'Livraison Confirmé' and self.files.exists()
     
     @property
+    def date_delivered(self):
+        if self.state == 'Livraison Confirmé':
+            return self.validation_set.filter(new_state='Livraison Confirmé').order_by('date').last().date
+        else:
+            return None
+    
+    @property
     def is_missing_delivery_overdue(self):
         if self.date_honored:
             cutoff_date = date(2025, 10, 1)
@@ -126,6 +132,10 @@ class Planning(models.Model):
         if self.driver:
             return self.driver.__str__()
         return self.chauffeur
+
+    @property
+    def sequence(self):
+        return self.__str__()
 
     @property
     def str_immatriculation(self):
@@ -142,6 +152,35 @@ class Planning(models.Model):
             return self.validation_set.filter(new_state='Livraison Confirmé').order_by('date').last().date
         return None
     
+    @property
+    def files_state(self):
+        if len(self.files.all()) == 0:
+            return 'Aucun fichier'
+        elif all(f.state == 'Approuvé' for f in self.files.filter(corrected=False)):
+            return 'Approuvé'
+        elif any(f.state == 'Refusé' for f in self.files.filter(corrected=False)):
+            return 'Refusé'
+        else:
+            return 'En attente'
+    
+    @property
+    def planning_files_state(self):
+        if len(self.files.all()) == 0:
+            return 'En route'
+        elif all(f.state == 'Approuvé' for f in self.files.filter(corrected=False)):
+            return 'Approuvé'
+        elif any(f.state == 'Refusé' for f in self.files.filter(corrected=False)):
+            return 'Refusé'
+        else:
+            return 'En attente'
+    
+    @property
+    def visible_files(self):
+        qs = self.files.filter(corrected=False)
+        if self.files_state == 'Approuvé':
+            qs = qs.filter(state='Approuvé')
+        return qs
+
     def __str__(self):
         return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
     
@@ -187,9 +226,17 @@ def get_upload_filename(instance, filename):
     return "planning_files/%s-%s" % (slug, filename)
 
 class File(models.Model):
+    STATE_FILE = [
+        ('En attente', 'En attente'),
+        ('Approuvé', 'Approuvé'),
+        ('Refusé', 'Refusé')
+    ]
+
     planning = models.ForeignKey(Planning, on_delete=models.CASCADE, related_name='files')
     file = models.FileField(upload_to=get_upload_filename, verbose_name='Fichier')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    state = models.CharField(choices=STATE_FILE, max_length=20, default='En attente')
+    corrected = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -203,5 +250,44 @@ class File(models.Model):
                     img.thumbnail(max_size, PILImage.LANCZOS)
                     img.save(self.file.path, quality=80, optimize=True)
                 except Exception:
-                    pass 
+                    pass
+    
+    def __str__(self):
+        return f'File - Planning {self.planning.id} - {self.file.name} - {self.state}'
 
+class FileRefusal(models.Model):
+    designation = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.designation
+       
+class FileValidation(models.Model):
+
+    STATE_FILE = [
+        ('En attente', 'En attente'),
+        ('Approuvé', 'Approuvé'),
+        ('Refusé', 'Refusé')
+    ]
+
+    old_state = models.CharField(choices=STATE_FILE, max_length=40)
+    new_state = models.CharField(choices=STATE_FILE, max_length=40)
+    date = models.DateTimeField(auto_now_add=True) 
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    cause = models.ForeignKey(FileRefusal, on_delete=models.SET_NULL, null=True)
+    refusal_reason = models.TextField(null=True, blank=True)
+    file = models.ForeignKey(File, on_delete=models.CASCADE, related_name='validations')
+
+    def __str__(self):
+        return "Validation - " + str(self.file.id) + " - " + str(self.date)
+    
+class Device(models.Model):
+    DEVICE_TYPES = (('android','android'),('ios','ios'),('web','web'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='devices')
+    token = models.CharField(max_length=512, unique=True)
+    device_type = models.CharField(max_length=16, choices=DEVICE_TYPES, default='android')
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_seen = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.user} - {self.device_type}'
+    
