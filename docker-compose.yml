@@ -52,7 +52,8 @@ services:
     volumes:
       - ./report_transport:/report_transport
       - ./media:/app/media
-      - /home/bouchentouf_ama/trans/report_transport/firebase-credentials.json:/app/firebase-credentials.json:ro
+      # - /home/bouchentouf_ama/trans/report_transport/firebase-credentials.json:/app/firebase-credentials.json:ro
+      - /home/benslimane_m/transport/report_transport/firebase-credentials.json:/app/firebase-credentials.json:ro
 
     environment:
       - DB_HOST=db
