@@ -247,7 +247,18 @@ class getPlanningsView(APIView):
         date_to = request.query_params.get('date_to')
 
         if search:
-            queryset = queryset.filter(Q(n_bl__icontains=search) | Q(code__icontains=search))
+            queryset = queryset.filter(
+                Q(code__icontains=search) |
+                Q(n_bl__icontains=search) |
+                Q(client__icontains=search) |
+                Q(destination__designation__icontains=search) |
+                Q(driver__first_name__icontains=search) |
+                Q(driver__last_name__icontains=search) |
+                Q(vehicle__immatriculation__icontains=search) |
+                Q(immatriculation__icontains=search) |
+                Q(id__icontains=search) |
+                Q(site__planning_prefix__icontains=search)
+            ).distinct()
         if site_id:
             queryset = queryset.filter(site_id=site_id)
         if state:
