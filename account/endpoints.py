@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/planning/submit-internal/', submit_planning_data_internal, name='submit_planning_data_internal'),
     path('api/planning/get/', getPlanningsView.as_view(), name='get_plannings'),
     path('api/refusal-reasons/get/', getRefusalReasonsView.as_view(), name='get_reasons'),
+    path('api/sites/get/', getSitesView.as_view(), name='get_sites'),
     path('api/refused-plannings/get/', getPlanningCodeView.as_view(), name='get_refused_plannings'),
     path('api/login/', login_api, name='login_api'),
     path('api/files/<int:file_id>/approve/', ApproveFileView.as_view(), name='approve_file'),

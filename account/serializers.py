@@ -7,6 +7,11 @@ class FileRefusalSerializer(serializers.ModelSerializer):
         model = FileRefusal
         fields = ['id', 'designation']
 
+class SiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Site
+        fields = ['id', 'designation']
+
 class FileValidationSerializer(serializers.ModelSerializer):
     actor = serializers.CharField(source='actor.fullname', read_only=True)
     cause = serializers.CharField(source='cause.designation', read_only=True)

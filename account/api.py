@@ -275,6 +275,16 @@ class getRefusalReasonsView(APIView):
         serializer = FileRefusalSerializer(reasons, many=True)
 
         return Response({"refusal_reasons": serializer.data})
+    
+class getSitesView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        sites = Site.objects.all().order_by('designation')
+        serializer = SiteSerializer(sites, many=True)
+
+        return Response({"sites": serializer.data})
 
 class ApproveFileView(APIView):
     authentication_classes = [TokenAuthentication]
