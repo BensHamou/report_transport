@@ -270,7 +270,7 @@ class getPlanningsView(APIView):
         if date_to:
             queryset = queryset.filter(annotated_date_delivered__date__lte=date_to)
 
-        queryset = queryset.order_by('site__designation', 'date_created')
+        queryset = queryset.order_by('site__designation', '- date_created')
         paginator = PlanningPagination()
         page = paginator.paginate_queryset(queryset, request, view=self)
         if page is not None:
