@@ -54,7 +54,7 @@ class Planning(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     state = models.CharField(choices=STATE_PLANNING, max_length=40)
 
-    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, null=True, blank=True)
     date_planning = models.DateField()
     date_replanning = models.DateField(null=True, blank=True)
 
@@ -182,7 +182,8 @@ class Planning(models.Model):
         return qs
 
     def __str__(self):
-        return f"{self.site.planning_prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
+        prefix = self.site.planning_prefix if self.site else ""
+        return f"{prefix}{self.id:05d}/{self.date_planning_final.strftime('%y')}"
     
 class PPlanned(models.Model):
     planning = models.ForeignKey(Planning, on_delete=models.CASCADE)

@@ -289,7 +289,7 @@ class CheckPlanningViewerMixin:
         if self.request.user.role in ['Admin', 'Commercial']:
             return True
         sites = self.request.user.sites.all()
-        if planning.site in sites and self.request.user.role in ['Observateur', 'Logisticien']:
+        if (planning.site in sites or planning.site is None) and self.request.user.role in ['Observateur', 'Logisticien']:
             return True
         return False
 
@@ -318,7 +318,7 @@ class PlanningInline():
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['sites'] = self.request.user.sites.all()
+        # kwargs['sites'] = self.request.user.sites.all()
         return kwargs
 
     def form_valid(self, form):
@@ -413,7 +413,7 @@ class PlanningList(LoginRequiredMixin, CheckPlanningListViewerMixin, FilterView)
     def get_queryset(self):
         queryset = super().get_queryset()
         sites = self.request.user.sites.all()
-        queryset = queryset.filter(site__in=sites)
+        queryset = queryset.filter(Q(site__in=sites) | Q(site__isnull=True))
         return queryset   
 
     def get_context_data(self, **kwargs):
@@ -678,6 +678,9 @@ def missPlanning(request, pk):
     new_state = planning.state
     miss_reason = request.POST.get('miss_reason')
     actor = request.user
+    
+    # Reset site when planning is missed
+    planning.site = None
 
     validation = Validation(old_state=old_state, new_state=new_state, actor=actor, miss_reason=miss_reason, planning=planning)
     planning.save()

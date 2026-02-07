@@ -32,6 +32,8 @@ class PlanningCommForm(ModelForm):
 
     class Meta:
         model = Planning
+    class Meta:
+        model = Planning
         fields = ['site', 'date_planning', 'distributeur_id', 'distributeur','client_id', 'client', 'destination', 
                   'livraison', 'observation_comm', 'fournisseur', 'tonnage', 'n_bl', 'observation_logi',
                   'chauffeur', 'immatriculation', 'driver', 'vehicle', 'date_honored', 'google_maps_coords']
@@ -63,47 +65,49 @@ class PlanningCommForm(ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        site = cleaned_data.get('site')
+        # site = cleaned_data.get('site')
         tonnage = cleaned_data.get('tonnage')
         destination = cleaned_data.get('destination')
         fournisseur = cleaned_data.get('fournisseur')
         date_planning = cleaned_data.get('date_planning')
-        if fournisseur:
-            if tonnage:
-                if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, 
-                                            fournisseur=fournisseur, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
-                    self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
-                    self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
-                    self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
-                    self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
-            else:
-                if not Price.objects.filter(depart=site, destination=destination, fournisseur=fournisseur, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
-                    self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
-                    self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
-                    self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
-        else:
-            if tonnage:
-                if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
-                    self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
-                    self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
-                    self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
-            else:
-                if not Price.objects.filter(depart=site, destination=destination, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
-                    self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
-                    self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+        
+        # Validation dependent on site is deferred to Dispatch/Logi step
+        # if fournisseur:
+        #     if tonnage:
+        #         if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, 
+        #                                     fournisseur=fournisseur, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
+        #             self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+        #             self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+        #             self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+        #             self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+        #     else:
+        #         if not Price.objects.filter(depart=site, destination=destination, fournisseur=fournisseur, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
+        #             self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+        #             self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+        #             self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+        # else:
+        #     if tonnage:
+        #         if not Price.objects.filter(depart=site, destination=destination, tonnage=tonnage, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
+        #             self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+        #             self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+        #             self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+        #     else:
+        #         if not Price.objects.filter(depart=site, destination=destination, date_from__lte=date_planning).filter(Q(date_to__gte=date_planning) | Q(date_to__isnull=True)).exists():
+        #             self.add_error('destination', 'Aucun prix trouvé pour cette configuration.')
+        #             self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
         
         return cleaned_data
 
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
-        sites = kwargs.pop('sites', None)
+        # sites = kwargs.pop('sites', None)
         super(PlanningCommForm, self).__init__(*args, **kwargs)
-        self.fields['site'].initial = sites.first()
-        if len(sites) < 2:
-            self.fields['site'].widget.attrs['disabled'] = True
-        else:
-            self.fields['site'].queryset = sites
+        # self.fields['site'].initial = sites.first()
+        # if len(sites) < 2:
+        #     self.fields['site'].widget.attrs['disabled'] = True
+        # else:
+        #     self.fields['site'].queryset = sites
 
         if instance and instance.fournisseur:
             if instance.fournisseur.is_tracked:
@@ -125,21 +129,42 @@ class PlanningLogiForm(ModelForm):
 
     class Meta:
         model = Planning
-        fields = ['fournisseur', 'date_honored', 'tonnage', 'observation_logi']
+        fields = ['site', 'fournisseur', 'date_honored', 'tonnage', 'observation_logi']
 
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
     fournisseur = forms.ModelChoiceField(queryset=Fournisseur.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Fournisseur")
     date_honored = forms.DateField(initial=timezone.now().date(), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
     tonnage = forms.ModelChoiceField(queryset=Tonnage.objects.all(), widget=forms.Select(attrs=getAttrs('select2')), empty_label="Tonnage")
+    
     def clean(self):
         cleaned_data = super().clean()
+        site = cleaned_data.get('site')
         fournisseur = cleaned_data.get('fournisseur')
         tonnage = cleaned_data.get('tonnage')
         date_planning_final = self.instance.date_planning_final
-        if fournisseur and tonnage:
-            if not Price.objects.filter(depart=self.instance.site, destination=self.instance.destination, tonnage=tonnage, 
-                                        fournisseur=fournisseur, date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).exists():
-                self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
-                self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+        
+        # Validation with site
+        if site:
+            if fournisseur:
+                if tonnage:
+                    if not Price.objects.filter(depart=site, destination=self.instance.destination, tonnage=tonnage, 
+                                                fournisseur=fournisseur, date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).exists():
+                        self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+                        self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+                        self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+                else:
+                    if not Price.objects.filter(depart=site, destination=self.instance.destination, fournisseur=fournisseur, date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).exists():
+                        self.add_error('fournisseur', 'Aucun prix trouvé pour cette configuration.')
+                        self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+            else:
+                 if tonnage:
+                    if not Price.objects.filter(depart=site, destination=self.instance.destination, tonnage=tonnage, date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).exists():
+                        self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+                        self.add_error('tonnage', 'Aucun prix trouvé pour cette configuration.')
+                 else:
+                     if not Price.objects.filter(depart=site, destination=self.instance.destination, date_from__lte=date_planning_final).filter(Q(date_to__gte=date_planning_final) | Q(date_to__isnull=True)).exists():
+                        self.add_error('site', 'Aucun prix trouvé pour cette configuration.')
+
         return cleaned_data
     
 class PlanningConfirmForm(ModelForm):
