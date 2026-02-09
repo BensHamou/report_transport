@@ -322,7 +322,7 @@ class ApproveFileView(APIView):
 
         FileValidation.objects.create(file=file_obj, old_state=old_state, new_state='Approuvé', actor=user)
 
-        return Response({"message": "Fichier approuvé avec succès."}, status=status.HTTP_200_OK)
+        return Response({"message": "Fichier approuvé avec succès.", "firebase_results": results}, status=status.HTTP_200_OK)
 
 class RefuseFileView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -380,7 +380,7 @@ class ApprovePlanningView(APIView):
         user = request.user
         planning_obj = get_object_or_404(Planning, id=planning_id)
         
-        files_to_approve = File.objects.filter(planning=planning_obj, state='Approuvé').exclude(state='Approuvé')
+        files_to_approve = File.objects.filter(planning=planning_obj).exclude(state='Approuvé')
         
         approved_count = 0
         for file_obj in files_to_approve:
@@ -394,10 +394,10 @@ class ApprovePlanningView(APIView):
             target_user = planning_obj.driver.user
             title = "Fichier(s) approuvés"
             body = f"Les fichiers pour le planning {planning_obj.code} ont été approuvés."
-            data = {"planning_id": str(planning_obj.id), "file_id": str(file_obj.id), "type": "file_approved", "planning_code": planning_obj.code}
+            data = {"planning_id": str(planning_obj.id), "type": "file_approved", "planning_code": planning_obj.code}
             results = send_push_to_user(target_user, title, body, data)
 
-        return Response({"message": f"Planning approuvé avec succès. {approved_count} fichier(s) approuvé(s)."}, status=status.HTTP_200_OK)
+        return Response({"message": f"Planning approuvé avec succès. {approved_count} fichier(s) approuvé(s).", "firebase_results": results}, status=status.HTTP_200_OK)
 
 class RefusePlanningView(APIView):
     authentication_classes = [TokenAuthentication]
