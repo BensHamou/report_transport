@@ -38,7 +38,7 @@ class PlanningCommForm(ModelForm):
                   'livraison', 'observation_comm', 'fournisseur', 'tonnage', 'n_bl', 'observation_logi',
                   'chauffeur', 'immatriculation', 'driver', 'vehicle', 'date_honored', 'google_maps_coords']
 
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site")
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select2')), empty_label="Site", required=False)
     date_planning = forms.DateField(initial=timezone.now().date() + timedelta(days=1), widget=forms.widgets.DateInput(attrs= getAttrs('date'), format='%Y-%m-%d'))
 
     distributeur_id = forms.IntegerField(widget=forms.HiddenInput(attrs=getAttrs('controlID','ID_dist_id')))
