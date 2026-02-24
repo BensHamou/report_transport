@@ -39,18 +39,6 @@
                   <h4 class="mx-auto" ><a href="{% url 'home' %}" class="text-reset"><i class="fas fa-home menu_item"></i></a></h4>
                 </div>
               {% endif %}
-              {% if user.role in 'Logisticien,Observateur,Admin' %}
-                <div class="d-flex" style="width: 100%; margin: 10px 15px;">
-                  {% block activeCreateReport %}{% endblock %}
-                  <h4 class="mx-auto"><a href="{% url 'create_report' %}" class="text-reset"><i class="fas fa-file-circle-plus menu_item"></i></a></h4>
-                </div>
-              {% endif %}
-              {% if user.role in 'Logisticien,Observateur,Admin' %}
-                <div class="d-flex" style="width: 100%; margin: 10px 15px;">
-                  {% block activeListReport %}{% endblock %}
-                  <h4 class="mx-auto"><a href="{% url 'reports' %}" class="text-reset"><i class="fas fa-rectangle-list menu_item"></i></a></h4>
-                </div>
-              {% endif %}
               {% if user.role in 'Commercial,Observateur,Admin' %}
                 <div class="d-flex" style="width: 100%; margin: 10px 15px;">
                   {% block activeCreatePlanning %}{% endblock %}
