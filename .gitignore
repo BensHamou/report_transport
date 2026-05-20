@@ -17,4 +17,5 @@ fleet/migrations/*
 !fleet/migrations/__init__.py
 .qodo
 .idea
+.vtrans
 media/

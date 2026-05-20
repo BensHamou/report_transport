@@ -36,8 +36,8 @@ class PlanningFilter(FilterSet):
 
     search = CharFilter(method='filter_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Rapport..')))
     bl_number = CharFilter(field_name='n_bl', lookup_expr='exact', widget=forms.NumberInput(attrs=getAttrs('search', 'Rechercher BL...')))
-    start_date = DateFilter(field_name='date_planning', lookup_expr='gte', widget=forms.widgets.DateInput(attrs= getAttrs('date', other=other), format='%d-%m-%Y'))
-    end_date = DateFilter(field_name='date_planning', lookup_expr='lte', widget=forms.widgets.DateInput(attrs= getAttrs('date', other=other), format='%d-%m-%Y'))
+    start_date = DateFilter(field_name='date_honored', lookup_expr='gte', widget=forms.widgets.DateInput(attrs= getAttrs('date', other=other), format='%d-%m-%Y'))
+    end_date = DateFilter(field_name='date_honored', lookup_expr='lte', widget=forms.widgets.DateInput(attrs= getAttrs('date', other=other), format='%d-%m-%Y'))
     site = ModelChoiceFilter(queryset=Site.objects.all(), widget=forms.Select(attrs= getAttrs('select', other=other)), empty_label="Site")
     state = ChoiceFilter(choices=Planning.STATE_PLANNING, widget=forms.Select(attrs=getAttrs('select', other=other)), empty_label="Etat")
     distru = CharFilter(method='distru_search', widget=forms.TextInput(attrs=getAttrs('search', 'Rechercher Distributeur..')))
